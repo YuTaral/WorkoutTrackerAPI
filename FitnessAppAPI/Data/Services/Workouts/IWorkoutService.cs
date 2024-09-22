@@ -9,9 +9,10 @@ namespace FitnessAppAPI.Data.Services.Workouts
     {
         public WorkoutModel? AddWorkout(WorkoutModel data, string userId);
         public WorkoutModel? GetWorkout(long id);
+        public WorkoutModel? GetWorkoutFromExercise(long exerciseId);
         public WorkoutModel? GetTodayWorkout(string userId);
-        public void AddExercise(ExerciseModel set, long workoutId);
+        public bool AddExercise(ExerciseModel set, long workoutId);
         public bool UpdateExercise(ExerciseModel exercise, long workoutId);
-
+        public long DeleteExercise(long exerciseId);
     }
 }

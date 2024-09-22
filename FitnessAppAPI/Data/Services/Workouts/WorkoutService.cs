@@ -125,7 +125,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <param name="workoutId">
         ///     The workout id
         /// </param>
-        public void AddExercise(ExerciseModel exerciseData, long workoutId) {
+        public bool AddExercise(ExerciseModel exerciseData, long workoutId) {
             var exercise = new Exercise
             {
                 Name = exerciseData.Name,
@@ -152,6 +152,8 @@ namespace FitnessAppAPI.Data.Services.Workouts
                     DBAccess.SaveChanges();
                 }
             }
+
+            return true;
         }
 
         /// <summary>
@@ -223,10 +225,27 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 
             }
 
-
             // Save all changes
             DBAccess.SaveChanges();
             return true;
+        }
+
+        /// <summary>
+        ///     Deletes the exercise with the provided id
+        /// </summary>
+        /// <param name="exerciseId">
+        ///     The exercise id
+        /// </param>
+        public long DeleteExercise(long exerciseId)
+        {
+            var exercise = DBAccess.Exercises.Where(e => e.Id == exerciseId).FirstOrDefault();
+            if (exercise == null) {
+                return 0;
+            }
+
+            DBAccess.Exercises.Remove(exercise);
+            DBAccess.SaveChanges();
+            return exercise.WorkoutId;
         }
 
         /// <summary>
