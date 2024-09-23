@@ -9,6 +9,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
     {
         public WorkoutModel? AddWorkout(WorkoutModel data, string userId);
         public WorkoutModel? GetWorkout(long id);
+        public List<WorkoutModel>? GetWorkouts(String userId);
         public WorkoutModel? GetTodayWorkout(string userId);
         public bool AddExercise(ExerciseModel set, long workoutId);
         public bool UpdateExercise(ExerciseModel exercise, long workoutId);

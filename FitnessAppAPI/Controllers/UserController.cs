@@ -33,7 +33,7 @@ namespace FitnessAppAPI.Controllers
             /// Check if username and password are provided
             if (!requestData.TryGetValue("email", out string? email) || !requestData.TryGetValue("password", out string? password))
             {
-                return ReturnResponse(true, Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL, []);
+                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_REG_FAIL, []);
             }
 
             UserModel? user = await service.Login(email, password);
@@ -41,7 +41,7 @@ namespace FitnessAppAPI.Controllers
             // Success check
             if (user == null)
             {
-                return ReturnResponse(false, Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAILED, []);
+                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_LOGIN_FAILED, []);
             }
 
             // Construct the return data list
@@ -52,7 +52,7 @@ namespace FitnessAppAPI.Controllers
                 returnData.Add(currentWorkout.ToJson());
             }
 
-            return ReturnResponse(false, Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
+            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
         }
 
 
@@ -65,17 +65,17 @@ namespace FitnessAppAPI.Controllers
             /// Check if username and password are provided
             if (!requestData.TryGetValue("email", out string? email) || !requestData.TryGetValue("password", out string? password))
             {
-                return ReturnResponse(true, Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL, []);
+                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_REG_FAIL, []);
             }
 
             string response = await service.Register(email, password);
 
             // Success check
             if (response != Constants.MSG_SUCCESS) {
-                return ReturnResponse(false, Constants.ResponseCode.FAIL, response, []);
+                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, response, []);
             }
 
-            return ReturnResponse(false, Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, []);
+            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, []);
         }
     }
 }

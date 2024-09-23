@@ -1,7 +1,5 @@
 ﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Services.User.Models;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -17,10 +15,9 @@ namespace FitnessAppAPI.Controllers
         ///         - userMessage
         ///         - returnData
         /// </summary>
-        public ActionResult ReturnResponse(bool badRequest, Constants.ResponseCode responseCode, string userMessage, List<string> returnData)
+        public ActionResult ReturnResponse(Constants.ResponseCode responseCode, string userMessage, List<string> returnData)
         {
-            if (badRequest)
-            {
+            if (responseCode == Constants.ResponseCode.BAD_REQUEST) {
                 return BadRequest(new { 
                     responseCode,
                     userMessage,

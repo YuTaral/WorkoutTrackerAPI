@@ -1,6 +1,7 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Workouts.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessAppAPI.Data.Services.Workouts
 {
@@ -96,6 +97,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
             var model = new WorkoutModel {
                 Id = workout.Id,
                 Name = workout.Name,
+                Date = workout.Date,
                 Exercises = [.. DBAccess.Exercises
                             .Where(e => e.WorkoutId == workout.Id)
                             .Select(e => new ExerciseModel {
@@ -262,6 +264,19 @@ namespace FitnessAppAPI.Data.Services.Workouts
             }
 
             return GetWorkoutModelFromWorkout(workout);
+        }
+
+        /// <summary>
+        ///     Fetches the latest workout for the user and returns WorkoutModel list
+        /// </summary>
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
+        public List<WorkoutModel>? GetWorkouts(String userId) {
+            return DBAccess.Workouts.Where(w => w.UserId == userId)
+                                    .OrderByDescending(w => w.Date)
+                                    .ToList()
+                                    .Select(GetWorkoutModelFromWorkout).ToList();
         }
 
     }
