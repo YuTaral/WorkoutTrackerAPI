@@ -32,37 +32,6 @@ namespace FitnessAppAPI.Data.Services.Workouts
             DBAccess.Workouts.Add(workout);
             DBAccess.SaveChanges();
 
-            // Check if we need to add exercises
-            if (data.Exercises != null && data.Exercises.Count > 0) {
-                
-                foreach (ExerciseModel e in data.Exercises) { 
-                    var exercise = new Exercise {
-                        Name = e.Name,
-                        WorkoutId = workout.Id
-                    };
-
-                    DBAccess.Exercises.Add(exercise);
-                    DBAccess.SaveChanges();
-                    
-                    // Check if we need to add sets
-                    if (e.Sets != null && e.Sets.Count > 0) {
-
-                        foreach (SetModel s in e.Sets) {
-                            var set = new Set
-                            {
-                                Reps = s.Reps,
-                                Weight = s.Weight,
-                                Completed = s.Completed,
-                                ExerciseId = exercise.Id
-                            };
-
-                            DBAccess.Sets.Add(set);
-                            DBAccess.SaveChanges();
-                        }
-                    }
-                }
-            }
-
             return GetWorkoutModelFromWorkout(workout);
         }
 
