@@ -47,7 +47,7 @@ namespace FitnessAppAPI.Controllers
             // Construct the return data list
             var returnData = new List<string> { user.ToJson() };
 
-            var currentWorkout = workoutService.GetTodayWorkout(user.Id);
+            var currentWorkout = workoutService.GetLastWorkout(user.Id);
             if (currentWorkout != null) {
                 returnData.Add(currentWorkout.ToJson());
             }

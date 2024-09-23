@@ -67,15 +67,16 @@ namespace FitnessAppAPI.Data.Services.Workouts
         }
 
         /// <summary>
-        ///     Tries to fetch a workout with date = today for the user with the provided id
+        ///     Tries to fetch the last workout for the user with the provided id
         /// </summary>
         /// <param name="userId">
         ///     The user id
         /// </param>
 
-        public WorkoutModel? GetTodayWorkout(string userId) {
+        public WorkoutModel? GetLastWorkout(string userId) {
             var workout = DBAccess.Workouts
                             .Where(w => w.UserId == userId && w.Date.Date == DateTime.Today)
+                            .OrderByDescending(w => w.Date)
                             .FirstOrDefault();
 
             if (workout == null)

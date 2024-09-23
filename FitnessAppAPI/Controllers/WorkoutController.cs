@@ -137,7 +137,7 @@ namespace FitnessAppAPI.Controllers
             /// Check if the neccessary data is provided
             if (userId.IsNullOrEmpty())
             {
-                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_USER_ID_NOT_PROVIDED, []);
+                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_OBJECT_ID_NOT_PROVIDED, []);
             }
 
             var returnData = new List<string> {};
@@ -151,6 +151,22 @@ namespace FitnessAppAPI.Controllers
             }
 
             return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
+        }
+
+        /// <summary>
+        //      GET request to fetch the workout with the provided id
+        /// </summary>
+        [HttpGet("get-workout")]
+        public ActionResult GetWorkout([FromQuery] string workoutId)
+        {
+            /// Check if the neccessary data is provided
+            if (workoutId.IsNullOrEmpty())
+            {
+                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_OBJECT_ID_NOT_PROVIDED, []);
+            }
+
+            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, 
+                [service.GetWorkout(long.Parse(workoutId)).ToJson()]);
         }
     }
 }
