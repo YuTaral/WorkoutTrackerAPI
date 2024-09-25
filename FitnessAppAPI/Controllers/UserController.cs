@@ -48,7 +48,8 @@ namespace FitnessAppAPI.Controllers
             var returnData = new List<string> { user.ToJson() };
 
             var currentWorkout = workoutService.GetLastWorkout(user.Id);
-            if (currentWorkout != null) {
+            if (currentWorkout != null) 
+            {
                 returnData.Add(currentWorkout.ToJson());
             }
 
@@ -71,7 +72,8 @@ namespace FitnessAppAPI.Controllers
             string response = await service.Register(email, password);
 
             // Success check
-            if (response != Constants.MSG_SUCCESS) {
+            if (response != Constants.MSG_SUCCESS) 
+            {
                 return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, response, []);
             }
 

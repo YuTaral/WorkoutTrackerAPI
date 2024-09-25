@@ -17,15 +17,18 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         public ActionResult ReturnResponse(Constants.ResponseCode responseCode, string userMessage, List<string> returnData)
         {
-            if (responseCode == Constants.ResponseCode.BAD_REQUEST) {
-                return BadRequest(new { 
+            if (responseCode == Constants.ResponseCode.BAD_REQUEST) 
+            {
+                return BadRequest(new 
+                { 
                     responseCode,
                     userMessage,
                     returnData
                 });
             }
 
-            return Ok(new { 
+            return Ok(new 
+            { 
                 responseCode, 
                 userMessage, 
                 returnData 

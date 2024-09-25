@@ -1,5 +1,4 @@
 ﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Workouts;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +35,8 @@ namespace FitnessAppAPI.Controllers
             }
 
             WorkoutModel? workoutData = JsonConvert.DeserializeObject<WorkoutModel>(serializedWorkout);
-            if (workoutData == null) { 
+            if (workoutData == null) 
+            { 
                 return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "WorkoutModel"), []);
             }
 
@@ -71,7 +71,8 @@ namespace FitnessAppAPI.Controllers
 
             // Add the exercise
             long id = long.Parse(workoutId);
-            if (service.AddExercise(exerciseData, id)) {
+            if (service.AddExercise(exerciseData, id)) 
+            {
                 return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, [service.GetWorkout(id).ToJson()]);
             } 
 
@@ -99,7 +100,8 @@ namespace FitnessAppAPI.Controllers
 
             // Update the exercise
             long id = long.Parse(workoutId);
-            if (service.UpdateExercise(exerciseData, id)) {
+            if (service.UpdateExercise(exerciseData, id)) 
+            {
                 return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, [service.GetWorkout(id).ToJson()]);
             }
 
@@ -143,7 +145,8 @@ namespace FitnessAppAPI.Controllers
             var returnData = new List<string> {};
             var latestWorkouts = service.GetWorkouts(userId);
 
-            if (latestWorkouts != null) {
+            if (latestWorkouts != null) 
+            {
                 foreach (var w in latestWorkouts)
                 {
                     returnData.Add(w.ToJson());

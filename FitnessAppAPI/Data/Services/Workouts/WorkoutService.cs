@@ -19,11 +19,13 @@ namespace FitnessAppAPI.Data.Services.Workouts
         public WorkoutModel? AddWorkout(WorkoutModel data, string userId)
         {
             // Verify user with this id exists
-            if (!Utils.UserExists(DBAccess, userId)) {
+            if (!Utils.UserExists(DBAccess, userId)) 
+            {
                 return null;
             }
 
-            var workout = new Workout { 
+            var workout = new Workout 
+            { 
                 Name = data.Name,
                 UserId = userId,
                 Date = DateTime.Now,
@@ -43,10 +45,9 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// </param>
 
         public WorkoutModel? GetLastWorkout(string userId) {
-            var workout = DBAccess.Workouts
-                            .Where(w => w.UserId == userId && w.Date.Date == DateTime.Today)
-                            .OrderByDescending(w => w.Date)
-                            .FirstOrDefault();
+            var workout = DBAccess.Workouts.Where(w => w.UserId == userId)
+                                           .OrderByDescending(w => w.Date)
+                                           .FirstOrDefault();
 
             if (workout == null)
             {
@@ -70,17 +71,18 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 Date = workout.Date,
                 Exercises = [.. DBAccess.Exercises
                             .Where(e => e.WorkoutId == workout.Id)
-                            .Select(e => new ExerciseModel {
-                                    Id = e.Id,
-                                    Name = e.Name,
-                                    Sets = DBAccess.Sets
-                                        .Where(s => s.ExerciseId == e.Id)
-                                        .Select(s => new SetModel {
-                                            Id = s.Id,
-                                            Reps = s.Reps,
-                                            Weight = s.Weight,
-                                            Completed = s.Completed
-                                        }).ToList()
+                            .Select(e => new ExerciseModel 
+                            {
+                                Id = e.Id,
+                                Name = e.Name,
+                                Sets = DBAccess.Sets
+                                    .Where(s => s.ExerciseId == e.Id)
+                                    .Select(s => new SetModel {
+                                        Id = s.Id,
+                                        Reps = s.Reps,
+                                        Weight = s.Weight,
+                                        Completed = s.Completed
+                                    }).ToList()
                             }
                             )]
             };
@@ -142,21 +144,24 @@ namespace FitnessAppAPI.Data.Services.Workouts
             var exercise = DBAccess.Exercises.Find(exerciseData.Id);
             var sets = DBAccess.Sets.Where(s => s.ExerciseId == exerciseData.Id).ToList();
             
-            if (exercise == null) {
+            if (exercise == null) 
+            {
                 return false;
             }
 
-            if (!exercise.Name.Equals(exerciseData.Name)) {
+            if (!exercise.Name.Equals(exerciseData.Name)) 
+            {
                 // Update the exercise name if it has been changed
                 exercise.Name = exerciseData.Name;
             }
 
-            if (exerciseData.Sets != null && exerciseData.Sets.Count > 0) {
-
+            if (exerciseData.Sets != null && exerciseData.Sets.Count > 0) 
+            {
                 // Update / add the sets
                 foreach (SetModel s in exerciseData.Sets)
                 {
-                    if (s.Id == 0) {
+                    if (s.Id == 0) 
+                    {
                         // Add new set
                         var set = new Set
                         {
@@ -168,7 +173,8 @@ namespace FitnessAppAPI.Data.Services.Workouts
 
                         DBAccess.Sets.Add(set);
 
-                    } else {
+                    } else 
+                    {
                         // Update the set
                         var set = DBAccess.Sets.Find(s.Id);
 
@@ -181,8 +187,10 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 }
 
                 // Check if we need to remove any sets
-                foreach (Set set in sets) {
-                    if (!exerciseData.Sets.Any(x => x.Id == set.Id)) {
+                foreach (Set set in sets) 
+                {
+                    if (!exerciseData.Sets.Any(x => x.Id == set.Id)) 
+                    {
                         DBAccess.Sets.Remove(set);
                     }
                 }
@@ -191,7 +199,8 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 // Delete all sets for this exercise
                 var setsToRemove = DBAccess.Sets.Where(s => s.ExerciseId == exercise.Id).ToList();
 
-                foreach(Set set in setsToRemove) {
+                foreach(Set set in setsToRemove) 
+                {
                     DBAccess.Sets.Remove(set);
                 }
                 
@@ -211,7 +220,8 @@ namespace FitnessAppAPI.Data.Services.Workouts
         public long DeleteExercise(long exerciseId)
         {
             var exercise = DBAccess.Exercises.Where(e => e.Id == exerciseId).FirstOrDefault();
-            if (exercise == null) {
+            if (exercise == null) 
+            {
                 return 0;
             }
 
@@ -229,7 +239,8 @@ namespace FitnessAppAPI.Data.Services.Workouts
         public WorkoutModel? GetWorkout(long id) {
             var workout = DBAccess.Workouts.Where(w => w.Id == id).FirstOrDefault();
 
-            if (workout == null) {
+            if (workout == null) 
+            {
                 return null;
             }
 
