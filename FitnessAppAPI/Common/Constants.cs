@@ -39,10 +39,9 @@
         /// </summary>
         public class DBConstants
         {
-            public const int WorkoutNameMinLen = 2;
             public const int WorkoutNameMaxLen = 50;
-            public const int ExercisetNameMinLen = 2;
             public const int ExerciseNameMaxLen = 50;
+            public const int MuscleGroupMaxLen = 50;
         }
     }
 }

@@ -14,7 +14,6 @@ namespace FitnessAppAPI.Data.Models
         public long Id { get; set; }
 
         [Required]
-        [MinLength(Constants.DBConstants.ExercisetNameMinLen)]
         [MaxLength(Constants.DBConstants.ExerciseNameMaxLen)]
         public required string Name { get; set; }
 

@@ -5,23 +5,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FitnessAppAPI.Data.Models
 {
     /// <summary>
-    ///     Workout class to represent a row of database table workouts.
+    ///    Muscle Group class to represent a row of database table muscle_groups.
     /// </summary>
-    public class Workout
+    public class MuscleGroup
     {
         [Required]
         [Key]
         public long Id { get; set; }
 
         [Required]
-        [MaxLength(Constants.DBConstants.WorkoutNameMaxLen)]
+        [MaxLength(Constants.DBConstants.MuscleGroupMaxLen)]
         public required string Name { get; set; }
 
-        [Required]
-        [ForeignKey("AspNetUsers")]
-        public required string UserId { get; set; }
-
-        [Required]
-        public DateTime Date { get; set; }
+        [ForeignKey("UserId")]
+        public string? UserId { get; set; }
     }
 }

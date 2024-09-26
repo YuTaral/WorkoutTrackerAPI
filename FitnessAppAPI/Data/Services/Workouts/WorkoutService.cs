@@ -2,6 +2,8 @@
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using System.Collections.Generic;
 
 namespace FitnessAppAPI.Data.Services.Workouts
 {
@@ -34,7 +36,88 @@ namespace FitnessAppAPI.Data.Services.Workouts
             DBAccess.Workouts.Add(workout);
             DBAccess.SaveChanges();
 
+            // Add the Muscle Groups
+            if (data.MuscleGroups != null) 
+            {
+                foreach (var mg in data.MuscleGroups)
+                {
+                    DBAccess.MuscleGroupsToWorkout.Add(new MuscleGroupToWorkout
+                    {
+                        WorkoutId = workout.Id,
+                        MuscleGroupId = mg.Id
+                    });
+                }
+            }
+
+            DBAccess.SaveChanges();
+
             return GetWorkoutModelFromWorkout(workout);
+        }
+
+        /// <summary>
+        ///     Edits the workout from the provided WorkoutModel data
+        /// </summary>
+        public WorkoutModel? EditWorkout(WorkoutModel data, string userId)
+        {
+            // Verify user with this id exists
+            if (!Utils.UserExists(DBAccess, userId))
+            {
+                return null;
+            }
+
+            var workout = DBAccess.Workouts.Where(w => w.Id == data.Id).FirstOrDefault();
+
+            if (workout == null)
+            {
+                return null;
+            }
+
+            // Change the name
+            workout.Name = data.Name;
+
+            // Remove the existing Muscle Groups
+            DeleteMuscleGroupsToWorkoutRecords(workout.Id);
+
+            // Add the selected Muscle Groups
+            if (data.MuscleGroups != null)
+            {
+                foreach (var mg in data.MuscleGroups)
+                {
+                    DBAccess.MuscleGroupsToWorkout.Add(new MuscleGroupToWorkout
+                    {
+                        WorkoutId = workout.Id,
+                        MuscleGroupId = mg.Id
+                    });
+                }
+            }
+
+            DBAccess.Entry(workout).State = EntityState.Modified;
+            DBAccess.SaveChanges();
+
+            return GetWorkoutModelFromWorkout(workout);
+        }
+
+        /// <summary>
+        ///     Deletes the workout with the provided id
+        /// </summary>
+        ///  /// <param name="workoutId">
+        ///     The workout id
+        /// </param>
+        public bool DeleteWorkout(long workoutId) {
+            var workout = DBAccess.Workouts.Where(w => w.Id == workoutId).FirstOrDefault();
+
+            if (workout == null) {
+                return false; 
+            }
+
+            // Delete all records from MuscleGroupsToWorkout for this workout
+            DeleteMuscleGroupsToWorkoutRecords(workoutId);
+
+            // Delete the workout
+            DBAccess.Workouts.Remove(workout);
+            DBAccess.SaveChanges();
+
+            return true;
         }
 
         /// <summary>
@@ -55,39 +138,6 @@ namespace FitnessAppAPI.Data.Services.Workouts
             }
 
             return GetWorkoutModelFromWorkout(workout);
-        }
-
-        /// <summary>
-        ///     Returns WorkoutModel from the provided workout
-        /// </summary>
-        /// <param name="workout">
-        ///     The workout
-        /// </param>
-        private WorkoutModel GetWorkoutModelFromWorkout(Workout workout) {
-
-            var model = new WorkoutModel {
-                Id = workout.Id,
-                Name = workout.Name,
-                Date = workout.Date,
-                Exercises = [.. DBAccess.Exercises
-                            .Where(e => e.WorkoutId == workout.Id)
-                            .Select(e => new ExerciseModel 
-                            {
-                                Id = e.Id,
-                                Name = e.Name,
-                                Sets = DBAccess.Sets
-                                    .Where(s => s.ExerciseId == e.Id)
-                                    .Select(s => new SetModel {
-                                        Id = s.Id,
-                                        Reps = s.Reps,
-                                        Weight = s.Weight,
-                                        Completed = s.Completed
-                                    }).ToList()
-                            }
-                            )]
-            };
-
-            return model;
         }
 
         /// <summary>
@@ -253,12 +303,82 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public List<WorkoutModel>? GetWorkouts(String userId) {
+        public List<WorkoutModel>? GetLatestWorkouts(String userId) {
             return DBAccess.Workouts.Where(w => w.UserId == userId)
                                     .OrderByDescending(w => w.Date)
                                     .ToList()
                                     .Select(GetWorkoutModelFromWorkout).ToList();
         }
 
+        /// <summary>
+        ///     Fetches the default Muscle Groups and the user defined Muscle Groups
+        /// </summary>
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
+        public List<MuscleGroupModel>? GetMuscleGroups(String userId)
+        {
+            return DBAccess.MuscleGroups.Where(m => m.UserId == userId || m.UserId == null)
+                                        .OrderBy(m => m.Id)
+                                        .Select(m => new MuscleGroupModel 
+                                        { 
+                                            Id = m.Id,
+                                            Name = m.Name,
+                                            Checked = false
+                                        }).ToList();
+        }
+
+        /// <summary>
+        ///     Returns WorkoutModel from the provided workout
+        /// </summary>
+        /// <param name="workout">
+        ///     The workout
+        /// </param>
+        private WorkoutModel GetWorkoutModelFromWorkout(Workout workout)
+        {
+            var model = new WorkoutModel
+            {
+                Id = workout.Id,
+                Name = workout.Name,
+                Date = workout.Date,
+                Exercises = [.. DBAccess.Exercises
+                            .Where(e => e.WorkoutId == workout.Id)
+                            .Select(e => new ExerciseModel
+                            {
+                                Id = e.Id,
+                                Name = e.Name,
+                                Sets = DBAccess.Sets.Where(s => s.ExerciseId == e.Id)
+                                                    .Select(s => new SetModel {
+                                                        Id = s.Id,
+                                                        Reps = s.Reps,
+                                                        Weight = s.Weight,
+                                                        Completed = s.Completed
+                                                    }).ToList()
+                            })],
+                MuscleGroups = DBAccess.MuscleGroups.Select(mgm => new MuscleGroupModel
+                                                    {
+                                                        Id = mgm.Id,
+                                                        Name = mgm.Name,
+                                                        Checked = DBAccess.MuscleGroupsToWorkout
+                                                                          .Any(mgw => mgw.WorkoutId == workout.Id && mgw.MuscleGroupId == mgm.Id)
+                                                    })
+                                                    .OrderByDescending(mgm => mgm.Checked)  
+                                                    .ThenBy(mgm => mgm.Id)                  
+                                                    .ToList()
+            };
+
+            return model;
+        }
+
+        /// <summary>
+        ///     Deletes records from MuscleGroupsToWorkout
+        /// </summary>
+        /// <param name="workout">
+        ///     The workout
+        /// </param>
+        private void DeleteMuscleGroupsToWorkoutRecords(long workoutId)
+        {
+            DBAccess.MuscleGroupsToWorkout.RemoveRange(DBAccess.MuscleGroupsToWorkout.Where(mgw => mgw.WorkoutId == workoutId).ToList());
+        }
     }
 }

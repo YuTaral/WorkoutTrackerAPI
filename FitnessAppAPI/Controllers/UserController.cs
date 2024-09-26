@@ -41,7 +41,7 @@ namespace FitnessAppAPI.Controllers
             // Success check
             if (user == null)
             {
-                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_LOGIN_FAILED, []);
+                return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_LOGIN_FAILED, []);
             }
 
             // Construct the return data list

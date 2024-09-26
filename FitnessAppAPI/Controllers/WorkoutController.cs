@@ -1,4 +1,5 @@
 ﻿using FitnessAppAPI.Common;
+using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Workouts;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,7 @@ namespace FitnessAppAPI.Controllers
         [HttpPost("add")]
         public ActionResult Add([FromBody] Dictionary<string, string> requestData)
         {
-            /// Check if the neccessary data is provided
+            // Check if the neccessary data is provided
             if (!requestData.TryGetValue("workout", out string? serializedWorkout) || !requestData.TryGetValue("userId", out string? userId))
             {
                 return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_WORKOUT_ADD_FAIL_NO_DATA, []);
@@ -52,12 +53,63 @@ namespace FitnessAppAPI.Controllers
         }
 
         /// <summary>
+        //      POST request to edit a workout
+        /// </summary>
+        [HttpPost("edit")]
+        public ActionResult Edit([FromBody] Dictionary<string, string> requestData)
+        {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("workout", out string? serializedWorkout) || !requestData.TryGetValue("userId", out string? userId))
+            {
+                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_WORKOUT_ADD_FAIL_NO_DATA, []);
+            }
+
+            WorkoutModel? workoutData = JsonConvert.DeserializeObject<WorkoutModel>(serializedWorkout);
+            if (workoutData == null)
+            {
+                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "WorkoutModel"), []);
+            }
+
+            WorkoutModel? workout = service.EditWorkout(workoutData, userId);
+
+            // Success check
+            if (workout == null)
+            {
+                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_UNEXPECTED_ERROR, []);
+            }
+
+            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, [workout.ToJson()]);
+        }
+
+        /// <summary>
+        //      POST request to delete the workout with the provided id
+        /// </summary>
+        [HttpPost("delete")]
+        public ActionResult Delete([FromQuery] string workoutId)
+        {
+            // Check if the neccessary data is provided
+            if (workoutId.IsNullOrEmpty())
+            {
+                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_OBJECT_ID_NOT_PROVIDED, []);
+            }
+
+            var success = service.DeleteWorkout(long.Parse(workoutId));
+
+            if (success)
+            {
+                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, []);
+            }
+
+            return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
+        }
+
+        /// <summary>
         //      POST request to create a new exercise
         /// </summary>
         [HttpPost("add-exercise")]
         public ActionResult AddExercise([FromBody] Dictionary<string, string> requestData)
         {
-            /// Check if the neccessary data is provided
+            // Check if the neccessary data is provided
             if (!requestData.TryGetValue("exercise", out string? serializedExercise) || !requestData.TryGetValue("workoutId", out string? workoutId))
             {
                 return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_EXERCISE_ADD_FAIL_NO_DATA, []);
@@ -86,7 +138,7 @@ namespace FitnessAppAPI.Controllers
         public ActionResult UpdateExercise([FromBody] Dictionary<string, string> requestData)
         {
 
-            /// Check if the neccessary data is provided
+            // Check if the neccessary data is provided
             if (!requestData.TryGetValue("exercise", out string? serializedExercise) || !requestData.TryGetValue("workoutId", out string? workoutId))
             {
                 return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_EXERCISE_UPDATE_FAIL_NO_DATA, []);
@@ -114,7 +166,7 @@ namespace FitnessAppAPI.Controllers
         [HttpPost("delete-exercise")]
         public ActionResult DeleteExercise([FromBody] long exerciseId)
         {
-            /// Check if the neccessary data is provided
+            // Check if the neccessary data is provided
             if (exerciseId < 1)
             {
                 return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_EXERCISE_DELETE_FAIL_NO_ID, []);
@@ -136,14 +188,14 @@ namespace FitnessAppAPI.Controllers
         [HttpGet("get-workouts")]
         public ActionResult GetLatestWorkouts([FromQuery] string userId)
         {
-            /// Check if the neccessary data is provided
+            // Check if the neccessary data is provided
             if (userId.IsNullOrEmpty())
             {
                 return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_OBJECT_ID_NOT_PROVIDED, []);
             }
 
             var returnData = new List<string> {};
-            var latestWorkouts = service.GetWorkouts(userId);
+            var latestWorkouts = service.GetLatestWorkouts(userId);
 
             if (latestWorkouts != null) 
             {
@@ -162,7 +214,7 @@ namespace FitnessAppAPI.Controllers
         [HttpGet("get-workout")]
         public ActionResult GetWorkout([FromQuery] string workoutId)
         {
-            /// Check if the neccessary data is provided
+            // Check if the neccessary data is provided
             if (workoutId.IsNullOrEmpty())
             {
                 return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_OBJECT_ID_NOT_PROVIDED, []);
@@ -170,6 +222,33 @@ namespace FitnessAppAPI.Controllers
 
             return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, 
                 [service.GetWorkout(long.Parse(workoutId)).ToJson()]);
+        }
+
+        /// <summary>
+        //      GET request to fetch the muscle groups for the user with the provided id
+        /// </summary>
+        [HttpGet("get-muscle-groups")]
+        public ActionResult GetMuscleGroups([FromQuery] string userId)
+        {
+            // Check if the neccessary data is provided
+            if (userId.IsNullOrEmpty())
+            {
+                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_OBJECT_ID_NOT_PROVIDED, []);
+            }
+
+            // Fetch the default and user defined muscle groups
+            var returnData = new List<string> { };
+            var muscleGroups = service.GetMuscleGroups(userId);
+
+            if (muscleGroups != null)
+            {
+                foreach (var mg in muscleGroups)
+                {
+                    returnData.Add(mg.ToJson());
+                }
+            }
+
+            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
         }
     }
 }

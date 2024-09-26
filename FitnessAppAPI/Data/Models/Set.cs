@@ -12,8 +12,11 @@ namespace FitnessAppAPI.Data.Models
         [Required]
         [Key]
         public long Id { get; set; }
+
         public int Reps { get; set; }
+
         public double Weight { get; set; }
+
         [Required]
         public bool Completed { get; set; }
 
