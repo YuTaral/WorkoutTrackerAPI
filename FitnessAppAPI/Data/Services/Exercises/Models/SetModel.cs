@@ -1,4 +1,4 @@
-﻿namespace FitnessAppAPI.Data.Services.Workouts.Models
+﻿namespace FitnessAppAPI.Data.Services.Exercises.Models
 {
     /// <summary>
     ///     SetModel class representing a set, part of exercise.

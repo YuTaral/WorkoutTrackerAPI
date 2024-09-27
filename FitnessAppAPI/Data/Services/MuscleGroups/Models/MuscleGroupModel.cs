@@ -1,4 +1,4 @@
-﻿namespace FitnessAppAPI.Data.Services.Workouts.Models
+﻿namespace FitnessAppAPI.Data.Services.MuscleGroups.Models
 {
     /// <summary>
     ///     MuscleGroupModel class representing a muscle group.

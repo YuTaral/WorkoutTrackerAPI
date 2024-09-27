@@ -4,6 +4,8 @@ using FitnessAppAPI.Data;
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services;
 using FitnessAppAPI.Data.Services.Workouts;
+using FitnessAppAPI.Data.Services.Exercises;
+using FitnessAppAPI.Data.Services.MuscleGroups;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("FitnessAppAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'FitnessAppAPIContextConnection' not found.");
@@ -22,6 +24,9 @@ builder.Services.AddDefaultIdentity<User>(options =>
 
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IWorkoutService, WorkoutService>();
+builder.Services.AddTransient<IExerciseService, ExerciseService>();
+builder.Services.AddTransient<IMuscleGroupService, MuscleGroupService>();
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

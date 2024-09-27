@@ -1,4 +1,7 @@
-﻿namespace FitnessAppAPI.Data.Services.Workouts.Models
+﻿using FitnessAppAPI.Data.Services.Exercises.Models;
+using FitnessAppAPI.Data.Services.MuscleGroups.Models;
+
+namespace FitnessAppAPI.Data.Services.Workouts.Models
 {
     /// <summary>
     ///     WorkoutModel class representing a workout.
