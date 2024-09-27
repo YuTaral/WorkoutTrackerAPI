@@ -164,7 +164,7 @@ namespace FitnessAppAPI.Controllers
         //      POST request to delete an exercise
         /// </summary>
         [HttpPost("delete-exercise")]
-        public ActionResult DeleteExercise([FromBody] long exerciseId)
+        public ActionResult DeleteExercise([FromQuery] long exerciseId)
         {
             // Check if the neccessary data is provided
             if (exerciseId < 1)
@@ -212,16 +212,16 @@ namespace FitnessAppAPI.Controllers
         //      GET request to fetch the workout with the provided id
         /// </summary>
         [HttpGet("get-workout")]
-        public ActionResult GetWorkout([FromQuery] string workoutId)
+        public ActionResult GetWorkout([FromQuery] long workoutId)
         {
             // Check if the neccessary data is provided
-            if (workoutId.IsNullOrEmpty())
+            if (workoutId < 1)
             {
                 return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_OBJECT_ID_NOT_PROVIDED, []);
             }
 
             return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, 
-                [service.GetWorkout(long.Parse(workoutId)).ToJson()]);
+                [service.GetWorkout(workoutId).ToJson()]);
         }
 
         /// <summary>
