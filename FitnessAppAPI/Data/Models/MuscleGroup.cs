@@ -9,12 +9,11 @@ namespace FitnessAppAPI.Data.Models
     /// </summary>
     public class MuscleGroup
     {
-        [Required]
         [Key]
         public long Id { get; set; }
 
-        [Required]
-        [MaxLength(Constants.DBConstants.MuscleGroupMaxLen)]
+        [MinLength(Constants.DBConstants.MinLen1, ErrorMessage = Constants.ValidationErrors.NAME_REQUIRED)]
+        [MaxLength(Constants.DBConstants.MaxLen50, ErrorMessage = Constants.ValidationErrors.NAME_MAX_LEN_50)]
         public required string Name { get; set; }
 
         [ForeignKey("UserId")]

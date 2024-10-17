@@ -9,7 +9,6 @@ namespace FitnessAppAPI.Data.Models
     /// </summary>
     public class Set
     {
-        [Required]
         [Key]
         public long Id { get; set; }
 
@@ -17,12 +16,10 @@ namespace FitnessAppAPI.Data.Models
 
         public double Weight { get; set; }
 
-        [Required]
-        public bool Completed { get; set; }
+        public required bool Completed { get; set; }
 
-        [Required]
         [ForeignKey("Exercise")]
-        public long ExerciseId { get; set; }
+        public required long ExerciseId { get; set; }
 
     }
 }

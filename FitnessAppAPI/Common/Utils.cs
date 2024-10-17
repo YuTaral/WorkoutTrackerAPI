@@ -1,5 +1,7 @@
 ﻿using FitnessAppAPI.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using System.ComponentModel.DataAnnotations;
 using System.Net.Mail;
 
 namespace FitnessAppAPI.Common
@@ -48,6 +50,26 @@ namespace FitnessAppAPI.Common
         /// </summary>
         public static bool UserExists(FitnessAppAPIContext DBAccess, string userId) {
             return DBAccess.Users.Find(userId) != null;
+        }
+
+        /// <summary>
+        ///     Validates whether the model data is valid
+        /// </summary>
+        /// <returns>
+        /// Empty string if it is valid, otherwise returns the errors
+        /// </returns>
+        public static string ValidateModel(object model)
+        {
+            var validationResults = new List<ValidationResult>();
+            var validationContext = new ValidationContext(model, null, null);
+            bool isValid = Validator.TryValidateObject(model, validationContext, validationResults, true);
+
+            if (isValid)
+            {
+                return "";
+            }
+
+            return string.Join(", ", validationResults.Select(vr => vr.ErrorMessage));
         }
     }
 }

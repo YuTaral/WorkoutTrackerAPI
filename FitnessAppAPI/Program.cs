@@ -46,6 +46,7 @@ else {
 }
 
 app.UseRouting();
+
 app.UseAuthorization();
 app.MapControllers();
 

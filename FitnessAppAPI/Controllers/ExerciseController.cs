@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using FitnessAppAPI.Data.Services.Workouts;
 using NuGet.Protocol;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -35,13 +36,19 @@ namespace FitnessAppAPI.Controllers
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("exercise", out string? serializedExercise) || !requestData.TryGetValue("workoutId", out string? workoutId))
             {
-                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_EXERCISE_ADD_FAIL_NO_DATA, []);
+                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_ADD_FAIL_NO_DATA, []);
             }
 
             ExerciseModel? exerciseData = JsonConvert.DeserializeObject<ExerciseModel>(serializedExercise);
             if (exerciseData == null)
             {
-                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "ExerciseModel"), []);
+                return ReturnResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "ExerciseModel"), []);
+            }
+
+            string validationErrors = Utils.ValidateModel(exerciseData);
+            if (!validationErrors.IsNullOrEmpty())
+            {
+                return ReturnResponse(Constants.ResponseCode.FAIL, validationErrors, []);
             }
 
             // Add the exercise
@@ -64,13 +71,19 @@ namespace FitnessAppAPI.Controllers
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("exercise", out string? serializedExercise) || !requestData.TryGetValue("workoutId", out string? workoutId))
             {
-                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_EXERCISE_UPDATE_FAIL_NO_DATA, []);
+                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_UPDATE_FAIL_NO_DATA, []);
             }
 
             ExerciseModel? exerciseData = JsonConvert.DeserializeObject<ExerciseModel>(serializedExercise);
             if (exerciseData == null)
             {
-                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "ExerciseModel"), []);
+                return ReturnResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "ExerciseModel"), []);
+            }
+
+            string validationErrors = Utils.ValidateModel(exerciseData);
+            if (!validationErrors.IsNullOrEmpty())
+            {
+                return ReturnResponse(Constants.ResponseCode.FAIL, validationErrors, []);
             }
 
             // Update the exercise
@@ -92,7 +105,7 @@ namespace FitnessAppAPI.Controllers
             // Check if the neccessary data is provided
             if (exerciseId < 1)
             {
-                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_EXERCISE_DELETE_FAIL_NO_ID, []);
+                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_DELETE_FAIL_NO_ID, []);
             }
 
             // Delete the exercise

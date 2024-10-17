@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using FitnessAppAPI.Common;
 
 namespace FitnessAppAPI.Data.Models
 {
@@ -9,16 +8,12 @@ namespace FitnessAppAPI.Data.Models
     /// </summary>
     public class Exercise
     {
-        [Required]
         [Key]
         public long Id { get; set; }
 
-        [Required]
-        [MaxLength(Constants.DBConstants.ExerciseNameMaxLen)]
         public required string Name { get; set; }
 
-        [Required]
         [ForeignKey("Workout")]
-        public long WorkoutId { get; set; }
+        public required long WorkoutId { get; set; }
     }
 }

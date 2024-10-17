@@ -9,12 +9,10 @@ namespace FitnessAppAPI.Data.Models
     /// </summary>
     public class MuscleGroupToWorkout
     {
-        [Required]
         [ForeignKey("Workouts")]
-        public long WorkoutId { get; set; }
+        public required long WorkoutId { get; set; }
 
-        [Required]
         [ForeignKey("MuscleGroups")]
-        public long MuscleGroupId { get; set; }
+        public required long MuscleGroupId { get; set; }
     }
 }

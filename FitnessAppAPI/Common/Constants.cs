@@ -1,4 +1,6 @@
-﻿namespace FitnessAppAPI.Common
+﻿using Microsoft.AspNetCore.Http;
+
+namespace FitnessAppAPI.Common
 {
     /// <summary>
     ///     Constant class to hold all constant used on the server-side.
@@ -11,7 +13,7 @@
         public enum ResponseCode
         {
             SUCCESS,
-            BAD_REQUEST,
+            FAIL,
             UNEXPECTED_ERROR
         }
 
@@ -32,16 +34,22 @@
         public const string MSG_UNEXPECTED_ERROR = "Unexpected error occurred while proccessing your request. Please try again";
         public const string MSG_OBJECT_ID_NOT_PROVIDED = "Id not provided";
 
-
-
         /// <summary>
         ///     Class containing the DB constants
         /// </summary>
-        public class DBConstants
+        public static class DBConstants
         {
-            public const int WorkoutNameMaxLen = 50;
-            public const int ExerciseNameMaxLen = 50;
-            public const int MuscleGroupMaxLen = 50;
+            public const int MinLen1 = 1;
+            public const int MaxLen50 = 50;
+        }
+
+        /// <summary>
+        ///     Class containing the Validatoin error messages
+        /// </summary>
+        public static class ValidationErrors
+        {
+            public const string NAME_REQUIRED = "Name is required";
+            public const string NAME_MAX_LEN_50 = "Name maximum length is 50";
         }
     }
 }

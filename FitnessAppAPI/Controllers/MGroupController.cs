@@ -28,7 +28,7 @@ namespace FitnessAppAPI.Controllers
             // Check if the neccessary data is provided
             if (userId.IsNullOrEmpty())
             {
-                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_OBJECT_ID_NOT_PROVIDED, []);
+                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED, []);
             }
 
             // Fetch the default and user defined muscle groups

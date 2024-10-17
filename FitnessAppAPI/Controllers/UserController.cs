@@ -33,7 +33,7 @@ namespace FitnessAppAPI.Controllers
             /// Check if username and password are provided
             if (!requestData.TryGetValue("email", out string? email) || !requestData.TryGetValue("password", out string? password))
             {
-                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_REG_FAIL, []);
+                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL, []);
             }
 
             UserModel? user = await service.Login(email, password);
@@ -66,7 +66,7 @@ namespace FitnessAppAPI.Controllers
             /// Check if username and password are provided
             if (!requestData.TryGetValue("email", out string? email) || !requestData.TryGetValue("password", out string? password))
             {
-                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, Constants.MSG_REG_FAIL, []);
+                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL, []);
             }
 
             string response = await service.Register(email, password);
@@ -74,7 +74,7 @@ namespace FitnessAppAPI.Controllers
             // Success check
             if (response != Constants.MSG_SUCCESS) 
             {
-                return ReturnResponse(Constants.ResponseCode.BAD_REQUEST, response, []);
+                return ReturnResponse(Constants.ResponseCode.FAIL, response, []);
             }
 
             return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, []);
