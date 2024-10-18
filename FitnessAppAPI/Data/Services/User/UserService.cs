@@ -2,7 +2,6 @@
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services;
 using FitnessAppAPI.Data.Services.User.Models;
-using Newtonsoft.Json;
 using FitnessAppAPI.Common;
 
 namespace FitnessAppAPI.Data
@@ -95,6 +94,14 @@ namespace FitnessAppAPI.Data
             return userData;
         }
 
+
+        /// <summary>
+        /// Log Out the User
+        /// </summary>
+        public async Task<Boolean> Logout() {
+            await _signInManager.SignOutAsync();
+            return true;
+        }
 
         /// <summary>
         ///     Create a User instance using the Activator.CreateInstance.

@@ -1,4 +1,5 @@
 ﻿using FitnessAppAPI.Common;
+using FitnessAppAPI.Common.Extensions;
 using FitnessAppAPI.Data.Services;
 using FitnessAppAPI.Data.Services.User.Models;
 using FitnessAppAPI.Data.Services.Workouts;
@@ -78,6 +79,24 @@ namespace FitnessAppAPI.Controllers
             }
 
             return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, []);
+        }
+
+        /// <summary>
+        //      POST request to logout the user
+        /// </summary>
+        [HttpPost("logout")]
+        public async Task<ActionResult> Logout()
+        {
+            await service.Logout();
+
+            // Double check the user is logged out successfully
+            var loggedOut = User.GetId() == "";
+
+            if (loggedOut) { 
+                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, []);
+            }
+
+            return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
         }
     }
 }
