@@ -1,8 +1,8 @@
 ﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Common.Extensions;
 using FitnessAppAPI.Data.Services;
 using FitnessAppAPI.Data.Services.User.Models;
 using FitnessAppAPI.Data.Services.Workouts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol;
 
@@ -37,18 +37,18 @@ namespace FitnessAppAPI.Controllers
                 return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL, []);
             }
 
-            UserModel? user = await service.Login(email, password);
+            LoginResponseModel? model = await service.Login(email, password);
 
             // Success check
-            if (user == null)
+            if (model == null)
             {
                 return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_LOGIN_FAILED, []);
             }
 
             // Construct the return data list
-            var returnData = new List<string> { user.ToJson() };
+            var returnData = new List<string> { model.User.ToJson(), model.Token };
 
-            var currentWorkout = workoutService.GetLastWorkout(user.Id);
+            var currentWorkout = workoutService.GetLastWorkout(model.User.Id);
             if (currentWorkout != null) 
             {
                 returnData.Add(currentWorkout.ToJson());
@@ -85,12 +85,13 @@ namespace FitnessAppAPI.Controllers
         //      POST request to logout the user
         /// </summary>
         [HttpPost("logout")]
+        [Authorize]
         public async Task<ActionResult> Logout()
         {
             await service.Logout();
 
             // Double check the user is logged out successfully
-            var loggedOut = User.GetId() == "";
+            var loggedOut = GetUserId() != "";
 
             if (loggedOut) { 
                 return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, []);

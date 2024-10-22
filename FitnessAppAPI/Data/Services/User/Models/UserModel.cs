@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace FitnessAppAPI.Data.Services.User.Models
+﻿namespace FitnessAppAPI.Data.Services.User.Models
 {
     /// <summary>
     ///     UserModel class representing the logged in user.

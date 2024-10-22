@@ -1,11 +1,11 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Services.Workouts;
 using FitnessAppAPI.Data.Services.Workouts.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using NuGet.Protocol;
-using System.ComponentModel.DataAnnotations;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -27,10 +27,11 @@ namespace FitnessAppAPI.Controllers
         //      POST request to create a new workout
         /// </summary>
         [HttpPost("add")]
+        [Authorize]
         public ActionResult Add([FromBody] Dictionary<string, string> requestData)
         {
             // Check if the neccessary data is provided
-            if (!requestData.TryGetValue("workout", out string? serializedWorkout) || !requestData.TryGetValue("userId", out string? userId))
+            if (!requestData.TryGetValue("workout", out string? serializedWorkout))
             {
                 return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_WORKOUT_ADD_FAIL_NO_DATA, []);
             }
@@ -47,7 +48,7 @@ namespace FitnessAppAPI.Controllers
                 return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, validationErrors, []);
             }
 
-            WorkoutModel? workout = service.AddWorkout(workoutData, userId);
+            WorkoutModel? workout = service.AddWorkout(workoutData, GetUserId());
 
             // Success check
             if (workout == null)
@@ -62,10 +63,11 @@ namespace FitnessAppAPI.Controllers
         //      POST request to edit a workout
         /// </summary>
         [HttpPost("edit")]
+        [Authorize]
         public ActionResult Edit([FromBody] Dictionary<string, string> requestData)
         {
             // Check if the neccessary data is provided
-            if (!requestData.TryGetValue("workout", out string? serializedWorkout) || !requestData.TryGetValue("userId", out string? userId))
+            if (!requestData.TryGetValue("workout", out string? serializedWorkout))
             {
                 return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_WORKOUT_ADD_FAIL_NO_DATA, []);
             }
@@ -82,7 +84,7 @@ namespace FitnessAppAPI.Controllers
                 return ReturnResponse(Constants.ResponseCode.FAIL, validationErrors, []);
             }
 
-            WorkoutModel? workout = service.EditWorkout(workoutData, userId);
+            WorkoutModel? workout = service.EditWorkout(workoutData, GetUserId());
 
             // Success check
             if (workout == null)
@@ -97,6 +99,7 @@ namespace FitnessAppAPI.Controllers
         //      POST request to delete the workout with the provided id
         /// </summary>
         [HttpPost("delete")]
+        [Authorize]
         public ActionResult Delete([FromQuery] string workoutId)
         {
             // Check if the neccessary data is provided
@@ -119,16 +122,11 @@ namespace FitnessAppAPI.Controllers
         //      GET request to fetch the latest workouts for user
         /// </summary>
         [HttpGet("get-workouts")]
-        public ActionResult GetLatestWorkouts([FromQuery] string userId)
+        [Authorize]
+        public ActionResult GetLatestWorkouts()
         {
-            // Check if the neccessary data is provided
-            if (userId.IsNullOrEmpty())
-            {
-                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED, []);
-            }
-
             var returnData = new List<string> {};
-            var latestWorkouts = service.GetLatestWorkouts(userId);
+            var latestWorkouts = service.GetLatestWorkouts(GetUserId());
 
             if (latestWorkouts != null) 
             {
@@ -145,6 +143,7 @@ namespace FitnessAppAPI.Controllers
         //      GET request to fetch the workout with the provided id
         /// </summary>
         [HttpGet("get-workout")]
+        [Authorize]
         public ActionResult GetWorkout([FromQuery] long workoutId)
         {
             // Check if the neccessary data is provided

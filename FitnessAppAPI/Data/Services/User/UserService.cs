@@ -3,6 +3,10 @@ using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services;
 using FitnessAppAPI.Data.Services.User.Models;
 using FitnessAppAPI.Common;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace FitnessAppAPI.Data
 {
@@ -67,7 +71,7 @@ namespace FitnessAppAPI.Data
         /// <param name="password">
         ///     The user password.
         /// </param>
-        public async Task<UserModel?> Login(string email, string password)
+        public async Task<LoginResponseModel?> Login(string email, string password)
         {
             // Login attempt
             var result = await _signInManager.PasswordSignInAsync(email, password, true, lockoutOnFailure: false);
@@ -85,13 +89,45 @@ namespace FitnessAppAPI.Data
                 return null; 
             }
 
-            var userData = new UserModel
+            // Generate JwtToken
+            var token = GenerateJwtToken(user);
+
+            var model = new LoginResponseModel
             {
-                Id = user.Id,
-                Email = user.Email
+                User = new UserModel
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                },
+                Token = token
             };
 
-            return userData;
+            return model;
+        }
+
+
+        /// <summary>
+        /// Generate JwtToken for the logged in user
+        /// </summary>
+        private static string GenerateJwtToken(User user)
+        {
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("ThisIsAReallyLongSecretKey12345!"));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: null,
+                audience: null,
+                claims: claims,
+                expires: DateTime.Now.AddDays(14),
+                signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
 

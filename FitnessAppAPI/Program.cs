@@ -6,11 +6,34 @@ using FitnessAppAPI.Data.Services;
 using FitnessAppAPI.Data.Services.Workouts;
 using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services.MuscleGroups;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("FitnessAppAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'FitnessAppAPIContextConnection' not found.");
 
 builder.Services.AddDbContext<FitnessAppAPIContext>(options => options.UseSqlServer(connectionString));
+
+var key = Encoding.ASCII.GetBytes("ThisIsAReallyLongSecretKey12345!");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+});
+
+
 builder.Services.AddDefaultIdentity<User>(options =>
 {
     options.Password.RequireDigit = false;
@@ -20,7 +43,8 @@ builder.Services.AddDefaultIdentity<User>(options =>
     options.Password.RequiredLength = 3;
 })
 .AddRoles<IdentityRole>()
-.AddEntityFrameworkStores<FitnessAppAPIContext>();
+.AddEntityFrameworkStores<FitnessAppAPIContext>()
+.AddDefaultTokenProviders();
 
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IWorkoutService, WorkoutService>();
@@ -47,6 +71,7 @@ else {
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

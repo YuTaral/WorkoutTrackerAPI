@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using FitnessAppAPI.Data.Services.Workouts;
 using NuGet.Protocol;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -31,6 +32,7 @@ namespace FitnessAppAPI.Controllers
         //      POST request to create a new exercise
         /// </summary>
         [HttpPost("add")]
+        [Authorize]
         public ActionResult AddExercise([FromBody] Dictionary<string, string> requestData)
         {
             // Check if the neccessary data is provided
@@ -65,6 +67,7 @@ namespace FitnessAppAPI.Controllers
         //      POST request to update an exercise
         /// </summary>
         [HttpPost("update")]
+        [Authorize]
         public ActionResult UpdateExercise([FromBody] Dictionary<string, string> requestData)
         {
 
@@ -100,6 +103,7 @@ namespace FitnessAppAPI.Controllers
         //      POST request to delete an exercise
         /// </summary>
         [HttpPost("delete")]
+        [Authorize]
         public ActionResult DeleteExercise([FromQuery] long exerciseId)
         {
             // Check if the neccessary data is provided

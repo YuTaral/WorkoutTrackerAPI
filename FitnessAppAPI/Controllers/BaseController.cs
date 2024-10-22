@@ -1,5 +1,6 @@
 ﻿using FitnessAppAPI.Common;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -23,6 +24,16 @@ namespace FitnessAppAPI.Controllers
                 userMessage, 
                 returnData 
             });
+        }
+
+        /// <summary>
+        ///     Used to get the logged in user id
+        /// </summary>
+        /// <returns>
+        ///     UserId if user is logged in, empty string otherwise
+        /// </returns>
+        public string GetUserId() {
+            return User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
         }
     }
 }
