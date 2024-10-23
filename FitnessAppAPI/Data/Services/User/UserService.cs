@@ -19,16 +19,20 @@ namespace FitnessAppAPI.Data
         private readonly IUserStore<User> _userStore;
         private readonly IUserEmailStore<User> _emailStore;
         private readonly SignInManager<User> _signInManager;
+        private readonly IConfiguration _configuration;
+
 
         /// <summary>
         ///     Class constructor.
         /// </summary>
-        public UserService(UserManager<User> userManager, IUserStore<User> userStore, SignInManager<User> signInManager)
+        public UserService(UserManager<User> userManager, IUserStore<User> userStore, SignInManager<User> signInManager,
+                            IConfiguration configuration)
         {
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -92,6 +96,10 @@ namespace FitnessAppAPI.Data
             // Generate JwtToken
             var token = GenerateJwtToken(user);
 
+            if (token == "") {
+                return null;
+            }
+
             var model = new LoginResponseModel
             {
                 User = new UserModel
@@ -109,9 +117,16 @@ namespace FitnessAppAPI.Data
         /// <summary>
         /// Generate JwtToken for the logged in user
         /// </summary>
-        private static string GenerateJwtToken(User user)
+        private string GenerateJwtToken(User user)
         {
-            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("ThisIsAReallyLongSecretKey12345!"));
+            var secretKey = _configuration["JwtSettings:SecretKey"];
+
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                return "";
+            }
+
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]

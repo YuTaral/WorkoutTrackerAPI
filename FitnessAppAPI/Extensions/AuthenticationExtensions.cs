@@ -17,7 +17,14 @@ namespace FitnessAppAPI.Extensions
         /// <returns>The service collection with the added authentication services.</returns>
         public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            var key = Encoding.ASCII.GetBytes("ThisIsAReallyLongSecretKey12345!"); // Secure this key
+            var secretKey = configuration["JwtSettings:SecretKey"];
+
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                throw new ArgumentNullException("JWT secret key is not configured.");
+            }
+
+            var key = Encoding.ASCII.GetBytes(secretKey);
 
             services.AddAuthentication(options =>
             {
