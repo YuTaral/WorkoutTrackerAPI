@@ -17,5 +17,7 @@ namespace FitnessAppAPI.Data.Models
         public required string UserId { get; set; }
 
         public required DateTime Date { get; set; }
+
+        public required string Template { get; set; }
     }
 }

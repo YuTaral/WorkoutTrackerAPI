@@ -3,6 +3,7 @@ using FitnessAppAPI.Data.Services.Workouts;
 using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services.MuscleGroups;
 using FitnessAppAPI.Data;
+using FitnessAppAPI.Data.Services.WorkoutTemplates;
 
 namespace FitnessAppAPI.Extensions
 {
@@ -22,6 +23,7 @@ namespace FitnessAppAPI.Extensions
             services.AddTransient<IWorkoutService, WorkoutService>();
             services.AddTransient<IExerciseService, ExerciseService>();
             services.AddTransient<IMuscleGroupService, MuscleGroupService>();
+            services.AddTransient<IWorkoutTemplateService, WorkoutTemplateService>();
 
             return services;
         }

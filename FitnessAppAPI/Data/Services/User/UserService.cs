@@ -110,6 +110,7 @@ namespace FitnessAppAPI.Data
                 Token = token
             };
 
+
             return model;
         }
 

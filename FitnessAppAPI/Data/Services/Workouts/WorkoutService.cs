@@ -31,6 +31,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 Name = data.Name,
                 UserId = userId,
                 Date = DateTime.Now,
+                Template = "N"
             };
 
             DBAccess.Workouts.Add(workout);
@@ -128,7 +129,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// </param>
 
         public WorkoutModel? GetLastWorkout(string userId) {
-            var workout = DBAccess.Workouts.Where(w => w.UserId == userId)
+            var workout = DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "N")
                                            .OrderByDescending(w => w.Date)
                                            .FirstOrDefault();
 
@@ -164,7 +165,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         ///     The user id
         /// </param>
         public List<WorkoutModel>? GetLatestWorkouts(String userId) {
-            return DBAccess.Workouts.Where(w => w.UserId == userId)
+            return DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "N")
                                     .OrderByDescending(w => w.Date)
                                     .ToList()
                                     .Select(GetWorkoutModelFromWorkout).ToList();
@@ -176,13 +177,14 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <param name="workout">
         ///     The workout
         /// </param>
-        private WorkoutModel GetWorkoutModelFromWorkout(Workout workout)
+        public WorkoutModel GetWorkoutModelFromWorkout(Workout workout)
         {
             var model = new WorkoutModel
             {
                 Id = workout.Id,
                 Name = workout.Name,
                 Date = workout.Date,
+                Template = workout.Template == "Y",
                 Exercises = [.. DBAccess.Exercises
                             .Where(e => e.WorkoutId == workout.Id)
                             .Select(e => new ExerciseModel

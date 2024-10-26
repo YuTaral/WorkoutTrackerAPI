@@ -3,7 +3,7 @@
 namespace FitnessAppAPI.Data.Services.Exercises
 {
     /// <summary>
-    ///     Exercise service interface define the logic for exercise CRUD operations.
+    ///     Exercise service interface to define the logic for exercise CRUD operations.
     /// </summary>
     public interface IExerciseService
     {

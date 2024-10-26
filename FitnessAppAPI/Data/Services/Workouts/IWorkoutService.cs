@@ -1,9 +1,10 @@
-﻿using FitnessAppAPI.Data.Services.Workouts.Models;
+﻿using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services.Workouts.Models;
 
 namespace FitnessAppAPI.Data.Services.Workouts
 {
     /// <summary>
-    ///     Workout service interface define the logic for workout CRUD operations.
+    ///     Workout service interface to define the logic for workout CRUD operations.
     /// </summary>
     public interface IWorkoutService
     {
@@ -13,5 +14,6 @@ namespace FitnessAppAPI.Data.Services.Workouts
         public WorkoutModel? GetWorkout(long id);
         public List<WorkoutModel>? GetLatestWorkouts(String userId);
         public WorkoutModel? GetLastWorkout(string userId);
+        public WorkoutModel GetWorkoutModelFromWorkout(Workout workout);
     }
 }

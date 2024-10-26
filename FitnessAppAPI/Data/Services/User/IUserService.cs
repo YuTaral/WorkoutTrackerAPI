@@ -3,7 +3,7 @@
 namespace FitnessAppAPI.Data.Services
 {
     /// <summary>
-    ///     User service interface define the logic for Login / Register.
+    ///     User service interface to define the logic for Login / Register.
     /// </summary>
     public interface IUserService
     {
