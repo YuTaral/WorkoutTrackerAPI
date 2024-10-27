@@ -11,7 +11,7 @@ namespace FitnessAppAPI.Controllers
     /// </summary>
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/muscle-group")]
     public class MGroupController(IMuscleGroupService s) : BaseController
     {
         /// <summary>
@@ -22,7 +22,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      GET request to fetch the muscle groups for the user with the provided id
         /// </summary>
-        [HttpGet("get-muscle-groups")]
+        [HttpGet("get-by-user")]
         [Authorize]
         public ActionResult GetMuscleGroups()
         {
