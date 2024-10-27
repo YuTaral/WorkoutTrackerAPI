@@ -1,4 +1,5 @@
 ﻿using FitnessAppAPI.Common;
+using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Workouts;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -130,10 +131,7 @@ namespace FitnessAppAPI.Controllers
 
             if (latestWorkouts != null) 
             {
-                foreach (var w in latestWorkouts)
-                {
-                    returnData.Add(w.ToJson());
-                }
+                returnData.AddRange(latestWorkouts.Select(w => w.ToJson()));
             }
 
             return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);

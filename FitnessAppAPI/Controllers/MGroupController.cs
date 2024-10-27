@@ -32,10 +32,7 @@ namespace FitnessAppAPI.Controllers
 
             if (muscleGroups != null)
             {
-                foreach (var mg in muscleGroups)
-                {
-                    returnData.Add(mg.ToJson());
-                }
+                returnData.AddRange(muscleGroups.Select(mg => mg.ToJson()));
             }
 
             return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
