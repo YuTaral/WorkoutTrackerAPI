@@ -1,5 +1,6 @@
 ﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services.Exercises;
+using FitnessAppAPI.Data.Services.Exercises.Models;
 using FitnessAppAPI.Data.Services.Workouts;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -16,12 +17,17 @@ namespace FitnessAppAPI.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public class WorkoutController(IWorkoutService s) : BaseController
+    public class WorkoutController(IWorkoutService s, IExerciseService eService) : BaseController
     {
         /// <summary>
         //      WorkoutService instance
         /// </summary>
         private readonly IWorkoutService service = s;
+
+        /// <summary>
+        //      ExerciseService instance
+        /// </summary>
+        private readonly IExerciseService exerciseService = eService;
 
 
         /// <summary>
@@ -55,6 +61,15 @@ namespace FitnessAppAPI.Controllers
             if (workout == null)
             {
                 return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
+            }
+
+            // Check if this is template and add the exercises if so
+            if (workoutData.Template && workoutData.Exercises != null) {
+                foreach (ExerciseModel e in workoutData.Exercises) {
+                    exerciseService.AddExercise(e, workout.Id);
+                }
+
+                workout = service.GetWorkout(workout.Id);
             }
 
             return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, [workout.ToJson()]);
