@@ -72,7 +72,7 @@ namespace FitnessAppAPI.Controllers
                 workout = service.GetWorkout(workout.Id);
             }
 
-            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, [workout.ToJson()]);
+            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_WORKOUT_ADDED, [workout.ToJson()]);
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace FitnessAppAPI.Controllers
                 return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
             }
 
-            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, [workout.ToJson()]);
+            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_WORKOUT_UPDATED, [workout.ToJson()]);
         }
 
         /// <summary>
@@ -124,11 +124,9 @@ namespace FitnessAppAPI.Controllers
                 return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED, []);
             }
 
-            var success = service.DeleteWorkout(long.Parse(workoutId));
-
-            if (success)
+            if (service.DeleteWorkout(long.Parse(workoutId)))
             {
-                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, []);
+                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_WORKOUT_DELETED, []);
             }
 
             return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);

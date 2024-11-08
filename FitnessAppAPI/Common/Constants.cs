@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FitnessAppAPI.Data.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace FitnessAppAPI.Common
 {
@@ -34,7 +35,15 @@ namespace FitnessAppAPI.Common
         public const string MSG_UNEXPECTED_ERROR = "Unexpected error occurred while proccessing your request. Please try again";
         public const string MSG_OBJECT_ID_NOT_PROVIDED = "Id not provided";
         public const string MSG_NO_TEMPLATES = "You don\'t have any workout templates yet. Use the top right menu button to create template";
-        public const string MSG_TEMPLATE_DELETED = "Template has been deleted";
+        public const string MSG_USER_REGISTER_SUCCESS = "User registered successfully";
+        public const string MSG_WORKOUT_DELETED = "Workout deleted";
+        public const string MSG_WORKOUT_ADDED = "Workout added";
+        public const string MSG_WORKOUT_UPDATED = "Workout updated";
+        public const string MSG_EX_DELETED = "Exercise deleted";
+        public const string MSG_EX_ADDED = "Exercise added";
+        public const string MSG_EX_UPDATED = "Exercise updated";
+        public const string MSG_TEMPLATE_ADDED = "Workout template added";
+        public const string MSG_TEMPLATE_DELETED = "Workout template deleted";
 
         /// <summary>
         ///     Class containing the DB constants

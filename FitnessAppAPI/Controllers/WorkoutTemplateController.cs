@@ -56,7 +56,7 @@ namespace FitnessAppAPI.Controllers
                 return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
             }
 
-            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, []);
+            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_ADDED, []);
         }
 
         /// <summary>

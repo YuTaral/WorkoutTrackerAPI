@@ -78,7 +78,7 @@ namespace FitnessAppAPI.Controllers
                 return ReturnResponse(Constants.ResponseCode.FAIL, response, []);
             }
 
-            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, []);
+            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_REGISTER_SUCCESS, []);
         }
 
         /// <summary>

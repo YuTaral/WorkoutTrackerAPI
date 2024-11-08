@@ -57,7 +57,7 @@ namespace FitnessAppAPI.Controllers
             long id = long.Parse(workoutId);
             if (service.AddExercise(exerciseData, id))
             {
-                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, [workoutService.GetWorkout(id).ToJson()]);
+                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED, [workoutService.GetWorkout(id).ToJson()]);
             }
 
             return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
@@ -93,7 +93,7 @@ namespace FitnessAppAPI.Controllers
             long id = long.Parse(workoutId);
             if (service.UpdateExercise(exerciseData, id))
             {
-                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, [workoutService.GetWorkout(id).ToJson()]);
+                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_UPDATED, [workoutService.GetWorkout(id).ToJson()]);
             }
 
             return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
@@ -116,7 +116,7 @@ namespace FitnessAppAPI.Controllers
             var workoutId = service.DeleteExercise(exerciseId);
             if (workoutId > 0)
             {
-                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, [workoutService.GetWorkout(workoutId).ToJson()]);
+                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_DELETED, [workoutService.GetWorkout(workoutId).ToJson()]);
             }
 
             return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
