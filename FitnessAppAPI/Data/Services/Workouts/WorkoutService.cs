@@ -4,6 +4,7 @@ using FitnessAppAPI.Data.Services.Workouts.Models;
 using FitnessAppAPI.Data.Services.Exercises.Models;
 using Microsoft.EntityFrameworkCore;
 using FitnessAppAPI.Data.Services.MuscleGroups.Models;
+using FitnessAppAPI.Data.Services.MuscleGroups;
 
 namespace FitnessAppAPI.Data.Services.Workouts
 {
@@ -11,9 +12,10 @@ namespace FitnessAppAPI.Data.Services.Workouts
     ///     Workout service class to implement IWorkoutService interface.
     /// </summary>
 
-    public class WorkoutService(FitnessAppAPIContext DB) : IWorkoutService
+    public class WorkoutService(FitnessAppAPIContext DB, IMuscleGroupService mgService) : IWorkoutService
     {
         private readonly FitnessAppAPIContext DBAccess = DB;
+        private readonly IMuscleGroupService musclegroupService = mgService;
 
         /// <summary>
         ///     Adds new workout from the provided WorkoutModel data
@@ -77,7 +79,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
             workout.Name = data.Name;
 
             // Remove the existing Muscle Groups
-            DeleteMuscleGroupsToWorkoutRecords(workout.Id);
+            musclegroupService.DeleteMuscleGroupsToWorkoutRecords(workout.Id);
 
             // Add the selected Muscle Groups
             if (data.MuscleGroups != null)
@@ -112,7 +114,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
             }
 
             // Delete all records from MuscleGroupsToWorkout for this workout
-            DeleteMuscleGroupsToWorkoutRecords(workoutId);
+            musclegroupService.DeleteMuscleGroupsToWorkoutRecords(workoutId);
 
             // Delete the workout
             DBAccess.Workouts.Remove(workout);
@@ -212,17 +214,6 @@ namespace FitnessAppAPI.Data.Services.Workouts
             };
 
             return model;
-        }
-
-        /// <summary>
-        ///     Deletes records from MuscleGroupsToWorkout
-        /// </summary>
-        /// <param name="workout">
-        ///     The workout
-        /// </param>
-        private void DeleteMuscleGroupsToWorkoutRecords(long workoutId)
-        {
-            DBAccess.MuscleGroupsToWorkout.RemoveRange(DBAccess.MuscleGroupsToWorkout.Where(mgw => mgw.WorkoutId == workoutId).ToList());
         }
     }
 }

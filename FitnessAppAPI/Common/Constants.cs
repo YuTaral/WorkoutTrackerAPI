@@ -34,6 +34,7 @@ namespace FitnessAppAPI.Common
         public const string MSG_UNEXPECTED_ERROR = "Unexpected error occurred while proccessing your request. Please try again";
         public const string MSG_OBJECT_ID_NOT_PROVIDED = "Id not provided";
         public const string MSG_NO_TEMPLATES = "You don\'t have any workout templates yet. Use the top right menu button to create template";
+        public const string MSG_TEMPLATE_DELETED = "Template has been deleted";
 
         /// <summary>
         ///     Class containing the DB constants

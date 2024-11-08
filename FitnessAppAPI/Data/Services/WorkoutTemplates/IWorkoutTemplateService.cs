@@ -8,6 +8,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
     public interface IWorkoutTemplateService
     {
         public bool AddWorkoutTemplate(WorkoutModel data, string userId);
+        public bool DeleteWorkoutTemplate(long templateId);
         public List<WorkoutModel> GetWorkoutTemplates(string userId);
     }
 }

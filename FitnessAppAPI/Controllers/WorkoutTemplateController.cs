@@ -1,4 +1,6 @@
 ﻿using FitnessAppAPI.Common;
+using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services.Workouts;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using FitnessAppAPI.Data.Services.WorkoutTemplates;
 using Microsoft.AspNetCore.Authorization;
@@ -55,6 +57,30 @@ namespace FitnessAppAPI.Controllers
             }
 
             return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, []);
+        }
+
+        /// <summary>
+        //      POST request to delete the workout template
+        /// </summary>
+        [HttpPost("delete")]
+        [Authorize]
+        public ActionResult Delete([FromQuery] long templateId)
+        {
+            // Check if the neccessary data is provided
+            if (templateId < 1)
+            {
+                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_DELETE_FAIL_NO_ID, []);
+            }
+
+            // Delete the template
+            var success = service.DeleteWorkoutTemplate(templateId);
+
+            if (success)
+            {
+                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_DELETED, []);
+            }
+
+            return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
         }
 
         /// <summary>

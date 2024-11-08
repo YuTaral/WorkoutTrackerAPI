@@ -2,6 +2,7 @@
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services.Exercises.Models;
+using FitnessAppAPI.Data.Services.MuscleGroups;
 using FitnessAppAPI.Data.Services.Workouts;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 
@@ -12,11 +13,13 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
     /// </summary>
     public class WorkoutTemplateService(FitnessAppAPIContext DB, 
                                         IWorkoutService wService, 
-                                        IExerciseService exService) : IWorkoutTemplateService
+                                        IExerciseService exService,
+                                        IMuscleGroupService mgService) : IWorkoutTemplateService
     {
         private readonly FitnessAppAPIContext DBAccess = DB;
         private readonly IWorkoutService workoutService = wService;
         private readonly IExerciseService exerciseService = exService;
+        private readonly IMuscleGroupService musclegroupService = mgService;
 
         /// <summary>
         ///     Adds new workout template from the provided WorkoutModel data
@@ -61,6 +64,25 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
                     exerciseService.AddExercise(exerciseData, template.Id);
                 }
             }
+
+            return true;
+        }
+
+        // <summary>
+        ///    Deletes the template with the provided id
+        /// </summary>
+        public bool DeleteWorkoutTemplate(long templateId) {
+            var template = DBAccess.Workouts.Where(w => w.Id == templateId && w.Template == "Y").FirstOrDefault();
+
+            if (template == null) {
+                return false;
+            }
+
+            // Delete the muscle groups for this template
+            musclegroupService.DeleteMuscleGroupsToWorkoutRecords(template.Id);
+
+            DBAccess.Workouts.Remove(template);
+            DBAccess.SaveChanges();
 
             return true;
         }
