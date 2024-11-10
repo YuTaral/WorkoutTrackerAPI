@@ -19,7 +19,5 @@ namespace FitnessAppAPI.Data.Services.Workouts.Models
         public required DateTime Date { get; set; }
         public required bool Template { get; set; }
         public List<ExerciseModel>? Exercises { get; set; }
-        public List<MuscleGroupModel>? MuscleGroups { get; set; }
-
     }
 }

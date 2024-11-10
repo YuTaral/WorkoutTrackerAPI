@@ -70,58 +70,58 @@ namespace FitnessAppAPI.Migrations
                         new
                         {
                             Id = 1L,
-                            Name = "Full Body"
+                            Name = "Abs"
                         },
                         new
                         {
                             Id = 2L,
-                            Name = "Upper Body"
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            Name = "Lower Body"
-                        },
-                        new
-                        {
-                            Id = 4L,
-                            Name = "Legs"
-                        },
-                        new
-                        {
-                            Id = 5L,
                             Name = "Back"
                         },
                         new
                         {
-                            Id = 6L,
+                            Id = 3L,
+                            Name = "Biceps"
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            Name = "Calves"
+                        },
+                        new
+                        {
+                            Id = 5L,
                             Name = "Chest"
                         },
                         new
                         {
+                            Id = 6L,
+                            Name = "Forearms"
+                        },
+                        new
+                        {
                             Id = 7L,
-                            Name = "Shoulders"
+                            Name = "Glutes"
                         },
                         new
                         {
                             Id = 8L,
-                            Name = "Arms"
+                            Name = "Hamstrigs"
+                        },
+                        new
+                        {
+                            Id = 9L,
+                            Name = "Quadtriceps"
+                        },
+                        new
+                        {
+                            Id = 10L,
+                            Name = "Shoulders"
+                        },
+                        new
+                        {
+                            Id = 11L,
+                            Name = "Triceps"
                         });
-                });
-
-            modelBuilder.Entity("FitnessAppAPI.Data.Models.MuscleGroupToWorkout", b =>
-                {
-                    b.Property<long>("WorkoutId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("MuscleGroupId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("WorkoutId", "MuscleGroupId");
-
-                    b.HasIndex("MuscleGroupId");
-
-                    b.ToTable("MuscleGroupsToWorkout");
                 });
 
             modelBuilder.Entity("FitnessAppAPI.Data.Models.Set", b =>
@@ -398,21 +398,6 @@ namespace FitnessAppAPI.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("FitnessAppAPI.Data.Models.MuscleGroupToWorkout", b =>
-                {
-                    b.HasOne("FitnessAppAPI.Data.Models.MuscleGroup", null)
-                        .WithMany()
-                        .HasForeignKey("MuscleGroupId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("FitnessAppAPI.Data.Models.Workout", null)
-                        .WithMany()
-                        .HasForeignKey("WorkoutId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("FitnessAppAPI.Data.Models.Set", b =>

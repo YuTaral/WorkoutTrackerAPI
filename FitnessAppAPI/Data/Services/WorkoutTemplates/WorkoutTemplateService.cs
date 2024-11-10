@@ -43,21 +43,6 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
             DBAccess.Workouts.Add(template);
             DBAccess.SaveChanges();
 
-            // Add the Muscle Groups
-            if (data.MuscleGroups != null)
-            {
-                foreach (var mg in data.MuscleGroups)
-                {
-                    DBAccess.MuscleGroupsToWorkout.Add(new MuscleGroupToWorkout
-                    {
-                        WorkoutId = template.Id,
-                        MuscleGroupId = mg.Id
-                    });
-                }
-            }
-
-            DBAccess.SaveChanges();
-
             // Add the Exercises and sets
             if (data.Exercises != null) {
                 foreach (ExerciseModel exerciseData in data.Exercises) {
@@ -77,9 +62,6 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
             if (template == null) {
                 return false;
             }
-
-            // Delete the muscle groups for this template
-            musclegroupService.DeleteMuscleGroupsToWorkoutRecords(template.Id);
 
             DBAccess.Workouts.Remove(template);
             DBAccess.SaveChanges();

@@ -8,6 +8,5 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups
     public interface IMuscleGroupService
     {
         public List<MuscleGroupModel>? GetMuscleGroups(string userId);
-        public void DeleteMuscleGroupsToWorkoutRecords(long recordId);
     }
 }

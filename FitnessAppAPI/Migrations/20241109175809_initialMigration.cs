@@ -184,9 +184,10 @@ namespace FitnessAppAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Template = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -205,7 +206,7 @@ namespace FitnessAppAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     WorkoutId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
@@ -217,28 +218,6 @@ namespace FitnessAppAPI.Migrations
                         principalTable: "Workouts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MuscleGroupsToWorkout",
-                columns: table => new
-                {
-                    WorkoutId = table.Column<long>(type: "bigint", nullable: false),
-                    MuscleGroupId = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MuscleGroupsToWorkout", x => new { x.WorkoutId, x.MuscleGroupId });
-                    table.ForeignKey(
-                        name: "FK_MuscleGroupsToWorkout_MuscleGroups_MuscleGroupId",
-                        column: x => x.MuscleGroupId,
-                        principalTable: "MuscleGroups",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_MuscleGroupsToWorkout_Workouts_WorkoutId",
-                        column: x => x.WorkoutId,
-                        principalTable: "Workouts",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -268,14 +247,17 @@ namespace FitnessAppAPI.Migrations
                 columns: new[] { "Id", "Name", "UserId" },
                 values: new object[,]
                 {
-                    { 1L, "Full Body", null },
-                    { 2L, "Upper Body", null },
-                    { 3L, "Lower Body", null },
-                    { 4L, "Legs", null },
-                    { 5L, "Back", null },
-                    { 6L, "Chest", null },
-                    { 7L, "Shoulders", null },
-                    { 8L, "Arms", null }
+                    { 1L, "Abs", null },
+                    { 2L, "Back", null },
+                    { 3L, "Biceps", null },
+                    { 4L, "Calves", null },
+                    { 5L, "Chest", null },
+                    { 6L, "Forearms", null },
+                    { 7L, "Glutes", null },
+                    { 8L, "Hamstrigs", null },
+                    { 9L, "Quadtriceps", null },
+                    { 10L, "Shoulders", null },
+                    { 11L, "Triceps", null }
                 });
 
             migrationBuilder.CreateIndex(
@@ -328,11 +310,6 @@ namespace FitnessAppAPI.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MuscleGroupsToWorkout_MuscleGroupId",
-                table: "MuscleGroupsToWorkout",
-                column: "MuscleGroupId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Sets_ExerciseId",
                 table: "Sets",
                 column: "ExerciseId");
@@ -362,16 +339,13 @@ namespace FitnessAppAPI.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "MuscleGroupsToWorkout");
+                name: "MuscleGroups");
 
             migrationBuilder.DropTable(
                 name: "Sets");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "MuscleGroups");
 
             migrationBuilder.DropTable(
                 name: "Exercises");

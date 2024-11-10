@@ -39,21 +39,6 @@ namespace FitnessAppAPI.Data.Services.Workouts
             DBAccess.Workouts.Add(workout);
             DBAccess.SaveChanges();
 
-            // Add the Muscle Groups
-            if (data.MuscleGroups != null) 
-            {
-                foreach (var mg in data.MuscleGroups)
-                {
-                    DBAccess.MuscleGroupsToWorkout.Add(new MuscleGroupToWorkout
-                    {
-                        WorkoutId = workout.Id,
-                        MuscleGroupId = mg.Id
-                    });
-                }
-            }
-
-            DBAccess.SaveChanges();
-
             return GetWorkoutModelFromWorkout(workout);
         }
 
@@ -78,22 +63,6 @@ namespace FitnessAppAPI.Data.Services.Workouts
             // Change the name
             workout.Name = data.Name;
 
-            // Remove the existing Muscle Groups
-            musclegroupService.DeleteMuscleGroupsToWorkoutRecords(workout.Id);
-
-            // Add the selected Muscle Groups
-            if (data.MuscleGroups != null)
-            {
-                foreach (var mg in data.MuscleGroups)
-                {
-                    DBAccess.MuscleGroupsToWorkout.Add(new MuscleGroupToWorkout
-                    {
-                        WorkoutId = workout.Id,
-                        MuscleGroupId = mg.Id
-                    });
-                }
-            }
-
             DBAccess.Entry(workout).State = EntityState.Modified;
             DBAccess.SaveChanges();
 
@@ -112,9 +81,6 @@ namespace FitnessAppAPI.Data.Services.Workouts
             if (workout == null) {
                 return false; 
             }
-
-            // Delete all records from MuscleGroupsToWorkout for this workout
-            musclegroupService.DeleteMuscleGroupsToWorkoutRecords(workoutId);
 
             // Delete the workout
             DBAccess.Workouts.Remove(workout);
@@ -200,17 +166,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
                                                         Weight = s.Weight,
                                                         Completed = s.Completed
                                                     }).ToList()
-                            })],
-                MuscleGroups = DBAccess.MuscleGroups.Select(mgm => new MuscleGroupModel
-                                                    {
-                                                        Id = mgm.Id,
-                                                        Name = mgm.Name,
-                                                        Checked = DBAccess.MuscleGroupsToWorkout
-                                                                          .Any(mgw => mgw.WorkoutId == workout.Id && mgw.MuscleGroupId == mgm.Id)
-                                                    })
-                                                    .OrderByDescending(mgm => mgm.Checked)  
-                                                    .ThenBy(mgm => mgm.Id)                  
-                                                    .ToList()
+                            })]
             };
 
             return model;

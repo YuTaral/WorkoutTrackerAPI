@@ -26,16 +26,5 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups
                                             Checked = false
                                         }).ToList();
         }
-
-        /// <summary>
-        ///     Deletes records from MuscleGroupsToWorkout
-        /// </summary>
-        /// <param name="recordId">
-        ///     The workout id
-        /// </param>
-        public void DeleteMuscleGroupsToWorkoutRecords(long recordId)
-        {
-            DBAccess.MuscleGroupsToWorkout.RemoveRange(DBAccess.MuscleGroupsToWorkout.Where(mgw => mgw.WorkoutId == recordId).ToList());
-        }
     }
 }
