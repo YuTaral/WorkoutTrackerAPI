@@ -23,7 +23,8 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups
                                         {
                                             Id = m.Id,
                                             Name = m.Name,
-                                            Checked = false
+                                            Checked = false,
+                                            ImageName = m.ImageName,
                                         }).ToList();
         }
     }

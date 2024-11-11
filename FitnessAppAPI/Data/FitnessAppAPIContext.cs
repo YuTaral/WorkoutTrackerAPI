@@ -47,7 +47,19 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .OnDelete(DeleteBehavior.Cascade);
 
         // Add the default Muscle Groups
-       
+        modelBuilder.Entity<MuscleGroup>().HasData(
+           new MuscleGroup { Id = 1, Name = "Abs", ImageName = "icon_mg_abs", Default = "Y" },
+           new MuscleGroup { Id = 2, Name = "Back", ImageName = "icon_mg_back", Default = "Y" },
+           new MuscleGroup { Id = 3, Name = "Biceps", ImageName = "icon_mg_biceps", Default = "Y" },
+           new MuscleGroup { Id = 4, Name = "Calves", ImageName = "icon_mg_calves", Default = "Y" },
+           new MuscleGroup { Id = 5, Name = "Chest", ImageName = "icon_mg_chest", Default = "Y" },
+           new MuscleGroup { Id = 6, Name = "Forearms", ImageName = "icon_mg_forearms", Default = "Y" },
+           new MuscleGroup { Id = 7, Name = "Glutes", ImageName = "icon_mg_glutes", Default = "Y" },
+           new MuscleGroup { Id = 8, Name = "Hamstrigs", ImageName = "icon_mg_hamstrings", Default = "Y" },
+           new MuscleGroup { Id = 9, Name = "Quadtriceps", ImageName = "icon_mg_quadtriceps", Default = "Y" },
+           new MuscleGroup { Id = 10, Name = "Shoulders", ImageName = "icon_mg_shoulders", Default = "Y" },
+           new MuscleGroup { Id = 11, Name = "Triceps", ImageName = "icon_mg_triceps", Default = "Y" }
+       );
 
     }
 }

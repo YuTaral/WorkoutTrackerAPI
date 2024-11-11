@@ -18,5 +18,9 @@ namespace FitnessAppAPI.Data.Models
 
         [ForeignKey("UserId")]
         public string? UserId { get; set; }
+
+        public required string ImageName { get; set; }
+
+        public required string Default { get; set; }
     }
 }

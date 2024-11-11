@@ -4,6 +4,7 @@ using FitnessAppAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitnessAppAPI.Migrations
 {
     [DbContext(typeof(FitnessAppAPIContext))]
-    partial class FitnessAppAPIContextModelSnapshot : ModelSnapshot
+    [Migration("20241111163803_addedImageNameAndDefaultColumnsToMuscleGroupsTable")]
+    partial class addedImageNameAndDefaultColumnsToMuscleGroupsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,77 +82,77 @@ namespace FitnessAppAPI.Migrations
                         {
                             Id = 1L,
                             Default = "Y",
-                            ImageName = "icon_mg_abs",
+                            ImageName = "icon_mg_abs.png",
                             Name = "Abs"
                         },
                         new
                         {
                             Id = 2L,
                             Default = "Y",
-                            ImageName = "icon_mg_back",
+                            ImageName = "icon_mg_back.png",
                             Name = "Back"
                         },
                         new
                         {
                             Id = 3L,
                             Default = "Y",
-                            ImageName = "icon_mg_biceps",
+                            ImageName = "icon_mg_biceps.png",
                             Name = "Biceps"
                         },
                         new
                         {
                             Id = 4L,
                             Default = "Y",
-                            ImageName = "icon_mg_calves",
+                            ImageName = "icon_mg_calves.png",
                             Name = "Calves"
                         },
                         new
                         {
                             Id = 5L,
                             Default = "Y",
-                            ImageName = "icon_mg_chest",
+                            ImageName = "icon_mg_chest.png",
                             Name = "Chest"
                         },
                         new
                         {
                             Id = 6L,
                             Default = "Y",
-                            ImageName = "icon_mg_forearms",
+                            ImageName = "icon_mg_forearms.png",
                             Name = "Forearms"
                         },
                         new
                         {
                             Id = 7L,
                             Default = "Y",
-                            ImageName = "icon_mg_glutes",
+                            ImageName = "icon_mg_glutes.png",
                             Name = "Glutes"
                         },
                         new
                         {
                             Id = 8L,
                             Default = "Y",
-                            ImageName = "icon_mg_hamstrings",
+                            ImageName = "icon_mg_hamstrings.png",
                             Name = "Hamstrigs"
                         },
                         new
                         {
                             Id = 9L,
                             Default = "Y",
-                            ImageName = "icon_mg_quadtriceps",
+                            ImageName = "icon_mg_quadtriceps.png",
                             Name = "Quadtriceps"
                         },
                         new
                         {
                             Id = 10L,
                             Default = "Y",
-                            ImageName = "icon_mg_shoulders",
+                            ImageName = "icon_mg_shoulders.png",
                             Name = "Shoulders"
                         },
                         new
                         {
                             Id = 11L,
                             Default = "Y",
-                            ImageName = "icon_mg_triceps",
+                            ImageName = "icon_mg_triceps.png",
                             Name = "Triceps"
                         });
                 });
