@@ -29,9 +29,9 @@ namespace FitnessAppAPI.Controllers
         private readonly IWorkoutService workoutService = ws;
 
         /// <summary>
-        //      POST request to create a new exercise
+        //      POST request to add a new exercise to workout
         /// </summary>
-        [HttpPost("add")]
+        [HttpPost("add-to-workout")]
         [Authorize]
         public ActionResult AddExercise([FromBody] Dictionary<string, string> requestData)
         {
@@ -55,7 +55,7 @@ namespace FitnessAppAPI.Controllers
 
             // Add the exercise
             long id = long.Parse(workoutId);
-            if (service.AddExercise(exerciseData, id))
+            if (service.AddExerciseToWorkout(exerciseData, id))
             {
                 return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED, [workoutService.GetWorkout(id).ToJson()]);
             }
@@ -120,6 +120,30 @@ namespace FitnessAppAPI.Controllers
             }
 
             return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
+        }
+
+        /// <summary>
+        //      GET request to fetch the exercise for muscle groups with the provided id
+        /// </summary>
+        [HttpGet("get-by-mg-id")]
+        [Authorize]
+        public ActionResult GetExercisesForMuscleGroup([FromQuery] long muscleGroupId)
+        {
+            // Check if the neccessary data is provided
+            if (muscleGroupId < 1)
+            {
+                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_GET_EXERCISES_FOR_MG_FAILED, []);
+            }
+
+            var exercises = service.GetExercisesForMG(muscleGroupId);
+            var returnData = new List<string> { };
+
+            if (exercises != null)
+            {
+                returnData.AddRange(exercises.Select(e => e.ToJson()));
+            }
+
+            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
         }
     }
 }

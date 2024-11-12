@@ -1,5 +1,6 @@
 ﻿using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Exercises.Models;
+using FitnessAppAPI.Data.Services.MuscleGroups.Models;
 
 namespace FitnessAppAPI.Data.Services.Exercises
 {
@@ -19,7 +20,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="workoutId">
         ///     The workout id
         /// </param>
-        public bool AddExercise(ExerciseModel exerciseData, long workoutId)
+        public bool AddExerciseToWorkout(ExerciseModel exerciseData, long workoutId)
         {
             var exercise = new Exercise
             {
@@ -156,5 +157,19 @@ namespace FitnessAppAPI.Data.Services.Exercises
             return exercise.WorkoutId;
         }
 
+        /// <summary>
+        ///     Fetches the exercises for the muscle group
+        /// </summary>
+        /// <param name="muscleGroupId">
+        ///     The muscle group id
+        /// </param>
+        public List<MGExerciseModel> GetExercisesForMG(long muscleGroupId) { 
+            return DBAccess.MuscleGroupExercises.Where(e => e.MuscleGroupId == muscleGroupId && e.UserId == null)
+                                                .Select(e => new MGExerciseModel { 
+                                                    Id = e.Id,
+                                                    Name = e.Name,
+                                                    Description = e.Description,
+                                                }).ToList();
+        }
     }
 }

@@ -66,7 +66,7 @@ namespace FitnessAppAPI.Controllers
             // Check if this is template and add the exercises if so
             if (workoutData.Template && workoutData.Exercises != null) {
                 foreach (ExerciseModel e in workoutData.Exercises) {
-                    exerciseService.AddExercise(e, workout.Id);
+                    exerciseService.AddExerciseToWorkout(e, workout.Id);
                 }
 
                 workout = service.GetWorkout(workout.Id);

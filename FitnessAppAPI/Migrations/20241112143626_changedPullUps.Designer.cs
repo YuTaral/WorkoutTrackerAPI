@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitnessAppAPI.Migrations
 {
     [DbContext(typeof(FitnessAppAPIContext))]
-    [Migration("20241111164634_removedPngFromImageNameColumn")]
-    partial class removedPngFromImageNameColumn
+    [Migration("20241112143626_changedPullUps")]
+    partial class changedPullUps
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -154,6 +154,68 @@ namespace FitnessAppAPI.Migrations
                             Default = "Y",
                             ImageName = "icon_mg_triceps",
                             Name = "Triceps"
+                        });
+                });
+
+            modelBuilder.Entity("FitnessAppAPI.Data.Models.MuscleGroupExercise", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<long>("MuscleGroupId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MuscleGroupId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("MuscleGroupExercises");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Description = "Lie on your back with knees bent and feet flat on the floor, hands behind your head or crossed on your chest.\r\n\r\nEngage your abs and lift your shoulders a few inches off the ground, exhaling as you crunch up. Keep your neck relaxed.\r\n\r\nHold briefly, then slowly lower back down. Repeat for your desired number of reps.",
+                            MuscleGroupId = 1L,
+                            Name = "Chrunches"
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            Description = "Lie flat on your back with your legs straight and hands placed under your hips or by your sides for support.\r\n\r\nEngage your core and lift your legs up together until they’re at a 90-degree angle or as high as you can without lifting your lower back off the floor.\r\n\r\nLower your legs back down slowly, stopping just before they touch the ground. Repeat for your desired number of reps, keeping control throughout the movement.",
+                            MuscleGroupId = 1L,
+                            Name = "Leg raises"
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            Description = "Grip the Bar\r\nStand under the pull-up bar and grab it with both hands wider than shoulder-width apart. Use an overhand grip (palms facing away from you). Engage your core and let your body hang with arms fully extended.\r\n\r\nPull Yourself Up\r\nPull your body upward by squeezing your back and shoulder muscles, focusing on bringing your chest up toward the bar. Avoid swinging or using momentum; keep the movement controlled.\r\n\r\nLower Back Down\r\nSlowly lower yourself back down until your arms are fully extended. Repeat for your desired number of reps, usually aiming for controlled, smooth movements to maximize back engagement.",
+                            MuscleGroupId = 2L,
+                            Name = "Wide pull ups"
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            Description = "Get Into Position\r\nStand with feet hip-width apart and hold a dumbbell in one hand. Slightly bend your knees and hinge forward at the hips, keeping your back flat. Support yourself by placing your free hand on a bench or sturdy surface, and let the arm holding the dumbbell hang straight down.\r\n\r\nRow the Dumbbell Up\r\nPull the dumbbell upward by squeezing your back and shoulder blades together, bringing your elbow up and back until it’s at about a 90-degree angle. Keep your elbow close to your body, and avoid rotating your torso.\r\n\r\nLower Back Down\r\nSlowly lower the dumbbell back down to the starting position. Repeat for the desired number of reps, then switch to the other arm.",
+                            MuscleGroupId = 2L,
+                            Name = "Dumbbell rows"
                         });
                 });
 
@@ -431,6 +493,20 @@ namespace FitnessAppAPI.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("FitnessAppAPI.Data.Models.MuscleGroupExercise", b =>
+                {
+                    b.HasOne("FitnessAppAPI.Data.Models.MuscleGroup", null)
+                        .WithMany()
+                        .HasForeignKey("MuscleGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FitnessAppAPI.Data.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction);
                 });
 
             modelBuilder.Entity("FitnessAppAPI.Data.Models.Set", b =>

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FitnessAppAPI.Data.Models
 {
     /// <summary>
-    ///    Muscle Group class to represent a row of database table muscle_groups.
+    ///    Muscle Group class to represent a row of database table MuscleGroups.
     /// </summary>
     public class MuscleGroup
     {

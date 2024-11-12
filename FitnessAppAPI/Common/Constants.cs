@@ -44,6 +44,8 @@ namespace FitnessAppAPI.Common
         public const string MSG_EX_UPDATED = "Exercise updated";
         public const string MSG_TEMPLATE_ADDED = "Workout template added";
         public const string MSG_TEMPLATE_DELETED = "Workout template deleted";
+        public const string MSG_GET_EXERCISES_FOR_MG_FAILED = "Fetching exercises for muscle group failed. No muscle group id provided";
+
 
         /// <summary>
         ///     Class containing the DB constants
@@ -52,6 +54,7 @@ namespace FitnessAppAPI.Common
         {
             public const int MinLen1 = 1;
             public const int MaxLen50 = 50;
+            public const int MaxLen4000 = 4000;
         }
 
         /// <summary>
@@ -61,6 +64,8 @@ namespace FitnessAppAPI.Common
         {
             public const string NAME_REQUIRED = "Name is required";
             public const string NAME_MAX_LEN_50 = "Name maximum length is 50";
+            public const string DESCRIPTION_REQUIRED = "Description is required";
+            public const string DESCRIPTION_MAX_LEN_4000 = "Description maximum length is 4000";
         }
     }
 }

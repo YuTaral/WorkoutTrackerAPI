@@ -46,7 +46,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
             // Add the Exercises and sets
             if (data.Exercises != null) {
                 foreach (ExerciseModel exerciseData in data.Exercises) {
-                    exerciseService.AddExercise(exerciseData, template.Id);
+                    exerciseService.AddExerciseToWorkout(exerciseData, template.Id);
                 }
             }
 

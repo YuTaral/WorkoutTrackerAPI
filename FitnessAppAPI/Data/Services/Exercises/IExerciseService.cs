@@ -1,4 +1,5 @@
 ﻿using FitnessAppAPI.Data.Services.Exercises.Models;
+using FitnessAppAPI.Data.Services.MuscleGroups.Models;
 
 namespace FitnessAppAPI.Data.Services.Exercises
 {
@@ -8,8 +9,9 @@ namespace FitnessAppAPI.Data.Services.Exercises
     public interface IExerciseService
     {
         // Exercise
-        public bool AddExercise(ExerciseModel set, long workoutId);
+        public bool AddExerciseToWorkout(ExerciseModel set, long workoutId);
         public bool UpdateExercise(ExerciseModel exercise, long workoutId);
         public long DeleteExercise(long exerciseId);
+        public List<MGExerciseModel> GetExercisesForMG(long muscleGroupId);
     }
 }
