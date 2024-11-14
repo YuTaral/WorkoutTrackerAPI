@@ -7,6 +7,7 @@ using FitnessAppAPI.Data.Services.Workouts;
 using NuGet.Protocol;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
+using FitnessAppAPI.Data.Models;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -33,7 +34,7 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost("add-to-workout")]
         [Authorize]
-        public ActionResult AddExercise([FromBody] Dictionary<string, string> requestData)
+        public ActionResult AddExerciseToWorkout([FromBody] Dictionary<string, string> requestData)
         {
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("exercise", out string? serializedExercise) || !requestData.TryGetValue("workoutId", out string? workoutId))
@@ -66,9 +67,9 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to update an exercise
         /// </summary>
-        [HttpPost("update")]
+        [HttpPost("update-exercise-from-workout")]
         [Authorize]
-        public ActionResult UpdateExercise([FromBody] Dictionary<string, string> requestData)
+        public ActionResult UpdateExerciseFromWorkout([FromBody] Dictionary<string, string> requestData)
         {
 
             // Check if the neccessary data is provided
@@ -91,7 +92,7 @@ namespace FitnessAppAPI.Controllers
 
             // Update the exercise
             long id = long.Parse(workoutId);
-            if (service.UpdateExercise(exerciseData, id))
+            if (service.UpdateExerciseFromWorkout(exerciseData, id))
             {
                 return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_UPDATED, [workoutService.GetWorkout(id).ToJson()]);
             }
@@ -102,7 +103,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to delete an exercise
         /// </summary>
-        [HttpPost("delete")]
+        [HttpPost("delete-exercise-from-workout")]
         [Authorize]
         public ActionResult DeleteExercise([FromQuery] long exerciseId)
         {
@@ -113,13 +114,68 @@ namespace FitnessAppAPI.Controllers
             }
 
             // Delete the exercise
-            var workoutId = service.DeleteExercise(exerciseId);
+            var workoutId = service.DeleteExerciseFromWorkout(exerciseId);
             if (workoutId > 0)
             {
                 return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_DELETED, [workoutService.GetWorkout(workoutId).ToJson()]);
             }
 
             return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
+        }
+
+        /// <summary>
+        //      POST request to add a new exercise for specific muscle group
+        /// </summary>
+        [HttpPost("add")]
+        [Authorize]
+        public ActionResult AddExercise([FromBody] Dictionary<string, string> requestData)
+        {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("exercise", out string? serializedExercise) || !requestData.TryGetValue("workoutId", out string? id))
+            {
+                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_ADD_FAIL_NO_DATA, []);
+            }
+
+            MGExerciseModel? exerciseData = JsonConvert.DeserializeObject<MGExerciseModel>(serializedExercise);
+            if (exerciseData == null)
+            {
+                return ReturnResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "MGExerciseModel"), []);
+            }
+
+            string validationErrors = Utils.ValidateModel(exerciseData);
+            if (!validationErrors.IsNullOrEmpty())
+            {
+                return ReturnResponse(Constants.ResponseCode.FAIL, validationErrors, []);
+            }
+
+            // Add the exercise
+            var exercise = service.AddExercise(exerciseData, GetUserId());
+            if (exercise == null)
+            {
+                return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
+            }
+
+            // If workout id is provided add the exercise to the workout and return the updated workout
+            var workoutId = long.Parse(id);
+            if (workoutId > 0)
+            {
+                if (service.AddExerciseToWorkout(exercise, workoutId))
+                {
+                    return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED, [workoutService.GetWorkout(workoutId).ToJson()]);
+                }
+            }
+
+            // If we got here, workout id is not provided and we don't need to return the updated workout,
+            // but the exercises for this specific muscle group, so the cilent side can update them
+            var exercises = service.GetExercisesForMG(exerciseData.MuscleGroupId, GetUserId());
+            var returnData = new List<string> { };
+
+            if (exercises != null)
+            {
+                returnData.AddRange(exercises.Select(e => e.ToJson()));
+            }
+
+            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED, returnData);
         }
 
         /// <summary>
@@ -135,7 +191,7 @@ namespace FitnessAppAPI.Controllers
                 return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_GET_EXERCISES_FOR_MG_FAILED, []);
             }
 
-            var exercises = service.GetExercisesForMG(muscleGroupId);
+            var exercises = service.GetExercisesForMG(muscleGroupId, GetUserId());
             var returnData = new List<string> { };
 
             if (exercises != null)

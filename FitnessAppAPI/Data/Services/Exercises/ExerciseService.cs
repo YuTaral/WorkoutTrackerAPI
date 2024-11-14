@@ -1,6 +1,5 @@
 ﻿using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Exercises.Models;
-using FitnessAppAPI.Data.Services.MuscleGroups.Models;
 
 namespace FitnessAppAPI.Data.Services.Exercises
 {
@@ -14,7 +13,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <summary>
         ///     Adds the exercise to the workout with the provided id
         /// </summary>
-        /// <param name="exercise">
+        /// <param name="exerciseData">
         ///     The exercise
         /// </param>
         /// <param name="workoutId">
@@ -61,7 +60,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="workoutId">
         ///     The workout id
         /// </param>
-        public bool UpdateExercise(ExerciseModel exerciseData, long workoutId)
+        public bool UpdateExerciseFromWorkout(ExerciseModel exerciseData, long workoutId)
         {
             // Fetch the exact exercise and it's sets
             var exercise = DBAccess.Exercises.Find(exerciseData.Id);
@@ -144,7 +143,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="exerciseId">
         ///     The exercise id
         /// </param>
-        public long DeleteExercise(long exerciseId)
+        public long DeleteExerciseFromWorkout(long exerciseId)
         {
             var exercise = DBAccess.Exercises.Where(e => e.Id == exerciseId).FirstOrDefault();
             if (exercise == null)
@@ -158,17 +157,50 @@ namespace FitnessAppAPI.Data.Services.Exercises
         }
 
         /// <summary>
+        ///     Adds the exercise to specific muscle group
+        /// </summary>
+        /// <param name="exerciseData">
+        ///     The exercise
+        /// </param>
+        /// <param name="userId">
+        ///     The user id who added the exercise
+        /// </param>
+        public ExerciseModel? AddExercise(MGExerciseModel exerciseData, string userId)
+        {
+            var exercise = new MuscleGroupExercise
+            {
+                Name = exerciseData.Name,
+                Description = exerciseData.Description,
+                MuscleGroupId = exerciseData.MuscleGroupId,
+                UserId = userId
+            };
+
+            DBAccess.MuscleGroupExercises.Add(exercise);
+            DBAccess.SaveChanges();
+
+            var model = DBAccess.MuscleGroupExercises.Where(e => e.Id == exercise.Id)
+                                          .Select( e => new ExerciseModel {
+                                                Id = e.Id,
+                                                Name = e.Name,
+                                                Sets = new List<SetModel>()
+                                          }).FirstOrDefault();
+
+            return model;
+        }
+
+        /// <summary>
         ///     Fetches the exercises for the muscle group
         /// </summary>
         /// <param name="muscleGroupId">
         ///     The muscle group id
         /// </param>
-        public List<MGExerciseModel> GetExercisesForMG(long muscleGroupId) { 
-            return DBAccess.MuscleGroupExercises.Where(e => e.MuscleGroupId == muscleGroupId && e.UserId == null)
+        public List<MGExerciseModel> GetExercisesForMG(long muscleGroupId, string userId) { 
+            return DBAccess.MuscleGroupExercises.Where(e => e.MuscleGroupId == muscleGroupId && (e.UserId == null || e.UserId == userId))
                                                 .Select(e => new MGExerciseModel { 
                                                     Id = e.Id,
                                                     Name = e.Name,
                                                     Description = e.Description,
+                                                    MuscleGroupId = e.MuscleGroupId
                                                 }).ToList();
         }
     }
