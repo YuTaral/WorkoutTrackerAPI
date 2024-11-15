@@ -73,7 +73,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
            new MuscleGroup { Id = 6, Name = "Forearms", ImageName = "icon_mg_forearms", Default = "Y" },
            new MuscleGroup { Id = 7, Name = "Glutes", ImageName = "icon_mg_glutes", Default = "Y" },
            new MuscleGroup { Id = 8, Name = "Hamstrigs", ImageName = "icon_mg_hamstrings", Default = "Y" },
-           new MuscleGroup { Id = 9, Name = "Quadtriceps", ImageName = "icon_mg_quadtriceps", Default = "Y" },
+           new MuscleGroup { Id = 9, Name = "Quadriceps", ImageName = "icon_mg_quadriceps", Default = "Y" },
            new MuscleGroup { Id = 10, Name = "Shoulders", ImageName = "icon_mg_shoulders", Default = "Y" },
            new MuscleGroup { Id = 11, Name = "Triceps", ImageName = "icon_mg_triceps", Default = "Y" }
        );

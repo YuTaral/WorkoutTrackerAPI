@@ -4,6 +4,7 @@ using FitnessAppAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitnessAppAPI.Migrations
 {
     [DbContext(typeof(FitnessAppAPIContext))]
-    partial class FitnessAppAPIContextModelSnapshot : ModelSnapshot
+    [Migration("20241115151521_fixesTypo")]
+    partial class fixesTypo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -135,7 +138,7 @@ namespace FitnessAppAPI.Migrations
                         {
                             Id = 9L,
                             Default = "Y",
-                            ImageName = "icon_mg_quadriceps",
+                            ImageName = "icon_mg_quadtriceps",
                             Name = "Quadriceps"
                         },
                         new
