@@ -1,6 +1,8 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Exercises.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
 namespace FitnessAppAPI.Data.Services.Exercises
 {
@@ -186,6 +188,32 @@ namespace FitnessAppAPI.Data.Services.Exercises
             var model = MGExercisesEnum.Select(e => ModelMapper.MapToExerciseModel(e, DBAccess))
                                         .FirstOrDefault(ModelMapper.GetEmptyExerciseModel());
             return model;
+        }
+
+        /// <summary>
+        ///     Adds the exercise to specific muscle group
+        /// </summary>
+        /// <param name="exerciseData">
+        ///     The exercise
+        /// </param>
+        /// <param name="userId">
+        ///     The user id who added the exercise
+        /// </param>
+        public bool UpdateExercise(MGExerciseModel exerciseData) { 
+            var mgExercise = DBAccess.MGExercises.Where(mg => mg.Id ==  exerciseData.Id).FirstOrDefault();
+
+            if (mgExercise == null) {
+                return false;
+            }
+
+            // Change the data
+            mgExercise.Name = exerciseData.Name;
+            mgExercise.Description = exerciseData.Description;
+
+            DBAccess.Entry(mgExercise).State = EntityState.Modified;
+            DBAccess.SaveChanges();
+
+            return true;
         }
 
         /// <summary>

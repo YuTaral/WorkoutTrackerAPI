@@ -166,8 +166,14 @@ namespace FitnessAppAPI.Controllers
             }
 
             // If we got here, workout id is not provided and we don't need to return the updated workout,
-            // but the exercises for this specific muscle group, so the cilent side can update them
-            var exercises = service.GetExercisesForMG(exerciseData.MuscleGroupId, GetUserId(), "N");
+            // but the exercises for this specific muscle group, so the client side can update them
+            requestData.TryGetValue("onlyForUser", out string? onlyForUser);
+            if (onlyForUser == null)
+            {
+                onlyForUser = "Y";
+            }
+
+            var exercises = service.GetExercisesForMG(exerciseData.MuscleGroupId, GetUserId(), onlyForUser);
             var returnData = new List<string> { };
 
             if (exercises != null)
@@ -176,6 +182,50 @@ namespace FitnessAppAPI.Controllers
             }
 
             return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED, returnData);
+        }
+
+        /// <summary>
+        //      POST request to update the muscle group exercise
+        /// </summary>
+        [HttpPost("update")]
+        [Authorize]
+        public ActionResult UpdateExercise([FromBody] Dictionary<string, string> requestData)
+        {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("exercise", out string? serializedExercise))
+            {
+                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_ADD_FAIL_NO_DATA, []);
+            }
+
+            MGExerciseModel? exerciseData = JsonConvert.DeserializeObject<MGExerciseModel>(serializedExercise);
+            if (exerciseData == null)
+            {
+                return ReturnResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "MGExerciseModel"), []);
+            }
+
+            string validationErrors = Utils.ValidateModel(exerciseData);
+            if (!validationErrors.IsNullOrEmpty())
+            {
+                return ReturnResponse(Constants.ResponseCode.FAIL, validationErrors, []);
+            }
+
+            // Update the exercise
+            var success = service.UpdateExercise(exerciseData);
+            if (!success)
+            {
+                return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
+            }
+
+            // Return the updated exercises
+            var exercises = service.GetExercisesForMG(exerciseData.MuscleGroupId, GetUserId(), "Y");
+            var returnData = new List<string> { };
+
+            if (exercises != null)
+            {
+                returnData.AddRange(exercises.Select(e => e.ToJson()));
+            }
+
+            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_UPDATED, returnData);
         }
 
         /// <summary>
