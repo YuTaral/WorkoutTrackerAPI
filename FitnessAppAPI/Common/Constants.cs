@@ -45,7 +45,7 @@ namespace FitnessAppAPI.Common
         public const string MSG_TEMPLATE_ADDED = "Workout template added";
         public const string MSG_TEMPLATE_DELETED = "Workout template deleted";
         public const string MSG_GET_EXERCISES_FOR_MG_FAILED = "Fetching exercises for muscle group failed. No muscle group id provided";
-
+        public const string MSG_CANNOT_DELETE_DEFAULT_ERROR = "Cannot delete non user defined exercise";
 
         /// <summary>
         ///     Class containing the DB constants

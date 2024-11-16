@@ -101,11 +101,11 @@ namespace FitnessAppAPI.Controllers
         }
 
         /// <summary>
-        //      POST request to delete an exercise
+        //      POST request to delete an exercise from workout
         /// </summary>
         [HttpPost("delete-exercise-from-workout")]
         [Authorize]
-        public ActionResult DeleteExercise([FromQuery] long exerciseId)
+        public ActionResult DeleteExerciseFromWorkout([FromQuery] long exerciseId)
         {
             // Check if the neccessary data is provided
             if (exerciseId < 1)
@@ -167,7 +167,7 @@ namespace FitnessAppAPI.Controllers
 
             // If we got here, workout id is not provided and we don't need to return the updated workout,
             // but the exercises for this specific muscle group, so the cilent side can update them
-            var exercises = service.GetExercisesForMG(exerciseData.MuscleGroupId, GetUserId());
+            var exercises = service.GetExercisesForMG(exerciseData.MuscleGroupId, GetUserId(), "N");
             var returnData = new List<string> { };
 
             if (exercises != null)
@@ -179,11 +179,47 @@ namespace FitnessAppAPI.Controllers
         }
 
         /// <summary>
+        //      POST request to delete an exercise
+        /// </summary>
+        [HttpPost("delete")]
+        [Authorize]
+        public ActionResult DeleteExercise([FromQuery] long MGExerciseId)
+        {
+            // Check if the neccessary data is provided
+            if (MGExerciseId < 1)
+            {
+                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_DELETE_FAIL_NO_ID, []);
+            }
+
+            // Delete the exercise, the returned value shows whether the action was successfull
+            var muscleGroupId = service.DeleteExercise(MGExerciseId);
+
+            if (muscleGroupId == -1)
+            {
+                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_CANNOT_DELETE_DEFAULT_ERROR, []);
+            }
+            else if (muscleGroupId == 0)
+            {
+                return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
+            }
+          
+            var exercisesForMG = service.GetExercisesForMG(muscleGroupId, GetUserId(), "Y");
+            var returnData = new List<string>();
+
+            if (exercisesForMG != null)
+            {
+                returnData.AddRange(exercisesForMG.Select(e => e.ToJson()));
+            }
+
+            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_DELETED, returnData);
+        }
+
+        /// <summary>
         //      GET request to fetch the exercise for muscle groups with the provided id
         /// </summary>
         [HttpGet("get-by-mg-id")]
         [Authorize]
-        public ActionResult GetExercisesForMuscleGroup([FromQuery] long muscleGroupId)
+        public ActionResult GetExercisesForMuscleGroup([FromQuery] long muscleGroupId, [FromQuery] string onlyForUser)
         {
             // Check if the neccessary data is provided
             if (muscleGroupId < 1)
@@ -191,7 +227,7 @@ namespace FitnessAppAPI.Controllers
                 return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_GET_EXERCISES_FOR_MG_FAILED, []);
             }
 
-            var exercises = service.GetExercisesForMG(muscleGroupId, GetUserId());
+            var exercises = service.GetExercisesForMG(muscleGroupId, GetUserId(), onlyForUser);
             var returnData = new List<string> { };
 
             if (exercises != null)

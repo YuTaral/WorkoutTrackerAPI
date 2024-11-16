@@ -189,15 +189,57 @@ namespace FitnessAppAPI.Data.Services.Exercises
         }
 
         /// <summary>
+        ///     Deletes the muscle group exercise with the provided id
+        /// </summary>
+        /// <param name="MGExerciseId">
+        ///     The exercise id
+        /// </param>
+        public long DeleteExercise(long MGExerciseId)
+        {
+            var MGExercise = DBAccess.MGExercises.Where(e => e.Id == MGExerciseId).FirstOrDefault();
+
+            if (MGExercise == null)
+            {
+                return 0;
+            }
+
+            if (MGExercise.UserId == null) {
+                return -1;
+            }
+
+            DBAccess.MGExercises.Remove(MGExercise);
+            DBAccess.SaveChanges();
+
+            return MGExercise.MuscleGroupId;
+        }
+
+
+        /// <summary>
         ///     Fetches the exercises for the muscle group
         /// </summary>
         /// <param name="muscleGroupId">
         ///     The muscle group id
         /// </param>
-        public List<MGExerciseModel> GetExercisesForMG(long muscleGroupId, string userId) {
-            return DBAccess.MGExercises.Where(e => e.MuscleGroupId == muscleGroupId && (e.UserId == null || e.UserId == userId))
-                                        .Select(e => ModelMapper.MapToMGExerciseModel(e))
-                                        .ToList();
+        /// <param name="userId">
+        ///     The the logged in user id
+        /// </param>
+        /// <param name="onlyForUser">
+        ///     If "Y" the method will return only the user defined exercises for this muscle group,
+        ///     which are considered editable and can be deleted / updated
+        ///     If "N" the method will return all default and user defined exercises for this muscle group
+        /// </param>
+        public List<MGExerciseModel> GetExercisesForMG(long muscleGroupId, string userId, string onlyForUser) {
+            if (onlyForUser == "Y")
+            {
+                return DBAccess.MGExercises.Where(e => e.MuscleGroupId == muscleGroupId && e.UserId == userId)
+                                           .Select(e => ModelMapper.MapToMGExerciseModel(e))
+                                           .ToList();
+            }
+            else {
+                return DBAccess.MGExercises.Where(e => e.MuscleGroupId == muscleGroupId && (e.UserId == null || e.UserId == userId))
+                                            .Select(e => ModelMapper.MapToMGExerciseModel(e))
+                                            .ToList();
+            }
         }
     }
 }
