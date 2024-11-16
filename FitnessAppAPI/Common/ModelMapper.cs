@@ -64,7 +64,7 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///     Maps the Exercise to ExerciseModel
+        ///     Maps the MGExercise to ExerciseModel
         /// </summary>
         public static ExerciseModel MapToExerciseModel(MGExercise MGExercise, FitnessAppAPIContext DBAccess)
         {
