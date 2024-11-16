@@ -14,7 +14,6 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups.Models
         [MinLength(Constants.DBConstants.MinLen1, ErrorMessage = Constants.ValidationErrors.NAME_REQUIRED)]
         [MaxLength(Constants.DBConstants.MaxLen50, ErrorMessage = Constants.ValidationErrors.NAME_MAX_LEN_50)]
         public required string Name { get; set; }
-        public required bool Checked { get; set; }
         public required string ImageName { get; set; }
 
     }

@@ -7,7 +7,7 @@ namespace FitnessAppAPI.Data.Models
     /// <summary>
     ///    Muscle Group Exercise class to represent a row of database table MuscleGroupExercises.
     /// </summary>
-    public class MuscleGroupExercise
+    public class MGExercise
     {
         [Key]
         public long Id { get; set; }

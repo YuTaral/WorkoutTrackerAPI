@@ -1,4 +1,5 @@
 ﻿using FitnessAppAPI.Data.Services.MuscleGroups.Models;
+using FitnessAppAPI.Common;
 
 namespace FitnessAppAPI.Data.Services.MuscleGroups
 {
@@ -19,13 +20,8 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups
         {
             return DBAccess.MuscleGroups.Where(m => m.UserId == userId || m.UserId == null)
                                         .OrderBy(m => m.Id)
-                                        .Select(m => new MuscleGroupModel
-                                        {
-                                            Id = m.Id,
-                                            Name = m.Name,
-                                            Checked = false,
-                                            ImageName = m.ImageName,
-                                        }).ToList();
+                                        .Select(m => ModelMapper.MapToMuscleGroupModel(m))
+                                        .ToList();
         }
     }
 }

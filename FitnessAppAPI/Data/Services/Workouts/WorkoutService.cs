@@ -1,10 +1,7 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Workouts.Models;
-using FitnessAppAPI.Data.Services.Exercises.Models;
 using Microsoft.EntityFrameworkCore;
-using FitnessAppAPI.Data.Services.MuscleGroups.Models;
-using FitnessAppAPI.Data.Services.MuscleGroups;
 
 namespace FitnessAppAPI.Data.Services.Workouts
 {
@@ -12,10 +9,9 @@ namespace FitnessAppAPI.Data.Services.Workouts
     ///     Workout service class to implement IWorkoutService interface.
     /// </summary>
 
-    public class WorkoutService(FitnessAppAPIContext DB, IMuscleGroupService mgService) : IWorkoutService
+    public class WorkoutService(FitnessAppAPIContext DB) : IWorkoutService
     {
         private readonly FitnessAppAPIContext DBAccess = DB;
-        private readonly IMuscleGroupService musclegroupService = mgService;
 
         /// <summary>
         ///     Adds new workout from the provided WorkoutModel data
@@ -39,7 +35,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
             DBAccess.Workouts.Add(workout);
             DBAccess.SaveChanges();
 
-            return GetWorkoutModelFromWorkout(workout);
+            return ModelMapper.MapToWorkoutModel(workout, DBAccess);
         }
 
         /// <summary>
@@ -66,7 +62,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
             DBAccess.Entry(workout).State = EntityState.Modified;
             DBAccess.SaveChanges();
 
-            return GetWorkoutModelFromWorkout(workout);
+            return ModelMapper.MapToWorkoutModel(workout, DBAccess);
         }
 
         /// <summary>
@@ -106,7 +102,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 return null;
             }
 
-            return GetWorkoutModelFromWorkout(workout);
+            return ModelMapper.MapToWorkoutModel(workout, DBAccess);
         }
 
         /// <summary>
@@ -123,7 +119,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 return null;
             }
 
-            return GetWorkoutModelFromWorkout(workout);
+            return ModelMapper.MapToWorkoutModel(workout, DBAccess);
         }
 
         /// <summary>
@@ -136,40 +132,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
             return DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "N")
                                     .OrderByDescending(w => w.Date)
                                     .ToList()
-                                    .Select(GetWorkoutModelFromWorkout).ToList();
-        }
-
-        /// <summary>
-        ///     Returns WorkoutModel from the provided workout
-        /// </summary>
-        /// <param name="workout">
-        ///     The workout
-        /// </param>
-        public WorkoutModel GetWorkoutModelFromWorkout(Workout workout)
-        {
-            var model = new WorkoutModel
-            {
-                Id = workout.Id,
-                Name = workout.Name,
-                Date = workout.Date,
-                Template = workout.Template == "Y",
-                Exercises = [.. DBAccess.Exercises
-                            .Where(e => e.WorkoutId == workout.Id)
-                            .Select(e => new ExerciseModel
-                            {
-                                Id = e.Id,
-                                Name = e.Name,
-                                Sets = DBAccess.Sets.Where(s => s.ExerciseId == e.Id)
-                                                    .Select(s => new SetModel {
-                                                        Id = s.Id,
-                                                        Reps = s.Reps,
-                                                        Weight = s.Weight,
-                                                        Completed = s.Completed
-                                                    }).ToList()
-                            })]
-            };
-
-            return model;
+                                    .Select(w => ModelMapper.MapToWorkoutModel(w, DBAccess)).ToList();
         }
     }
 }

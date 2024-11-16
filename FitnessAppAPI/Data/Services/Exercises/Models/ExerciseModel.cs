@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FitnessAppAPI.Common;
-
+using FitnessAppAPI.Data.Services.MuscleGroups.Models;
 
 namespace FitnessAppAPI.Data.Services.Exercises.Models
 {
@@ -15,7 +15,7 @@ namespace FitnessAppAPI.Data.Services.Exercises.Models
         [MinLength(Constants.DBConstants.MinLen1, ErrorMessage = Constants.ValidationErrors.NAME_REQUIRED)]
         [MaxLength(Constants.DBConstants.MaxLen50, ErrorMessage = Constants.ValidationErrors.NAME_MAX_LEN_50)]
         public required string Name { get; set; }
+        public required MuscleGroupModel MuscleGroup { get; set; }
         public List<SetModel>? Sets { get; set; }
-
     }
 }

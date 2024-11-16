@@ -1,4 +1,5 @@
-﻿using FitnessAppAPI.Data.Models;
+﻿using FitnessAppAPI.Common;
+using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Exercises.Models;
 
 namespace FitnessAppAPI.Data.Services.Exercises
@@ -24,7 +25,8 @@ namespace FitnessAppAPI.Data.Services.Exercises
             var exercise = new Exercise
             {
                 Name = exerciseData.Name,
-                WorkoutId = workoutId
+                WorkoutId = workoutId,
+                MuscleGroupId = exerciseData.MuscleGroup.Id,
             };
 
             DBAccess.Exercises.Add(exercise);
@@ -167,7 +169,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// </param>
         public ExerciseModel? AddExercise(MGExerciseModel exerciseData, string userId)
         {
-            var exercise = new MuscleGroupExercise
+            var exercise = new MGExercise
             {
                 Name = exerciseData.Name,
                 Description = exerciseData.Description,
@@ -175,16 +177,14 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 UserId = userId
             };
 
-            DBAccess.MuscleGroupExercises.Add(exercise);
+            DBAccess.MGExercises.Add(exercise);
             DBAccess.SaveChanges();
 
-            var model = DBAccess.MuscleGroupExercises.Where(e => e.Id == exercise.Id)
-                                          .Select( e => new ExerciseModel {
-                                                Id = e.Id,
-                                                Name = e.Name,
-                                                Sets = new List<SetModel>()
-                                          }).FirstOrDefault();
-
+            // Get the MGExercises results and convert them to Enumerable, to avoid errors that the Entity Framerwork
+            // cannot translate the method into SQL when MapToExerciseModel() is called
+            var MGExercisesEnum = DBAccess.MGExercises.Where(e => e.Id == exercise.Id).AsEnumerable();
+            var model = MGExercisesEnum.Select(e => ModelMapper.MapToExerciseModel(e, DBAccess))
+                                        .FirstOrDefault(ModelMapper.GetEmptyExerciseModel());
             return model;
         }
 
@@ -194,14 +194,10 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="muscleGroupId">
         ///     The muscle group id
         /// </param>
-        public List<MGExerciseModel> GetExercisesForMG(long muscleGroupId, string userId) { 
-            return DBAccess.MuscleGroupExercises.Where(e => e.MuscleGroupId == muscleGroupId && (e.UserId == null || e.UserId == userId))
-                                                .Select(e => new MGExerciseModel { 
-                                                    Id = e.Id,
-                                                    Name = e.Name,
-                                                    Description = e.Description,
-                                                    MuscleGroupId = e.MuscleGroupId
-                                                }).ToList();
+        public List<MGExerciseModel> GetExercisesForMG(long muscleGroupId, string userId) {
+            return DBAccess.MGExercises.Where(e => e.MuscleGroupId == muscleGroupId && (e.UserId == null || e.UserId == userId))
+                                        .Select(e => ModelMapper.MapToMGExerciseModel(e))
+                                        .ToList();
         }
     }
 }

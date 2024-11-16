@@ -1,5 +1,4 @@
-﻿using FitnessAppAPI.Data.Models;
-using FitnessAppAPI.Data.Services.Exercises.Models;
+﻿using FitnessAppAPI.Data.Services.Exercises.Models;
 
 namespace FitnessAppAPI.Data.Services.Exercises
 {
@@ -8,7 +7,6 @@ namespace FitnessAppAPI.Data.Services.Exercises
     /// </summary>
     public interface IExerciseService
     {
-        // Exercise
         public bool AddExerciseToWorkout(ExerciseModel exerciseData, long workoutId);
         public bool UpdateExerciseFromWorkout(ExerciseModel exerciseData, long workoutId);
         public long DeleteExerciseFromWorkout(long exerciseId);

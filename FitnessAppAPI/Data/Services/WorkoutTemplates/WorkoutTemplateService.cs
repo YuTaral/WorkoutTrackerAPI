@@ -2,7 +2,6 @@
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services.Exercises.Models;
-using FitnessAppAPI.Data.Services.MuscleGroups;
 using FitnessAppAPI.Data.Services.Workouts;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 
@@ -11,15 +10,10 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
     /// <summary>
     ///     Workout Temaplte service class to implement IWorkoutTemplateService interface.
     /// </summary>
-    public class WorkoutTemplateService(FitnessAppAPIContext DB, 
-                                        IWorkoutService wService, 
-                                        IExerciseService exService,
-                                        IMuscleGroupService mgService) : IWorkoutTemplateService
+    public class WorkoutTemplateService(FitnessAppAPIContext DB, IExerciseService exService) : IWorkoutTemplateService
     {
         private readonly FitnessAppAPIContext DBAccess = DB;
-        private readonly IWorkoutService workoutService = wService;
         private readonly IExerciseService exerciseService = exService;
-        private readonly IMuscleGroupService musclegroupService = mgService;
 
         /// <summary>
         ///     Adds new workout template from the provided WorkoutModel data
@@ -80,7 +74,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
                                              .ToList();
 
             foreach (Workout t in templates) {
-                templatesModel.Add(workoutService.GetWorkoutModelFromWorkout(t));
+                templatesModel.Add(ModelMapper.MapToWorkoutModel(t, DBAccess));
             }
 
             return templatesModel;

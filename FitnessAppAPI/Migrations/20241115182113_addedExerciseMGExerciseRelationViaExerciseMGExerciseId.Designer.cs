@@ -4,6 +4,7 @@ using FitnessAppAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitnessAppAPI.Migrations
 {
     [DbContext(typeof(FitnessAppAPIContext))]
-    partial class FitnessAppAPIContextModelSnapshot : ModelSnapshot
+    [Migration("20241115182113_addedExerciseMGExerciseRelationViaExerciseMGExerciseId")]
+    partial class addedExerciseMGExerciseRelationViaExerciseMGExerciseId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,7 +33,7 @@ namespace FitnessAppAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("MuscleGroupId")
+                    b.Property<long>("MGExerciseId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Name")
@@ -42,7 +45,7 @@ namespace FitnessAppAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MuscleGroupId");
+                    b.HasIndex("MGExerciseId");
 
                     b.HasIndex("WorkoutId");
 
@@ -608,9 +611,9 @@ namespace FitnessAppAPI.Migrations
 
             modelBuilder.Entity("FitnessAppAPI.Data.Models.Exercise", b =>
                 {
-                    b.HasOne("FitnessAppAPI.Data.Models.MuscleGroup", null)
+                    b.HasOne("FitnessAppAPI.Data.Models.MGExercise", null)
                         .WithMany()
-                        .HasForeignKey("MuscleGroupId")
+                        .HasForeignKey("MGExerciseId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 

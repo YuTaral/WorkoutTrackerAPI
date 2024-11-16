@@ -1,6 +1,5 @@
 ﻿using FitnessAppAPI.Data;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mail;
 
