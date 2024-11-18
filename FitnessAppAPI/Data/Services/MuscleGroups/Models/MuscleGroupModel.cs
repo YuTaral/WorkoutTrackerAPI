@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FitnessAppAPI.Common;
+using FitnessAppAPI.Data.Models;
 
 namespace FitnessAppAPI.Data.Services.MuscleGroups.Models
 {
@@ -7,10 +8,8 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups.Models
     ///     MuscleGroupModel class representing a muscle group.
     ///     Must correspond with client-side MuscleGroupModel class
     /// </summary>
-    public class MuscleGroupModel
+    public class MuscleGroupModel: BaseModel
     {
-        public long Id { get; set; }
-
         [MinLength(Constants.DBConstants.MinLen1, ErrorMessage = Constants.ValidationErrors.NAME_REQUIRED)]
         [MaxLength(Constants.DBConstants.MaxLen50, ErrorMessage = Constants.ValidationErrors.NAME_MAX_LEN_50)]
         public required string Name { get; set; }
