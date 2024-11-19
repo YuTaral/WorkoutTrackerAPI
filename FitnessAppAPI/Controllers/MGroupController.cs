@@ -1,7 +1,5 @@
 ﻿using FitnessAppAPI.Data.Services.MuscleGroups;
-using FitnessAppAPI.Common;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Protocol;
 using Microsoft.AspNetCore.Authorization;
 
 namespace FitnessAppAPI.Controllers
@@ -27,15 +25,7 @@ namespace FitnessAppAPI.Controllers
         public ActionResult GetMuscleGroups()
         {
             // Fetch the default and user defined muscle groups
-            var returnData = new List<string> { };
-            var muscleGroups = service.GetMuscleGroups(GetUserId());
-
-            if (muscleGroups != null)
-            {
-                returnData.AddRange(muscleGroups.Select(mg => mg.ToJson()));
-            }
-
-            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
+            return CustomResponse(service.GetMuscleGroups(GetUserId()));
         }
     }
 }

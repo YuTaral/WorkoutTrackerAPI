@@ -4,10 +4,9 @@ using FitnessAppAPI.Common;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using FitnessAppAPI.Data.Services.Workouts;
-using NuGet.Protocol;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
-using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -39,29 +38,32 @@ namespace FitnessAppAPI.Controllers
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("exercise", out string? serializedExercise) || !requestData.TryGetValue("workoutId", out string? workoutId))
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_ADD_FAIL_NO_DATA, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_ADD_FAIL_NO_DATA);
             }
 
             ExerciseModel? exerciseData = JsonConvert.DeserializeObject<ExerciseModel>(serializedExercise);
             if (exerciseData == null)
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "ExerciseModel"), []);
+                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "ExerciseModel"));
             }
 
             string validationErrors = Utils.ValidateModel(exerciseData);
             if (!validationErrors.IsNullOrEmpty())
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, validationErrors, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
             }
 
             // Add the exercise
             long id = long.Parse(workoutId);
-            if (service.AddExerciseToWorkout(exerciseData, id))
+            var result = service.AddExerciseToWorkout(exerciseData, id);
+
+            if (result.IsSuccess())
             {
-                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED, [workoutService.GetWorkout(id).ToJson()]);
+                // Return the updated workout on success
+                return GetUpdatedWorkout(id, result);
             }
 
-            return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
+            return CustomResponse(result);
         }
 
         /// <summary>
@@ -75,29 +77,32 @@ namespace FitnessAppAPI.Controllers
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("exercise", out string? serializedExercise) || !requestData.TryGetValue("workoutId", out string? workoutId))
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_UPDATE_FAIL_NO_DATA, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_UPDATE_FAIL_NO_DATA);
             }
 
             ExerciseModel? exerciseData = JsonConvert.DeserializeObject<ExerciseModel>(serializedExercise);
             if (exerciseData == null)
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "ExerciseModel"), []);
+                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "ExerciseModel"));
             }
 
             string validationErrors = Utils.ValidateModel(exerciseData);
             if (!validationErrors.IsNullOrEmpty())
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, validationErrors, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
             }
 
             // Update the exercise
             long id = long.Parse(workoutId);
-            if (service.UpdateExerciseFromWorkout(exerciseData, id))
+            var result = service.UpdateExerciseFromWorkout(exerciseData, id);
+
+            if (result.IsSuccess())
             {
-                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_UPDATED, [workoutService.GetWorkout(id).ToJson()]);
+                // Return the updated workout on success
+                return GetUpdatedWorkout(id, result);
             }
 
-            return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
+            return CustomResponse(result);
         }
 
         /// <summary>
@@ -110,17 +115,19 @@ namespace FitnessAppAPI.Controllers
             // Check if the neccessary data is provided
             if (exerciseId < 1)
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_DELETE_FAIL_NO_ID, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_DELETE_FAIL_NO_ID);
             }
 
             // Delete the exercise
-            var workoutId = service.DeleteExerciseFromWorkout(exerciseId);
-            if (workoutId > 0)
+            var result = service.DeleteExerciseFromWorkout(exerciseId);
+
+            if (result.IsSuccess())
             {
-                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_DELETED, [workoutService.GetWorkout(workoutId).ToJson()]);
+                // Return the updated workout on success
+                return GetUpdatedWorkout(result.ResponseData[0].Id, result);
             }
 
-            return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
+            return CustomResponse(result);
         }
 
         /// <summary>
@@ -133,35 +140,38 @@ namespace FitnessAppAPI.Controllers
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("exercise", out string? serializedExercise) || !requestData.TryGetValue("workoutId", out string? id))
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_ADD_FAIL_NO_DATA, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_ADD_FAIL_NO_DATA);
             }
 
             MGExerciseModel? exerciseData = JsonConvert.DeserializeObject<MGExerciseModel>(serializedExercise);
             if (exerciseData == null)
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "MGExerciseModel"), []);
+                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "MGExerciseModel"));
             }
 
             string validationErrors = Utils.ValidateModel(exerciseData);
             if (!validationErrors.IsNullOrEmpty())
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, validationErrors, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
             }
 
             // Add the exercise
-            var exercise = service.AddExercise(exerciseData, GetUserId());
-            if (exercise == null)
+            var result = service.AddExercise(exerciseData, GetUserId());
+
+            if (!result.IsSuccess())
             {
-                return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
+                return CustomResponse(result);
             }
 
             // If workout id is provided add the exercise to the workout and return the updated workout
             var workoutId = long.Parse(id);
             if (workoutId > 0)
             {
-                if (service.AddExerciseToWorkout(exercise, workoutId))
+                var addExToWorkoutResult = service.AddExerciseToWorkout((ExerciseModel) result.ResponseData[0], workoutId);
+                if (addExToWorkoutResult.IsSuccess())
                 {
-                    return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED, [workoutService.GetWorkout(workoutId).ToJson()]);
+                    // Return the updated workout on success
+                    return GetUpdatedWorkout(workoutId, addExToWorkoutResult);
                 }
             }
 
@@ -173,15 +183,7 @@ namespace FitnessAppAPI.Controllers
                 onlyForUser = "Y";
             }
 
-            var exercises = service.GetExercisesForMG(exerciseData.MuscleGroupId, GetUserId(), onlyForUser);
-            var returnData = new List<string> { };
-
-            if (exercises != null)
-            {
-                returnData.AddRange(exercises.Select(e => e.ToJson()));
-            }
-
-            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED, returnData);
+            return GetUpdatedMGExercises(exerciseData.MuscleGroupId, onlyForUser, result);
         }
 
         /// <summary>
@@ -194,38 +196,30 @@ namespace FitnessAppAPI.Controllers
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("exercise", out string? serializedExercise))
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_ADD_FAIL_NO_DATA, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_ADD_FAIL_NO_DATA);
             }
 
             MGExerciseModel? exerciseData = JsonConvert.DeserializeObject<MGExerciseModel>(serializedExercise);
             if (exerciseData == null)
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "MGExerciseModel"), []);
+                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "MGExerciseModel"));
             }
 
             string validationErrors = Utils.ValidateModel(exerciseData);
             if (!validationErrors.IsNullOrEmpty())
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, validationErrors, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
             }
 
             // Update the exercise
-            var success = service.UpdateExercise(exerciseData);
-            if (!success)
+            var result = service.UpdateExercise(exerciseData);
+            if (!result.IsSuccess())
             {
-                return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
+                return CustomResponse(result);
             }
 
-            // Return the updated exercises
-            var exercises = service.GetExercisesForMG(exerciseData.MuscleGroupId, GetUserId(), "Y");
-            var returnData = new List<string> { };
-
-            if (exercises != null)
-            {
-                returnData.AddRange(exercises.Select(e => e.ToJson()));
-            }
-
-            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_UPDATED, returnData);
+            // Return the updated exercises for this muscle group
+            return GetUpdatedMGExercises(exerciseData.MuscleGroupId, "Y", result);
         }
 
         /// <summary>
@@ -238,30 +232,18 @@ namespace FitnessAppAPI.Controllers
             // Check if the neccessary data is provided
             if (MGExerciseId < 1)
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_DELETE_FAIL_NO_ID, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_DELETE_FAIL_NO_ID);
             }
 
-            // Delete the exercise, the returned value shows whether the action was successfull
-            var muscleGroupId = service.DeleteExercise(MGExerciseId);
-
-            if (muscleGroupId == -1)
+            // Delete the exercise
+            var result = service.DeleteExercise(MGExerciseId);
+            if (!result.IsSuccess())
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_CANNOT_DELETE_DEFAULT_ERROR, []);
-            }
-            else if (muscleGroupId == 0)
-            {
-                return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
-            }
-          
-            var exercisesForMG = service.GetExercisesForMG(muscleGroupId, GetUserId(), "Y");
-            var returnData = new List<string>();
-
-            if (exercisesForMG != null)
-            {
-                returnData.AddRange(exercisesForMG.Select(e => e.ToJson()));
+                return CustomResponse(result);
             }
 
-            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_DELETED, returnData);
+            // Return the updated exercises for this muscle group
+            return GetUpdatedMGExercises(result.ResponseData[0].Id, "Y", result);
         }
 
         /// <summary>
@@ -274,18 +256,67 @@ namespace FitnessAppAPI.Controllers
             // Check if the neccessary data is provided
             if (muscleGroupId < 1)
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_GET_EXERCISES_FOR_MG_FAILED, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_GET_EXERCISES_FOR_MG_FAILED);
             }
 
-            var exercises = service.GetExercisesForMG(muscleGroupId, GetUserId(), onlyForUser);
-            var returnData = new List<string> { };
-
-            if (exercises != null)
-            {
-                returnData.AddRange(exercises.Select(e => e.ToJson()));
-            }
-
-            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
+            // Return the exercises for this muscle group
+            return CustomResponse(service.GetExercisesForMG(muscleGroupId, GetUserId(), onlyForUser));
         }
+
+        /// <summary>
+        ///     Tries to fetch workout with the provided id, and if success returns response, combining
+        ///     result.ResponseCode, result.ResponseMessage and the workout. The combination is used in
+        ///     order to display the message set in previousActionResult variable, which is the result of the 
+        ///     previous action (the actual action) executed in the controller method. E.g adding exercise to workout, returing whether
+        ///     the add was successfull and returning the updated workout
+        /// </summary>
+        /// <param name="id">
+        ///     The workout id to fetch
+        /// </param>
+        /// <param name="mainActionResult">
+        ///     The result of the main action executed in the controller method
+        /// </param>
+        
+        private OkObjectResult GetUpdatedWorkout(long id, ServiceActionResult previousActionResult) {
+            var getWorkoutResult = workoutService.GetWorkout(id);
+            if (getWorkoutResult.IsSuccess())
+            {
+                // Combine the response and message from the previous action result with the updated workout
+                return CustomResponse(previousActionResult.ResponseCode, previousActionResult.ResponseMessage, getWorkoutResult.ResponseData);
+            }
+
+            // If get workout failed, return the previous result
+            return CustomResponse(previousActionResult);
+        }
+
+        /// <summary>
+        ///     Tries to fetch the muscle group exercises for the muscle group with the provided id, 
+        ///     and if success returns response, combining result.ResponseCode, result.ResponseMessage and the exercises. 
+        ///     The combination is used in order to display the message set in previousActionResult variable, 
+        ///     which is the result of the previous action (the actual action) executed in the controller method. 
+        ///     E.g adding exercise for muscle group, returing whether the add was successfull and returning the exercises
+        ///     for this specific muscle group
+        /// </summary>
+        /// <param name="muscleGroupId">
+        ///     The muscle group id
+        /// </param>
+        /// <param name="onlyForUser">
+        ///     "Y" if the exercise must be only the ones which are user defined, "N" if all 
+        /// </param>
+        /// <param name="previousActionResult">
+        ///     The result of the main action executed in the controller method
+        /// </param>
+        private OkObjectResult GetUpdatedMGExercises(long muscleGroupId, string onlyForUser, ServiceActionResult previousActionResult) {
+            var getExercisesForMGResult = service.GetExercisesForMG(muscleGroupId, GetUserId(), onlyForUser);
+
+            if (getExercisesForMGResult.IsSuccess())
+            {
+                return CustomResponse(previousActionResult.ResponseCode, previousActionResult.ResponseMessage, 
+                                    getExercisesForMGResult.ResponseData);
+            }
+
+            return CustomResponse(previousActionResult);
+        }
+
     }
 }

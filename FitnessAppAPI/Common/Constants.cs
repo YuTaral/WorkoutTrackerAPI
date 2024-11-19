@@ -1,7 +1,4 @@
-﻿using FitnessAppAPI.Data.Models;
-using Microsoft.AspNetCore.Http;
-
-namespace FitnessAppAPI.Common
+﻿namespace FitnessAppAPI.Common
 {
     /// <summary>
     ///     Constant class to hold all constant used on the server-side.
@@ -15,7 +12,8 @@ namespace FitnessAppAPI.Common
         {
             SUCCESS,
             FAIL,
-            UNEXPECTED_ERROR
+            UNEXPECTED_ERROR,
+
         }
 
         /// <summary>
@@ -46,6 +44,13 @@ namespace FitnessAppAPI.Common
         public const string MSG_TEMPLATE_DELETED = "Workout template deleted";
         public const string MSG_GET_EXERCISES_FOR_MG_FAILED = "Fetching exercises for muscle group failed. No muscle group id provided";
         public const string MSG_CANNOT_DELETE_DEFAULT_ERROR = "Cannot delete non user defined exercise";
+        public const string MSG_USER_DOES_NOT_EXISTS = "User does not exist";
+        public const string MSG_WORKOUT_DOES_NOT_EXIST = "Workout does not exist";
+        public const string MSG_USER_HAS_NO_WORKOUT = "You don\'t have any workouts";
+        public const string MSG_EXERCISE_NOT_FOUND = "Exercise does not exist";
+        public const string MSG_NO_MUSCLE_GROUPS_FOUND = "No muscle groups found";
+        public const string MSG_TEMPLATE_DOES_NOT_EXIST = "Tempalte does not exist";
+
 
         /// <summary>
         ///     Class containing the DB constants

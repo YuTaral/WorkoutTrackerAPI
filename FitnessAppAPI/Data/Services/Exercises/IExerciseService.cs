@@ -7,13 +7,13 @@ namespace FitnessAppAPI.Data.Services.Exercises
     /// </summary>
     public interface IExerciseService
     {
-        public bool AddExerciseToWorkout(ExerciseModel exerciseData, long workoutId);
-        public bool UpdateExerciseFromWorkout(ExerciseModel exerciseData, long workoutId);
-        public long DeleteExerciseFromWorkout(long exerciseId);
-        public ExerciseModel? AddExercise(MGExerciseModel exerciseData, string userId);
-        public bool UpdateExercise(MGExerciseModel exerciseData);
-        public long DeleteExercise(long MGExerciseId);
-        public List<MGExerciseModel> GetExercisesForMG(long muscleGroupId, string userId, string onlyForUser);
+        public ServiceActionResult AddExerciseToWorkout(ExerciseModel exerciseData, long workoutId);
+        public ServiceActionResult UpdateExerciseFromWorkout(ExerciseModel exerciseData, long workoutId);
+        public ServiceActionResult DeleteExerciseFromWorkout(long exerciseId);
+        public ServiceActionResult AddExercise(MGExerciseModel exerciseData, string userId);
+        public ServiceActionResult UpdateExercise(MGExerciseModel exerciseData);
+        public ServiceActionResult DeleteExercise(long MGExerciseId);
+        public ServiceActionResult GetExercisesForMG(long muscleGroupId, string userId, string onlyForUser);
 
     }
 }

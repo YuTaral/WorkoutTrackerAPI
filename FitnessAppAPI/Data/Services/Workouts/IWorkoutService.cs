@@ -7,11 +7,11 @@ namespace FitnessAppAPI.Data.Services.Workouts
     /// </summary>
     public interface IWorkoutService
     {
-        public WorkoutModel? AddWorkout(WorkoutModel data, string userId);
-        public WorkoutModel? EditWorkout(WorkoutModel data, string userId);
-        public bool DeleteWorkout(long workoutId);
-        public WorkoutModel? GetWorkout(long id);
-        public List<WorkoutModel>? GetLatestWorkouts(String userId);
-        public WorkoutModel? GetLastWorkout(string userId);
+        public ServiceActionResult AddWorkout(WorkoutModel data, string userId);
+        public ServiceActionResult EditWorkout(WorkoutModel data, string userId);
+        public ServiceActionResult DeleteWorkout(long workoutId);
+        public ServiceActionResult GetWorkout(long id);
+        public ServiceActionResult GetLatestWorkouts(String userId);
+        public ServiceActionResult GetLastWorkout(string userId);
     }
 }

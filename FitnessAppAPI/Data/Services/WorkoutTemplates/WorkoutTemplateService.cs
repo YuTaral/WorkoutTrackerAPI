@@ -17,11 +17,11 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         /// <summary>
         ///     Adds new workout template from the provided WorkoutModel data
         /// </summary>
-        public bool AddWorkoutTemplate(WorkoutModel data, string userId) {
+        public ServiceActionResult AddWorkoutTemplate(WorkoutModel data, string userId) {
             // Verify user with this id exists
             if (!Utils.UserExists(DBAccess, userId))
             {
-                return false;
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_DOES_NOT_EXISTS);
             }
 
             // Create Workout record, with Template = "Y"
@@ -38,45 +38,51 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
 
             // Add the Exercises and sets
             if (data.Exercises != null) {
+
                 foreach (ExerciseModel exerciseData in data.Exercises) {
-                    exerciseService.AddExerciseToWorkout(exerciseData, template.Id);
+                    var result = exerciseService.AddExerciseToWorkout(exerciseData, template.Id);
+
+                    if (!result.IsSuccess()) {
+                        return result;
+                    }
                 }
+
             }
 
-            return true;
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_ADDED);
         }
 
         // <summary>
         ///    Deletes the template with the provided id
         /// </summary>
-        public bool DeleteWorkoutTemplate(long templateId) {
+        public ServiceActionResult DeleteWorkoutTemplate(long templateId) {
             var template = DBAccess.Workouts.Where(w => w.Id == templateId && w.Template == "Y").FirstOrDefault();
 
             if (template == null) {
-                return false;
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TEMPLATE_DOES_NOT_EXIST);
             }
 
             DBAccess.Workouts.Remove(template);
             DBAccess.SaveChanges();
 
-            return true;
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_DELETED);
         }
 
         /// <summary>
         ///     Returns list of all workout templates created by the user with the provided id
         /// </summary>
-        public List<WorkoutModel> GetWorkoutTemplates(string userId)
+        public ServiceActionResult GetWorkoutTemplates(string userId)
         {
-            var templatesModel = new List<WorkoutModel>();
             var templates = DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "Y")
                                              .OrderByDescending(w => w.Date)
+                                             .Select(t => (BaseModel) ModelMapper.MapToWorkoutModel(t, DBAccess))
                                              .ToList();
 
-            foreach (Workout t in templates) {
-                templatesModel.Add(ModelMapper.MapToWorkoutModel(t, DBAccess));
+            if (templates.Count == 0) {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_NO_TEMPLATES);
             }
 
-            return templatesModel;
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_NO_TEMPLATES, templates);
         }
     }
 }

@@ -1,5 +1,8 @@
 ﻿using FitnessAppAPI.Common;
+using FitnessAppAPI.Data.Services;
+using FitnessAppAPI.Data.Models;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol;
 using System.Security.Claims;
 
 namespace FitnessAppAPI.Controllers
@@ -12,19 +15,54 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         ///     Returns a JsonResult with all the data needed for a Response
         ///     Returned fields must correspond with client-side CustomResponse class:
-        ///         - responseCode
-        ///         - userMessage
-        ///         - returnData
+        ///         - ResponseCode
+        ///         - ResponseMessage
+        ///         - ResponseData
         /// </summary>
-        public ActionResult ReturnResponse(Constants.ResponseCode responseCode, string userMessage, List<string> returnData)
+        private OkObjectResult SendCustomResponse(Constants.ResponseCode ResponseCode, string ResponseMessage, List<string> ResponseData)
         {
-            return Ok(new 
-            { 
-                responseCode, 
-                userMessage, 
-                returnData 
+            return Ok(new
+            {
+                ResponseCode,
+                ResponseMessage,
+                ResponseData
             });
         }
+
+        public OkObjectResult CustomResponse(Constants.ResponseCode ResponseCode, string ResponseMessage, List<string> ResponseData)
+        {
+            return SendCustomResponse(ResponseCode, ResponseMessage, ResponseData);
+        }
+
+        public OkObjectResult CustomResponse(Constants.ResponseCode ResponseCode, string ResponseMessage)
+        {
+            return SendCustomResponse(ResponseCode, ResponseMessage, new List<string>());
+        }
+
+        public OkObjectResult CustomResponse(Constants.ResponseCode ResponseCode, string ResponseMessage, List<BaseModel> ResponseDataVal)
+        {
+            var ResponseData = new List<String>();
+
+            if (ResponseDataVal.Count > 0)
+            {
+                ResponseData.AddRange(ResponseDataVal.Select(m => m.ToJson()));
+            }
+
+            return SendCustomResponse(ResponseCode, ResponseMessage, ResponseData);
+           
+        }
+
+        public OkObjectResult CustomResponse(ServiceActionResult result)
+        {
+            var ResponseData = new List<String>();
+
+            if (result.ResponseData.Count > 0) {
+                ResponseData.AddRange(result.ResponseData.Select(m => m.ToJson()));
+            }
+
+            return SendCustomResponse(result.ResponseCode, result.ResponseMessage, ResponseData);
+        }
+
 
         /// <summary>
         ///     Used to get the logged in user id

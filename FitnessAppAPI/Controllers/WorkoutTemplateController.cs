@@ -1,13 +1,10 @@
 ﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Models;
-using FitnessAppAPI.Data.Services.Workouts;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using FitnessAppAPI.Data.Services.WorkoutTemplates;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using NuGet.Protocol;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -33,30 +30,22 @@ namespace FitnessAppAPI.Controllers
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("workout", out string? serializedWorkout))
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_WORKOUT_ADD_FAIL_NO_DATA, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_WORKOUT_ADD_FAIL_NO_DATA);
             }
 
             WorkoutModel? workoutData = JsonConvert.DeserializeObject<WorkoutModel>(serializedWorkout);
             if (workoutData == null)
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "WorkoutModel"), []);
+                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "WorkoutModel"));
             }
 
             string validationErrors = Utils.ValidateModel(workoutData);
             if (!validationErrors.IsNullOrEmpty())
             {
-                return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, validationErrors, []);
+                return CustomResponse(Constants.ResponseCode.UNEXPECTED_ERROR, validationErrors);
             }
 
-            bool success = service.AddWorkoutTemplate(workoutData, GetUserId());
-
-            // Success check
-            if (success == false)
-            {
-                return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
-            }
-
-            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_ADDED, []);
+            return CustomResponse(service.AddWorkoutTemplate(workoutData, GetUserId()));
         }
 
         /// <summary>
@@ -69,18 +58,11 @@ namespace FitnessAppAPI.Controllers
             // Check if the neccessary data is provided
             if (templateId < 1)
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_DELETE_FAIL_NO_ID, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_DELETE_FAIL_NO_ID);
             }
 
             // Delete the template
-            var success = service.DeleteWorkoutTemplate(templateId);
-
-            if (success)
-            {
-                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_DELETED, []);
-            }
-
-            return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
+            return CustomResponse(service.DeleteWorkoutTemplate(templateId));
         }
 
         /// <summary>
@@ -90,16 +72,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public ActionResult GetTemplates()
         {
-            var templates = service.GetWorkoutTemplates(GetUserId());
-
-            if (templates.Count == 0) {
-                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_NO_TEMPLATES, []);
-            }
-
-            var returnData = new List<string> { };
-            returnData.AddRange(templates.Select(t => t.ToJson()));
-            
-            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
+            return CustomResponse(service.GetWorkoutTemplates(GetUserId()));
         }
     }
 }

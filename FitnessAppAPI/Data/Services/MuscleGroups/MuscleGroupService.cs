@@ -1,5 +1,5 @@
-﻿using FitnessAppAPI.Data.Services.MuscleGroups.Models;
-using FitnessAppAPI.Common;
+﻿using FitnessAppAPI.Common;
+using FitnessAppAPI.Data.Models;
 
 namespace FitnessAppAPI.Data.Services.MuscleGroups
 {
@@ -16,12 +16,19 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public List<MuscleGroupModel>? GetMuscleGroups(String userId)
+        public ServiceActionResult GetMuscleGroups(String userId)
         {
-            return DBAccess.MuscleGroups.Where(m => m.UserId == userId || m.UserId == null)
-                                        .OrderBy(m => m.Id)
-                                        .Select(m => ModelMapper.MapToMuscleGroupModel(m))
-                                        .ToList();
+            var returnData = DBAccess.MuscleGroups.Where(m => m.UserId == userId || m.UserId == null)
+                                                    .OrderBy(m => m.Id)
+                                                    .Select(m => (BaseModel) ModelMapper.MapToMuscleGroupModel(m))
+                                                    .ToList();
+
+            if (returnData.Count > 0) {
+                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
+            }
+
+            // Should not happen as there are always default muscle groups
+            return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_NO_MUSCLE_GROUPS_FOUND, returnData);
         }
     }
 }

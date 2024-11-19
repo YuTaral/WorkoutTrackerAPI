@@ -34,7 +34,7 @@ namespace FitnessAppAPI.Controllers
             /// Check if username and password are provided
             if (!requestData.TryGetValue("email", out string? email) || !requestData.TryGetValue("password", out string? password))
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL);
             }
 
             LoginResponseModel? model = await service.Login(email, password);
@@ -42,19 +42,22 @@ namespace FitnessAppAPI.Controllers
             // Success check
             if (model == null)
             {
-                return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_LOGIN_FAILED, []);
+                return CustomResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_LOGIN_FAILED);
             }
 
             // Construct the return data list
             var returnData = new List<string> { model.User.ToJson(), model.Token };
 
-            var currentWorkout = workoutService.GetLastWorkout(model.User.Id);
-            if (currentWorkout != null) 
+            // Get the last workout
+            var result = workoutService.GetLastWorkout(model.User.Id);
+
+            if (result.IsSuccess()) 
             {
-                returnData.Add(currentWorkout.ToJson());
+                // If workout exists for the user, add it to the returnData
+                returnData.Add(result.ResponseData[0].ToJson());
             }
 
-            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
+            return CustomResponse(result.ResponseCode, result.ResponseMessage, returnData);
         }
 
 
@@ -67,7 +70,7 @@ namespace FitnessAppAPI.Controllers
             /// Check if username and password are provided
             if (!requestData.TryGetValue("email", out string? email) || !requestData.TryGetValue("password", out string? password))
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL);
             }
 
             string response = await service.Register(email, password);
@@ -75,10 +78,10 @@ namespace FitnessAppAPI.Controllers
             // Success check
             if (response != Constants.MSG_SUCCESS) 
             {
-                return ReturnResponse(Constants.ResponseCode.FAIL, response, []);
+                return CustomResponse(Constants.ResponseCode.FAIL, response);
             }
 
-            return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_REGISTER_SUCCESS, []);
+            return CustomResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_REGISTER_SUCCESS);
         }
 
         /// <summary>
@@ -94,10 +97,10 @@ namespace FitnessAppAPI.Controllers
             var loggedOut = GetUserId() != "";
 
             if (loggedOut) { 
-                return ReturnResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, []);
+                return CustomResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
             }
 
-            return ReturnResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []);
+            return CustomResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR);
         }
     }
 }
