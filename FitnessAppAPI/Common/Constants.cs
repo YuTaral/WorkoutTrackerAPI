@@ -31,6 +31,7 @@
         public const string MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ = "Request failed. Failed to deseriazlied object %s";
         public const string MSG_USER_NOT_LOGGED_IN = "User not logged in";
         public const string MSG_UNEXPECTED_ERROR = "Unexpected error occurred while proccessing your request. Please try again";
+        public const string MSG_UNEXPECTED_DB_ERROR = "Unexpected database error occurred while proccessing your request. Please try again";
         public const string MSG_OBJECT_ID_NOT_PROVIDED = "Id not provided";
         public const string MSG_NO_TEMPLATES = "You don\'t have any workout templates yet. Use the top right menu button to create template";
         public const string MSG_USER_REGISTER_SUCCESS = "User registered successfully";
