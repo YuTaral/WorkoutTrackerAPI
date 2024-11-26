@@ -6,10 +6,8 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups
     /// <summary>
     ///     Muscle group service class to implement IMuscleGroup interface.
     /// </summary>
-    public class MuscleGroupService(FitnessAppAPIContext DB) : BaseService, IMuscleGroupService
+    public class MuscleGroupService(FitnessAppAPIContext DB) : BaseService(DB), IMuscleGroupService
     {
-        private readonly FitnessAppAPIContext DBAccess = DB;
-
         /// <summary>
         ///     Fetches the default Muscle Groups and the user defined Muscle Groups
         /// </summary>
@@ -18,7 +16,7 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups
         /// </param>
         public ServiceActionResult GetMuscleGroups(String userId)
         {
-            return ExecuteServiceAction(() => {
+            return ExecuteServiceAction(userId => {
                 var returnData = DBAccess.MuscleGroups.Where(m => m.UserId == userId || m.UserId == null)
                                                     .OrderBy(m => m.Id)
                                                     .Select(m => (BaseModel)ModelMapper.MapToMuscleGroupModel(m))
@@ -31,7 +29,7 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups
 
                 // Should not happen as there are always default muscle groups
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_NO_MUSCLE_GROUPS_FOUND, returnData);
-            });
+            }, userId);
         }
     }
 }

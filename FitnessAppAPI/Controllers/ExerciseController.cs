@@ -55,7 +55,7 @@ namespace FitnessAppAPI.Controllers
 
             // Add the exercise
             long id = long.Parse(workoutId);
-            var result = service.AddExerciseToWorkout(exerciseData, id);
+            var result = service.AddExerciseToWorkout(exerciseData, id, GetUserId());
 
             if (result.IsSuccess())
             {
@@ -94,7 +94,7 @@ namespace FitnessAppAPI.Controllers
 
             // Update the exercise
             long id = long.Parse(workoutId);
-            var result = service.UpdateExerciseFromWorkout(exerciseData, id);
+            var result = service.UpdateExerciseFromWorkout(exerciseData, id, GetUserId());
 
             if (result.IsSuccess())
             {
@@ -119,7 +119,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             // Delete the exercise
-            var result = service.DeleteExerciseFromWorkout(exerciseId);
+            var result = service.DeleteExerciseFromWorkout(exerciseId, GetUserId());
 
             if (result.IsSuccess())
             {
@@ -167,7 +167,7 @@ namespace FitnessAppAPI.Controllers
             var workoutId = long.Parse(id);
             if (workoutId > 0)
             {
-                var addExToWorkoutResult = service.AddExerciseToWorkout((ExerciseModel) result.ResponseData[0], workoutId);
+                var addExToWorkoutResult = service.AddExerciseToWorkout((ExerciseModel) result.ResponseData[0], workoutId, GetUserId());
                 if (addExToWorkoutResult.IsSuccess())
                 {
                     // Return the updated workout on success
@@ -212,7 +212,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             // Update the exercise
-            var result = service.UpdateExercise(exerciseData);
+            var result = service.UpdateExercise(exerciseData, GetUserId());
             if (!result.IsSuccess())
             {
                 return CustomResponse(result);
@@ -236,7 +236,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             // Delete the exercise
-            var result = service.DeleteExercise(MGExerciseId);
+            var result = service.DeleteExercise(MGExerciseId, GetUserId());
             if (!result.IsSuccess())
             {
                 return CustomResponse(result);
@@ -278,7 +278,7 @@ namespace FitnessAppAPI.Controllers
         /// </param>
         
         private OkObjectResult GetUpdatedWorkout(long id, ServiceActionResult previousActionResult) {
-            var getWorkoutResult = workoutService.GetWorkout(id);
+            var getWorkoutResult = workoutService.GetWorkout(id, GetUserId());
             if (getWorkoutResult.IsSuccess())
             {
                 // Combine the response and message from the previous action result with the updated workout

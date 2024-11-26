@@ -9,9 +9,9 @@ namespace FitnessAppAPI.Data.Services.Workouts
     {
         public ServiceActionResult AddWorkout(WorkoutModel data, string userId);
         public ServiceActionResult EditWorkout(WorkoutModel data, string userId);
-        public ServiceActionResult DeleteWorkout(long workoutId);
-        public ServiceActionResult GetWorkout(long id);
-        public ServiceActionResult GetLatestWorkouts(String userId);
+        public ServiceActionResult DeleteWorkout(long workoutId, string userId);
+        public ServiceActionResult GetWorkout(long id, string userId);
+        public ServiceActionResult GetLatestWorkouts(string userId);
         public ServiceActionResult GetLastWorkout(string userId);
     }
 }

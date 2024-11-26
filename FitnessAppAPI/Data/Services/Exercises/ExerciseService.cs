@@ -8,10 +8,8 @@ namespace FitnessAppAPI.Data.Services.Exercises
     /// <summary>
     ///     Exercise service class to implement IWorkoutService interface.
     /// </summary>
-    public class ExerciseService(FitnessAppAPIContext DB) : BaseService, IExerciseService
+    public class ExerciseService(FitnessAppAPIContext DB) : BaseService(DB), IExerciseService
     {
-        private readonly FitnessAppAPIContext DBAccess = DB;
-
         /// <summary>
         ///     Adds the exercise to the workout with the provided id
         /// </summary>
@@ -21,9 +19,12 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="workoutId">
         ///     The workout id
         /// </param>
-        public ServiceActionResult AddExerciseToWorkout(ExerciseModel exerciseData, long workoutId)
+        /// <param name="userId">
+        ///     The user who is adding the exercse
+        /// </param>
+        public ServiceActionResult AddExerciseToWorkout(ExerciseModel exerciseData, long workoutId, string userId)
         {
-            return ExecuteServiceAction(() => {
+            return ExecuteServiceAction(userId => {
                 var exercise = new Exercise
                 {
                     Name = exerciseData.Name,
@@ -53,7 +54,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 }
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED);
-            });
+            }, userId);
         }
 
         /// <summary>
@@ -65,9 +66,12 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="workoutId">
         ///     The workout id
         /// </param>
-        public ServiceActionResult UpdateExerciseFromWorkout(ExerciseModel exerciseData, long workoutId)
+        /// <param name="userId">
+        ///     The user who is updating the exercse
+        /// </param>
+        public ServiceActionResult UpdateExerciseFromWorkout(ExerciseModel exerciseData, long workoutId, string userId)
         {
-            return ExecuteServiceAction(() => {
+            return ExecuteServiceAction(userId => {
                 // Fetch the exact exercise and it's sets
                 var exercise = DBAccess.Exercises.Find(exerciseData.Id);
 
@@ -143,7 +147,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 DBAccess.SaveChanges();
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_UPDATED);
-            });
+            }, userId);
         }
 
         /// <summary>
@@ -152,9 +156,12 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="exerciseId">
         ///     The exercise id
         /// </param>
-        public ServiceActionResult DeleteExerciseFromWorkout(long exerciseId)
+        /// <param name="userId">
+        ///     The user who is deleting the exercse
+        /// </param>
+        public ServiceActionResult DeleteExerciseFromWorkout(long exerciseId, string userId)
         {
-            return ExecuteServiceAction(() => {
+            return ExecuteServiceAction((userId) => {
                 var exercise = DBAccess.Exercises.Where(e => e.Id == exerciseId).FirstOrDefault();
                 if (exercise == null)
                 {
@@ -166,7 +173,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_DELETED,
                                                   CreateReturnData(new BaseModel { Id = exercise.WorkoutId }));
-            });
+            }, userId);
         }
 
         /// <summary>
@@ -176,11 +183,11 @@ namespace FitnessAppAPI.Data.Services.Exercises
         ///     The exercise
         /// </param>
         /// <param name="userId">
-        ///     The user id who added the exercise
+        ///     The user id who adding the exercise
         /// </param>
         public ServiceActionResult AddExercise(MGExerciseModel exerciseData, string userId)
         {
-            return ExecuteServiceAction(() => {
+            return ExecuteServiceAction(userId => {
                 var exercise = new MGExercise
                 {
                     Name = exerciseData.Name,
@@ -199,7 +206,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
                                             .FirstOrDefault(ModelMapper.GetEmptyExerciseModel());
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED, CreateReturnData(model));
-            });
+            }, userId);
         }
 
         /// <summary>
@@ -209,10 +216,10 @@ namespace FitnessAppAPI.Data.Services.Exercises
         ///     The exercise
         /// </param>
         /// <param name="userId">
-        ///     The user id who added the exercise
+        ///     The user id who adding the exercise
         /// </param>
-        public ServiceActionResult UpdateExercise(MGExerciseModel exerciseData) {
-            return ExecuteServiceAction(() => {
+        public ServiceActionResult UpdateExercise(MGExerciseModel exerciseData, string userId) {
+            return ExecuteServiceAction(userId => {
                 var mgExercise = DBAccess.MGExercises.Where(mg => mg.Id == exerciseData.Id).FirstOrDefault();
 
                 if (mgExercise == null)
@@ -228,7 +235,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 DBAccess.SaveChanges();
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_UPDATED);
-            });
+            }, userId);
         }
 
         /// <summary>
@@ -237,9 +244,13 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="MGExerciseId">
         ///     The exercise id
         /// </param>
-        public ServiceActionResult DeleteExercise(long MGExerciseId)
+        /// <param name="userId">
+        ///     The user id who deleting the exercise
+        /// </param>
+        /// 
+        public ServiceActionResult DeleteExercise(long MGExerciseId, string userId)
         {
-            return ExecuteServiceAction(() => {
+            return ExecuteServiceAction(userId => {
                 var MGExercise = DBAccess.MGExercises.Where(e => e.Id == MGExerciseId).FirstOrDefault();
 
                 if (MGExercise == null)
@@ -257,7 +268,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_DELETED,
                                 CreateReturnData(new BaseModel { Id = MGExercise.MuscleGroupId }));
-            });
+            }, userId);
         }
 
 
@@ -276,7 +287,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         ///     If "N" the method will return all default and user defined exercises for this muscle group
         /// </param>
         public ServiceActionResult GetExercisesForMG(long muscleGroupId, string userId, string onlyForUser) {
-            return ExecuteServiceAction(() => {
+            return ExecuteServiceAction(userId => {
                 var returnData = new List<BaseModel>();
 
                 if (onlyForUser == "Y")
@@ -294,7 +305,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 }
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
-            });
+            }, userId);
         }
     }
 }

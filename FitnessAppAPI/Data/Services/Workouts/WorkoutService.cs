@@ -9,16 +9,20 @@ namespace FitnessAppAPI.Data.Services.Workouts
     ///     Workout service class to implement IWorkoutService interface.
     /// </summary>
 
-    public class WorkoutService(FitnessAppAPIContext DB) : BaseService, IWorkoutService
+    public class WorkoutService(FitnessAppAPIContext DB) : BaseService(DB), IWorkoutService
     {
-        private readonly FitnessAppAPIContext DBAccess = DB;
-
         /// <summary>
         ///     Adds new workout from the provided WorkoutModel data
         /// </summary>
+        /// <param name="data">
+        ///     The workout data
+        /// </param>
+        /// <param name="userId">
+        ///     The user who is adding the workout
+        /// </param>
         public ServiceActionResult AddWorkout(WorkoutModel data, string userId)
         {
-            return ExecuteServiceAction(() => {
+            return ExecuteServiceAction(userId => {
                 // Verify user with this id exists
                 if (!UserExists(DBAccess, userId))
                 {
@@ -38,15 +42,21 @@ namespace FitnessAppAPI.Data.Services.Workouts
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_WORKOUT_ADDED,
                                                 CreateReturnData(ModelMapper.MapToWorkoutModel(workout, DBAccess)));
-            });
+            }, userId);
         }
 
         /// <summary>
         ///     Edits the workout from the provided WorkoutModel data
         /// </summary>
+        /// <param name="data">
+        ///     The workout data
+        /// </param>
+        /// <param name="userId">
+        ///     The user who is updating the workout
+        /// </param>
         public ServiceActionResult EditWorkout(WorkoutModel data, string userId)
         {
-            return ExecuteServiceAction(() => {
+            return ExecuteServiceAction(userId => {
                 // Verify user with this id exists
                 if (!UserExists(DBAccess, userId))
                 {
@@ -67,7 +77,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_WORKOUT_UPDATED,
                                                  CreateReturnData(ModelMapper.MapToWorkoutModel(workout, DBAccess)));
-            });
+            }, userId);
         }
 
         /// <summary>
@@ -76,8 +86,11 @@ namespace FitnessAppAPI.Data.Services.Workouts
         ///  /// <param name="workoutId">
         ///     The workout id
         /// </param>
-        public ServiceActionResult DeleteWorkout(long workoutId) {
-            return ExecuteServiceAction(() => {
+        /// <param name="userId">
+        ///     The user who is deleting the workout
+        /// </param>
+        public ServiceActionResult DeleteWorkout(long workoutId, string userId) {
+            return ExecuteServiceAction(userId => {
                 var workout = CheckWorkoutExists(workoutId);
                 if (workout == null)
                 {
@@ -89,7 +102,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 DBAccess.SaveChanges();
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_WORKOUT_DELETED);
-            });
+            }, userId);
         }
 
         /// <summary>
@@ -100,7 +113,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// </param>
 
         public ServiceActionResult GetLastWorkout(string userId) {
-            return ExecuteServiceAction(() => {
+            return ExecuteServiceAction(userId => {
                 var workout = DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "N")
                                           .OrderByDescending(w => w.Date)
                                           .FirstOrDefault();
@@ -112,7 +125,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS,
                                                 CreateReturnData(ModelMapper.MapToWorkoutModel(workout, DBAccess)));
-            });
+            }, userId);
         }
 
         /// <summary>
@@ -121,8 +134,11 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <param name="id">
         ///     The workout id
         /// </param>
-        public ServiceActionResult GetWorkout(long id) {
-            return ExecuteServiceAction(() => {
+        /// <param name="userId">
+        ///     The user owner of the workout
+        /// </param>
+        public ServiceActionResult GetWorkout(long id, string userId) {
+            return ExecuteServiceAction(userId => {
                 var workout = CheckWorkoutExists(id);
                 if (workout == null)
                 {
@@ -131,7 +147,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS,
                                                 CreateReturnData(ModelMapper.MapToWorkoutModel(workout, DBAccess)));
-            });
+            }, userId);
         }
 
         /// <summary>
@@ -141,7 +157,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         ///     The user id
         /// </param>
         public ServiceActionResult GetLatestWorkouts(string userId) {
-            return ExecuteServiceAction(() => {
+            return ExecuteServiceAction(userId => {
                 var workouts = DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "N")
                                                 .OrderByDescending(w => w.Date)
                                                 .Select(w => (BaseModel)ModelMapper.MapToWorkoutModel(w, DBAccess))
@@ -153,7 +169,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 }
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, workouts);
-            });
+            }, userId);
         }
 
         /// <summary>

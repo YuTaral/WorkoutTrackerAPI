@@ -55,7 +55,9 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.UNEXPECTED_ERROR, validationErrors);
             }
 
-            ServiceActionResult result = service.AddWorkout(workoutData, GetUserId());
+            var userId = GetUserId();
+
+            ServiceActionResult result = service.AddWorkout(workoutData, userId);
 
             // Success check
             if (!result.IsSuccess())
@@ -67,11 +69,11 @@ namespace FitnessAppAPI.Controllers
             // Check if this is template and add the exercises if so
             if (workoutData.Template && workoutData.Exercises != null) {
                 foreach (ExerciseModel e in workoutData.Exercises) {
-                    exerciseService.AddExerciseToWorkout(e, result.ResponseData[0].Id);
+                    exerciseService.AddExerciseToWorkout(e, result.ResponseData[0].Id, userId);
                 }
 
                 // Get the updated workout
-                var getWorkoutResult = service.GetWorkout(result.ResponseData[0].Id);
+                var getWorkoutResult = service.GetWorkout(result.ResponseData[0].Id, userId);
                 if (getWorkoutResult.IsSuccess()) {
                     return CustomResponse(result.ResponseCode, result.ResponseMessage, getWorkoutResult.ResponseData);
                 }
@@ -121,7 +123,7 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
             }
 
-            return CustomResponse(service.DeleteWorkout(long.Parse(workoutId)));
+            return CustomResponse(service.DeleteWorkout(long.Parse(workoutId), GetUserId()));
         }
 
         /// <summary>
@@ -147,7 +149,7 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
             }
 
-            return CustomResponse(service.GetWorkout(workoutId));
+            return CustomResponse(service.GetWorkout(workoutId, GetUserId()));
         }
     }
 }

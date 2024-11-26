@@ -9,16 +9,21 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
     /// <summary>
     ///     Workout Temaplte service class to implement IWorkoutTemplateService interface.
     /// </summary>
-    public class WorkoutTemplateService(FitnessAppAPIContext DB, IExerciseService exService) : BaseService, IWorkoutTemplateService 
+    public class WorkoutTemplateService(FitnessAppAPIContext DB, IExerciseService exService) : BaseService(DB), IWorkoutTemplateService 
     {
-        private readonly FitnessAppAPIContext DBAccess = DB;
         private readonly IExerciseService exerciseService = exService;
 
         /// <summary>
         ///     Adds new workout template from the provided WorkoutModel data
         /// </summary>
+        /// <param name="data">
+        ///     The template data
+        /// </param>
+        /// <param name="userId">
+        ///     The user who is adding the template
+        /// </param>
         public ServiceActionResult AddWorkoutTemplate(WorkoutModel data, string userId) {
-            return ExecuteServiceAction(() =>
+            return ExecuteServiceAction(userId =>
             {
                 // Verify user with this id exists
                 if (!UserExists(DBAccess, userId))
@@ -44,7 +49,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
 
                     foreach (ExerciseModel exerciseData in data.Exercises)
                     {
-                        var result = exerciseService.AddExerciseToWorkout(exerciseData, template.Id);
+                        var result = exerciseService.AddExerciseToWorkout(exerciseData, template.Id, userId);
 
                         if (!result.IsSuccess())
                         {
@@ -55,14 +60,20 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
                 }
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_ADDED);
-            });
+            }, userId);
         }
 
-        // <summary>
+        /// <summary>
         ///    Deletes the template with the provided id
         /// </summary>
-        public ServiceActionResult DeleteWorkoutTemplate(long templateId) {
-            return ExecuteServiceAction(() => {
+        /// <param name="templateId">
+        ///     The template id
+        /// </param>
+        /// <param name="userId">
+        ///     The user who is deleting the template
+        /// </param>
+        public ServiceActionResult DeleteWorkoutTemplate(long templateId, string userId) {
+            return ExecuteServiceAction(userId => {
                 var template = DBAccess.Workouts.Where(w => w.Id == templateId && w.Template == "Y").FirstOrDefault();
 
                 if (template == null)
@@ -74,15 +85,18 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
                 DBAccess.SaveChanges();
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_DELETED);
-            });
+            }, userId);
         }
 
         /// <summary>
         ///     Returns list of all workout templates created by the user with the provided id
         /// </summary>
+        /// <param name="userId">
+        ///     The user who is fetching the templates
+        /// </param>
         public ServiceActionResult GetWorkoutTemplates(string userId)
         {
-            return ExecuteServiceAction(() => {
+            return ExecuteServiceAction(userId => {
                 var templates = DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "Y")
                                                 .OrderByDescending(w => w.Date)
                                                 .Select(t => (BaseModel)ModelMapper.MapToWorkoutModel(t, DBAccess))
@@ -94,7 +108,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
                 }
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, templates);
-            });
+            }, userId);
         }
     }
 }

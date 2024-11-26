@@ -61,6 +61,8 @@
             public const int MinLen1 = 1;
             public const int MaxLen50 = 50;
             public const int MaxLen4000 = 4000;
+            public const string ExceptionTypeDB = "DB";
+            public const string ExceptionTypeUnexpected = "UNEXPECTED";
         }
 
         /// <summary>

@@ -14,6 +14,8 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
     public DbSet<Set> Sets { get; init; }
     public DbSet<MuscleGroup> MuscleGroups { get; init; }
     public DbSet<MGExercise> MGExercises { get; init; }
+    public DbSet<SystemLog> SystemLogs { get; init; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -70,6 +72,13 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .HasOne<User>()
                .WithMany()
                .HasForeignKey(m => m.UserId)
+               .OnDelete(DeleteBehavior.NoAction);
+
+        //// SystemLog -> User relation via SystemLog.UserId
+        modelBuilder.Entity<SystemLog>()
+               .HasOne<User>()
+               .WithMany()
+               .HasForeignKey(s => s.UserId)
                .OnDelete(DeleteBehavior.NoAction);
 
         // Add the default Muscle Groups

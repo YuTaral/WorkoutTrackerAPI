@@ -7,22 +7,49 @@ namespace FitnessAppAPI.Data.Services
     /// <summary>
     ///     The BaseService class which contains the common logic for all services
     /// </summary>
-    public class BaseService
+    public class BaseService(FitnessAppAPIContext DB)
     {
-        protected ServiceActionResult ExecuteServiceAction(Func<ServiceActionResult> serviceAction)
+        protected readonly FitnessAppAPIContext DBAccess = DB;
+
+        protected ServiceActionResult ExecuteServiceAction(Func<string, ServiceActionResult> serviceAction, string userId)
         {
             try
             {
-                return serviceAction();
+                return serviceAction(userId);
             }
             catch (DbUpdateException dbEx)
             {
-                // Handle database-specific errors
+               
+                // Add system log for the db error
+                var systemLog = new SystemLog
+                {
+                    ActionName = serviceAction.Method.Name,
+                    ExceptionType = Constants.DBConstants.ExceptionTypeDB,
+                    ExceptionDescription = dbEx.Message,
+                    Date = DateTime.UtcNow,
+                    UserId = userId
+                };
+
+                DBAccess.SystemLogs.Add(systemLog);
+                DBAccess.SaveChanges();
+
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_UNEXPECTED_DB_ERROR);
             }
             catch (Exception ex)
             {
-                // Handle general errors
+                // Add system log for the db error
+                var systemLog = new SystemLog
+                {
+                    ActionName = serviceAction.Method.Name,
+                    ExceptionType = Constants.DBConstants.ExceptionTypeUnexpected,
+                    ExceptionDescription = ex.Message,
+                    Date = DateTime.UtcNow,
+                    UserId = userId
+                };
+
+                DBAccess.SystemLogs.Add(systemLog);
+                DBAccess.SaveChanges();
+
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_UNEXPECTED_ERROR);
             }
         }
