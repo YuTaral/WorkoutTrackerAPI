@@ -13,7 +13,7 @@
             SUCCESS,
             FAIL,
             UNEXPECTED_ERROR,
-
+            EXERCISE_ALREADY_EXISTS
         }
 
         /// <summary>
@@ -51,6 +51,7 @@
         public const string MSG_EXERCISE_NOT_FOUND = "Exercise does not exist";
         public const string MSG_NO_MUSCLE_GROUPS_FOUND = "No muscle groups found";
         public const string MSG_TEMPLATE_DOES_NOT_EXIST = "Tempalte does not exist";
+        public const string MSG_EX_ALREADY_EXISTS = "Exercise with the same name already exists";
 
 
         /// <summary>

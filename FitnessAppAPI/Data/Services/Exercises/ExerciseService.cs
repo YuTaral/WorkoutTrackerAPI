@@ -185,9 +185,31 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="userId">
         ///     The user id who adding the exercise
         /// </param>
-        public ServiceActionResult AddExercise(MGExerciseModel exerciseData, string userId)
+        /// <param name="checkExistingEx">
+        ///     "Y" if we need to check whether exercise with this name already exists,
+        ///     "N" to skip the check
+        /// </param>
+        public ServiceActionResult AddExercise(MGExerciseModel exerciseData, string userId, string checkExistingEx)
         {
             return ExecuteServiceAction(userId => {
+
+                if (checkExistingEx == "Y")
+                {
+                    // Check if exercise with the same name already exists
+                    var existingExercise = DBAccess.MGExercises.Where(e => e.Name.ToLower().Equals(exerciseData.Name.ToLower()) &&
+                                                                           e.MuscleGroupId == exerciseData.MuscleGroupId &&
+                                                                           e.UserId == userId)
+                                                                           .FirstOrDefault();
+
+                    if (existingExercise != null)
+                    {
+                        // If it exists, ask the user whether to override the description or create a new one
+                        return new ServiceActionResult(Constants.ResponseCode.EXERCISE_ALREADY_EXISTS, Constants.MSG_EX_ALREADY_EXISTS,
+                            CreateReturnData(ModelMapper.MapToMGExerciseModel(existingExercise)));
+                    }
+                }
+               
+                // Create new exercise
                 var exercise = new MGExercise
                 {
                     Name = exerciseData.Name,

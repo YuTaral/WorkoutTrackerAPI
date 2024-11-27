@@ -155,8 +155,14 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
             }
 
+            requestData.TryGetValue("checkExistingEx", out string? checkExistingEx);
+            if (checkExistingEx == null)
+            {
+                checkExistingEx = "Y";
+            }
+
             // Add the exercise
-            var result = service.AddExercise(exerciseData, GetUserId());
+            var result = service.AddExercise(exerciseData, GetUserId(), checkExistingEx);
 
             if (!result.IsSuccess())
             {
@@ -218,8 +224,15 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(result);
             }
 
+            // Check if we need to return all exercises or only the user defined
+            requestData.TryGetValue("onlyForUser", out string? onlyForUser);
+            if (onlyForUser == null)
+            {
+                onlyForUser = "Y";
+            }
+
             // Return the updated exercises for this muscle group
-            return GetUpdatedMGExercises(exerciseData.MuscleGroupId, "Y", result);
+            return GetUpdatedMGExercises(exerciseData.MuscleGroupId, onlyForUser, result);
         }
 
         /// <summary>
