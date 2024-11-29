@@ -21,7 +21,6 @@ namespace FitnessAppAPI.Data
         private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
 
-
         /// <summary>
         ///     Class constructor.
         /// </summary>
@@ -38,47 +37,39 @@ namespace FitnessAppAPI.Data
         /// <summary>
         ///     Register the user.
         /// </summary>
-        /// <param name="email">
-        ///     The user email.
-        /// </param>
-        /// <param name="password">
-        ///     The user password.
-        /// </param>
-        public async Task<String> Register(string email, string password)
+        /// <param name="email">The user email.</param>
+        /// <param name="password">The user password.</param>
+        public ServiceActionResult Register(string email, string password)
         {
-            // Validate 
+            // Validate
             if (!Utils.IsValidEmail(email))
             {
-                return Constants.MSG_REG_FAIL_EMAIL;
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL_EMAIL);
             }
 
             // Create the user
             var user = CreateUser();
-            await _userStore.SetUserNameAsync(user, email, CancellationToken.None);
-            await _emailStore.SetEmailAsync(user, email, CancellationToken.None);
-            var result = await _userManager.CreateAsync(user, password);
+            _userStore.SetUserNameAsync(user, email, CancellationToken.None).Wait();
+            _emailStore.SetEmailAsync(user, email, CancellationToken.None).Wait();
+            var result = _userManager.CreateAsync(user, password).Result;
 
             if (!result.Succeeded)
             {
-                return Utils.UserErrorsToString(result.Errors);
-            } 
-            
-            return Constants.MSG_SUCCESS;
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Utils.UserErrorsToString(result.Errors));
+            }
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_REGISTER_SUCCESS);
         }
 
         /// <summary>
         ///     Login the user.
         /// </summary>
-        /// <param name="email">
-        ///     The user email.
-        /// </param>
-        /// <param name="password">
-        ///     The user password.
-        /// </param>
-        public async Task<LoginResponseModel?> Login(string email, string password)
+        /// <param name="email">The user email.</param>
+        /// <param name="password">The user password.</param>
+        public LoginResponseModel? Login(string email, string password)
         {
             // Login attempt
-            var result = await _signInManager.PasswordSignInAsync(email, password, true, lockoutOnFailure: false);
+            var result = _signInManager.PasswordSignInAsync(email, password, true, lockoutOnFailure: false).Result;
 
             // Process result
             if (!result.Succeeded)
@@ -87,20 +78,22 @@ namespace FitnessAppAPI.Data
             }
 
             // Retrieve the logged in user
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = _userManager.FindByEmailAsync(email).Result;
 
-            if (user == null || user.Email == null) { 
-                return null; 
+            if (user == null || user.Email == null)
+            {
+                return null;
             }
 
             // Generate JwtToken
             var token = GenerateJwtToken(user);
-
-            if (token == "") {
+            if (token == "")
+            {
                 return null;
             }
 
-            var model = new LoginResponseModel
+            // Return LoginResponseModel as the token is not BaseModel
+            return new LoginResponseModel
             {
                 User = new UserModel
                 {
@@ -109,11 +102,16 @@ namespace FitnessAppAPI.Data
                 },
                 Token = token
             };
-
-
-            return model;
         }
 
+        /// <summary>
+        /// Log Out the User
+        /// </summary>
+        public ServiceActionResult Logout()
+        {
+            _signInManager.SignOutAsync().Wait();
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+        }
 
         /// <summary>
         /// Generate JwtToken for the logged in user
@@ -132,7 +130,7 @@ namespace FitnessAppAPI.Data
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -146,21 +144,10 @@ namespace FitnessAppAPI.Data
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-
-        /// <summary>
-        /// Log Out the User
-        /// </summary>
-        public async Task<Boolean> Logout() {
-            await _signInManager.SignOutAsync();
-            return true;
-        }
-
         /// <summary>
         ///     Create a User instance using the Activator.CreateInstance.
         /// </summary>
-        /// <returns>
-        ///     User object, if method fails returns InvalidOperationException.
-        /// </returns>
+        /// <returns>User object, if method fails returns InvalidOperationException.</returns>
         private User CreateUser()
         {
             try
@@ -175,20 +162,17 @@ namespace FitnessAppAPI.Data
             }
         }
 
-
         /// <summary>
         ///     Check whether the backing user store supports user emails.
         /// </summary>
-        /// <returns>
-        ///     UserStore object if user store supports user email, otherwise throws NotSupportedException.
-        /// </returns>
+        /// <returns>UserStore object if user store supports user email, otherwise throws NotSupportedException.</returns>
         private IUserEmailStore<User> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<User>) _userStore;
+            return (IUserEmailStore<User>)_userStore;
         }
     }
 }

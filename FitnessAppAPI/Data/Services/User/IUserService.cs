@@ -7,8 +7,8 @@ namespace FitnessAppAPI.Data.Services
     /// </summary>
     public interface IUserService
     {
-        public Task<String> Register(string email, string password);
-        public Task<LoginResponseModel?> Login(string email, string password);
-        public Task<Boolean> Logout();
+        public ServiceActionResult Register(string email, string password);
+        public LoginResponseModel? Login(string email, string password);
+        public ServiceActionResult Logout();
     }
 }

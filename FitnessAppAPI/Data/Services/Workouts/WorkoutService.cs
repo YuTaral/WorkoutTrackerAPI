@@ -108,7 +108,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
 
                 if (workout == null)
                 {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_HAS_NO_WORKOUT);
+                    return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_HAS_NO_WORKOUT, []);
                 }
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS,
@@ -130,7 +130,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 var workout = CheckWorkoutExists(id, userId);
                 if (workout == null)
                 {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_WORKOUT_DOES_NOT_EXIST);
+                    return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_WORKOUT_DOES_NOT_EXIST, []);
                 }
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS,
@@ -150,11 +150,6 @@ namespace FitnessAppAPI.Data.Services.Workouts
                                                 .OrderByDescending(w => w.Date)
                                                 .Select(w => (BaseModel)ModelMapper.MapToWorkoutModel(w, DBAccess))
                                                 .ToList();
-
-                if (workouts.Count == 0)
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_HAS_NO_WORKOUT);
-                }
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, workouts);
             }, userId);
