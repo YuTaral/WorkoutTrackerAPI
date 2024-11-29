@@ -53,18 +53,5 @@ namespace FitnessAppAPI.Data.Services
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_UNEXPECTED_ERROR);
             }
         }
-
-        /// <summary>
-        ///    Returns List<BaseModel> adding the BaseModel
-        /// </summary>
-        /// <param name="model">
-        ///     The model to add
-        /// </param>
-        protected List<BaseModel> CreateReturnData(BaseModel model)
-        {
-            var returnData = new List<BaseModel>();
-            returnData.Add(model);
-            return returnData;
-        }
     }
 }

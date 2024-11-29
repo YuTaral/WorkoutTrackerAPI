@@ -35,7 +35,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 DBAccess.SaveChanges();
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_WORKOUT_ADDED,
-                                                CreateReturnData(ModelMapper.MapToWorkoutModel(workout, DBAccess)));
+                                                [ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
             }, userId);
         }
 
@@ -64,7 +64,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 DBAccess.SaveChanges();
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_WORKOUT_UPDATED,
-                                                 CreateReturnData(ModelMapper.MapToWorkoutModel(workout, DBAccess)));
+                                                [ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
             }, userId);
         }
 
@@ -112,7 +112,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 }
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS,
-                                                CreateReturnData(ModelMapper.MapToWorkoutModel(workout, DBAccess)));
+                                               [ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
             }, userId);
         }
 
@@ -134,7 +134,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 }
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS,
-                                                CreateReturnData(ModelMapper.MapToWorkoutModel(workout, DBAccess)));
+                                                [ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
             }, userId);
         }
 

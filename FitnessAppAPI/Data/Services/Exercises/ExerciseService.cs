@@ -171,7 +171,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 DBAccess.SaveChanges();
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_DELETED,
-                                                  CreateReturnData(new BaseModel { Id = exercise.WorkoutId }));
+                                                  [new BaseModel { Id = exercise.WorkoutId }]);
             }, userId);
         }
 
@@ -204,7 +204,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
                     {
                         // If it exists, ask the user whether to override the description or create a new one
                         return new ServiceActionResult(Constants.ResponseCode.EXERCISE_ALREADY_EXISTS, Constants.MSG_EX_ALREADY_EXISTS,
-                            CreateReturnData(ModelMapper.MapToMGExerciseModel(existingExercise)));
+                            [ModelMapper.MapToMGExerciseModel(existingExercise)]);
                     }
                 }
                
@@ -226,7 +226,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 var model = MGExercisesEnum.Select(e => ModelMapper.MapToExerciseModel(e, DBAccess))
                                             .FirstOrDefault(ModelMapper.GetEmptyExerciseModel());
 
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED, CreateReturnData(model));
+                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED, [model]);
             }, userId);
         }
 
@@ -286,7 +286,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 DBAccess.SaveChanges();
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_DELETED,
-                                CreateReturnData(new BaseModel { Id = MGExercise.MuscleGroupId }));
+                                [new BaseModel { Id = MGExercise.MuscleGroupId }]);
             }, userId);
         }
 
