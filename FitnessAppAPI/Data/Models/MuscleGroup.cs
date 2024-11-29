@@ -16,7 +16,7 @@ namespace FitnessAppAPI.Data.Models
         [MaxLength(Constants.DBConstants.MaxLen50, ErrorMessage = Constants.ValidationErrors.NAME_MAX_LEN_50)]
         public required string Name { get; set; }
 
-        [ForeignKey("UserId")]
+        [ForeignKey("AspNetUser")]
         public string? UserId { get; set; }
 
         public required string ImageName { get; set; }

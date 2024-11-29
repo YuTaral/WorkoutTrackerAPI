@@ -13,7 +13,7 @@ namespace FitnessAppAPI.Data.Models
 
         public required string Name { get; set; }
 
-        [ForeignKey("AspNetUsers")]
+        [ForeignKey("AspNetUser")]
         public required string UserId { get; set; }
 
         public required DateTime Date { get; set; }
