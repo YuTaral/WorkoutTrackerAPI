@@ -7,13 +7,14 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace FitnessAppAPI.Data
 {
     /// <summary>
     ///     User service class to implement IUserService interface.
     /// </summary>
-    public class UserService : IUserService
+    public class UserService: BaseService, IUserService
     {
         private readonly UserManager<User> _userManager;
         private readonly IUserStore<User> _userStore;
@@ -21,11 +22,8 @@ namespace FitnessAppAPI.Data
         private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
 
-        /// <summary>
-        ///     Class constructor.
-        /// </summary>
         public UserService(UserManager<User> userManager, IUserStore<User> userStore, SignInManager<User> signInManager,
-                            IConfiguration configuration)
+                       IConfiguration configuration, FitnessAppAPIContext DB) : base(DB)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -35,86 +33,145 @@ namespace FitnessAppAPI.Data
         }
 
         /// <summary>
-        ///     Register the user.
+        ///     Register the user
         /// </summary>
-        /// <param name="email">The user email.</param>
-        /// <param name="password">The user password.</param>
+        /// <param name="email">
+        ///     The user email
+        /// </param>
+        /// <param name="password">
+        ///     The user password
+        /// </param>
         public ServiceActionResult Register(string email, string password)
         {
-            // Validate
-            if (!Utils.IsValidEmail(email))
-            {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL_EMAIL);
-            }
+            var userId = "";
 
-            // Create the user
-            var user = CreateUser();
-            _userStore.SetUserNameAsync(user, email, CancellationToken.None).Wait();
-            _emailStore.SetEmailAsync(user, email, CancellationToken.None).Wait();
-            var result = _userManager.CreateAsync(user, password).Result;
+            return ExecuteServiceAction(userId => {
+                // Validate
+                if (!Utils.IsValidEmail(email))
+                {
+                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL_EMAIL);
+                }
 
-            if (!result.Succeeded)
-            {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Utils.UserErrorsToString(result.Errors));
-            }
+                // Create the user
+                var user = CreateUser();
+                _userStore.SetUserNameAsync(user, email, CancellationToken.None).Wait();
+                _emailStore.SetEmailAsync(user, email, CancellationToken.None).Wait();
+                var result = _userManager.CreateAsync(user, password).Result;
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_REGISTER_SUCCESS);
+                if (!result.Succeeded)
+                {
+                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Utils.UserErrorsToString(result.Errors));
+                }
+
+                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_REGISTER_SUCCESS);
+            }, userId);
         }
 
         /// <summary>
-        ///     Login the user.
+        ///     Login the user
         /// </summary>
-        /// <param name="email">The user email.</param>
-        /// <param name="password">The user password.</param>
+        /// <param name="email">
+        ///     The user email
+        /// </param>
+        /// <param name="password">
+        ///     The user password
+        /// </param>
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
         public LoginResponseModel? Login(string email, string password)
         {
-            // Login attempt
-            var result = _signInManager.PasswordSignInAsync(email, password, true, lockoutOnFailure: false).Result;
+            var userId = "";
+            var returnToken = "";
+            var returnUserModel = new UserModel { Id = "", Email = "" };
 
-            // Process result
-            if (!result.Succeeded)
+            var result = ExecuteServiceAction(userId => {
+                // Login attempt
+                var result = _signInManager.PasswordSignInAsync(email, password, true, lockoutOnFailure: false).Result;
+
+                // Process result
+                if (!result.Succeeded)
+                {
+                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAILED);
+                }
+
+                // Retrieve the logged in user
+                var user = _userManager.FindByEmailAsync(email).Result;
+
+                if (user == null || user.Email == null)
+                {
+                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAILED);
+                }
+
+                // Generate JwtToken
+                var token = GenerateJwtToken(user);
+                if (token == "")
+                {
+                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAILED);
+                }
+
+                returnUserModel.Id = user.Id;
+                returnUserModel.Email = user.Email;
+                returnToken = token;
+
+                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+
+            }, userId);
+
+            if (!result.IsSuccess())
             {
                 return null;
-            }
-
-            // Retrieve the logged in user
-            var user = _userManager.FindByEmailAsync(email).Result;
-
-            if (user == null || user.Email == null)
-            {
-                return null;
-            }
-
-            // Generate JwtToken
-            var token = GenerateJwtToken(user);
-            if (token == "")
-            {
-                return null;
-            }
+            } 
 
             // Return LoginResponseModel as the token is not BaseModel
             return new LoginResponseModel
             {
-                User = new UserModel
-                {
-                    Id = user.Id,
-                    Email = user.Email,
-                },
-                Token = token
+                User = returnUserModel,
+                Token = returnToken,
             };
         }
 
         /// <summary>
-        /// Log Out the User
+        ///     Log Out the User
         /// </summary>
-        public ServiceActionResult Logout()
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
+        public ServiceActionResult Logout(string userId)
         {
-            _signInManager.SignOutAsync().Wait();
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+            return ExecuteServiceAction(userId => {
+                _signInManager.SignOutAsync().Wait();
+                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+            }, userId);
         }
 
         /// <summary>
-        /// Generate JwtToken for the logged in user
+        ///     Change user passowrd
+        /// </summary>
+        public ServiceActionResult ChangePassword(string oldPassword, string password, string userId)
+        {
+            return ExecuteServiceAction(userId => {
+                // Find the user by id
+                var user = _userManager.FindByIdAsync(userId).Result;
+                if (user == null)
+                {
+                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_DOES_NOT_EXISTS);
+                }
+
+                // Change the password
+                var result = _userManager.ChangePasswordAsync(user, oldPassword, password).Result;
+
+                if (!result.Succeeded)
+                {
+                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Utils.UserErrorsToString(result.Errors));
+                }
+
+                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_PASSWORD_CHANGED);
+            }, userId); 
+        }
+
+        /// <summary>
+        ///     Generate JwtToken for the logged in user
         /// </summary>
         private string GenerateJwtToken(User user)
         {

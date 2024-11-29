@@ -52,6 +52,9 @@
         public const string MSG_NO_MUSCLE_GROUPS_FOUND = "No muscle groups found";
         public const string MSG_TEMPLATE_DOES_NOT_EXIST = "Tempalte does not exist";
         public const string MSG_EX_ALREADY_EXISTS = "Exercise with the same name already exists";
+        public const string MSG_CHANGE_PASS_FAIL = "Password not provided";
+        public const string MSG_PASSWORD_CHANGED = "Password changed successfully";
+
 
 
         /// <summary>

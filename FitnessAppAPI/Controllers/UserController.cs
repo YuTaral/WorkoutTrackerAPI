@@ -60,7 +60,6 @@ namespace FitnessAppAPI.Controllers
             return CustomResponse(result.ResponseCode, result.ResponseMessage, returnData);
         }
 
-
         /// <summary>
         //      POST request to register the user
         /// </summary>
@@ -83,7 +82,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public ActionResult Logout()
         {
-            service.Logout();
+            service.Logout(GetUserId());
 
             // Double check the user is logged out successfully
             var loggedOut = GetUserId() != "";
@@ -93,6 +92,21 @@ namespace FitnessAppAPI.Controllers
             }
 
             return CustomResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR);
+        }
+
+        /// <summary>
+        //      POST request to change password
+        /// </summary>
+        [HttpPost("change-password")]
+        public ActionResult ChangePassword([FromBody] Dictionary<string, string> requestData)
+        {
+            /// Check if new pass is provided
+            if (!requestData.TryGetValue("oldPassword", out string? oldPassword) || !requestData.TryGetValue("password", out string? password))
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_CHANGE_PASS_FAIL);
+            }
+
+            return CustomResponse(service.ChangePassword(oldPassword, password, GetUserId()));
         }
     }
 }
