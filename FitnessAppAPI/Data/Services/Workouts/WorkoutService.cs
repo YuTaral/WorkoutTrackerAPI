@@ -12,7 +12,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
     public class WorkoutService(FitnessAppAPIContext DB) : BaseService(DB), IWorkoutService
     {
         /// <summary>
-        ///     Adds new workout from the provided WorkoutModel data
+        ///     Add new workout from the provided WorkoutModel data
         /// </summary>
         /// <param name="data">
         ///     The workout data
@@ -40,7 +40,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         }
 
         /// <summary>
-        ///     Edits the workout from the provided WorkoutModel data
+        ///     Edit the workout from the provided WorkoutModel data
         /// </summary>
         /// <param name="data">
         ///     The workout data
@@ -69,7 +69,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         }
 
         /// <summary>
-        ///     Deletes the workout with the provided id
+        ///     Delete the workout with the provided id
         /// </summary>
         ///  /// <param name="workoutId">
         ///     The workout id
@@ -94,7 +94,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         }
 
         /// <summary>
-        ///     Tries to fetch the last workout for the user with the provided id
+        ///     Try to fetch the last workout for the user with the provided id
         /// </summary>
         /// <param name="userId">
         ///     The user id
@@ -117,7 +117,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         }
 
         /// <summary>
-        ///     Fetches the workout with the provided id and returns WorkoutModel
+        ///     Fetch the workout with the provided id and returns WorkoutModel
         /// </summary>
         /// <param name="id">
         ///     The workout id
@@ -139,7 +139,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         }
 
         /// <summary>
-        ///     Fetches the latest workout for the user and returns WorkoutModel list
+        ///     Fetch the latest workout for the user and returns WorkoutModel list
         /// </summary>
         /// <param name="userId">
         ///     The user id
@@ -156,7 +156,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         }
 
         /// <summary>
-        ///     Performs a check whether the workout exists, returns workout object if it exists,
+        ///     Perform a check whether the workout exists, returns workout object if it exists,
         ///     null otherwise
         /// </summary>
         /// <param name="id">

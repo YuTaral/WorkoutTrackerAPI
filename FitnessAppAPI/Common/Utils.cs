@@ -14,7 +14,7 @@ namespace FitnessAppAPI.Common
     public static class Utils
     {
         /// <summary>
-        ///     Checks whether the provided email is valid
+        ///     Check whether the provided email is valid
         /// </summary>
         public static bool IsValidEmail(string email)
         {
@@ -33,7 +33,7 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///     Constructs a comma separated text with the description of the IdentityErrors
+        ///     Construct a comma separated text with the description of the IdentityErrors
         /// </summary>
         public static string UserErrorsToString(IEnumerable<IdentityError> errors)
         {
@@ -48,7 +48,7 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///     Validates whether the model data is valid
+        ///     Validate whether the model data is valid
         /// </summary>
         /// <returns>
         /// Empty string if it is valid, otherwise returns the errors

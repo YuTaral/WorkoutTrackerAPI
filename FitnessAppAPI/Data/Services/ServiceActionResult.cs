@@ -16,7 +16,7 @@ namespace FitnessAppAPI.Data.Services
         public ServiceActionResult(Constants.ResponseCode ResponseCodeVal, string ResponseMessageVal) {
             ResponseCode = ResponseCodeVal;
             ResponseMessage = ResponseMessageVal;
-            ResponseData = new List<BaseModel>();
+            ResponseData = [];
         }
 
         public ServiceActionResult(Constants.ResponseCode ResponseCodeVal, string ResponseMessageVal, List<BaseModel> ResponseDataVal)

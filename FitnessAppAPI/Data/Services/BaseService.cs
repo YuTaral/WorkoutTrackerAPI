@@ -11,6 +11,10 @@ namespace FitnessAppAPI.Data.Services
     {
         protected readonly FitnessAppAPIContext DBAccess = DB;
 
+        /// <summary>
+        ///     Method used to exercute all services actions, adding try catch to cath the database or unexpected errors
+        ///     and store them in the database
+        /// </summary>
         protected ServiceActionResult ExecuteServiceAction(Func<string, ServiceActionResult> serviceAction, string userId)
         {
             try

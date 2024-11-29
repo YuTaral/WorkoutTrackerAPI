@@ -12,7 +12,7 @@ namespace FitnessAppAPI.Common
     public static class ModelMapper
     {
         /// <summary>
-        ///     Maps the Workout to WorkoutModel
+        ///     Map the Workout to WorkoutModel
         /// </summary>
         public static WorkoutModel MapToWorkoutModel(Workout workout, FitnessAppAPIContext DBAccess)
         {
@@ -35,7 +35,7 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///     Maps the Exercise to ExerciseModel
+        ///     Map the Exercise to ExerciseModel
         /// </summary>
         public static ExerciseModel MapToExerciseModel(Exercise exercise, FitnessAppAPIContext DBAccess)
         {
@@ -64,7 +64,7 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///     Maps the MGExercise to ExerciseModel
+        ///     Map the MGExercise to ExerciseModel
         /// </summary>
         public static ExerciseModel MapToExerciseModel(MGExercise MGExercise, FitnessAppAPIContext DBAccess)
         {
@@ -93,7 +93,7 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///     Maps the MGExercises to MGExerciseModel
+        ///     Map the MGExercises to MGExerciseModel
         /// </summary>
         public static MGExerciseModel MapToMGExerciseModel(MGExercise MGExercise)
         {
@@ -112,7 +112,7 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///     Maps the MuscleGroup to MuscleGroupModel
+        ///     Map the MuscleGroup to MuscleGroupModel
         /// </summary>
         public static MuscleGroupModel MapToMuscleGroupModel(MuscleGroup muscleGroup)
         {
@@ -130,7 +130,7 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///     Maps the MuscleGroup to MuscleGroupModel
+        ///     Map the MuscleGroup to MuscleGroupModel
         /// </summary>
         public static SetModel MapToSetModel(Set set)
         {
@@ -149,7 +149,7 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///    Returns empty MuscleGroupModel
+        ///    Return empty MuscleGroupModel
         /// </summary>
         public static ExerciseModel GetEmptyExerciseModel()
         {
@@ -163,7 +163,7 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///    Returns empty MuscleGroupModel
+        ///    Return empty MuscleGroupModel
         /// </summary>
         private static MGExerciseModel GetEmptyMGExerciseModel()
         {
@@ -177,7 +177,7 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///    Returns empty MuscleGroupModel
+        ///    Return empty MuscleGroupModel
         /// </summary>
         private static MuscleGroupModel GetEmptyMuscleGroupModel()
         {
@@ -190,7 +190,7 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///    Returns empty SetModel
+        ///    Return empty SetModel
         /// </summary>
         private static SetModel GetEmptySetModel()
         {
@@ -204,7 +204,7 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///    Returns empty WorkoutModel
+        ///    Return empty WorkoutModel
         /// </summary>
         private static WorkoutModel GetEmptyWorkoutModel()
         {
@@ -216,5 +216,5 @@ namespace FitnessAppAPI.Common
                 Exercises = { }
             };
         }
-    }
+    } 
 }

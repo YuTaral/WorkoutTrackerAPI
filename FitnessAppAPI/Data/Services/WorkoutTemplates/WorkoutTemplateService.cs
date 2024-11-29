@@ -14,7 +14,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         private readonly IExerciseService exerciseService = exService;
 
         /// <summary>
-        ///     Adds new workout template from the provided WorkoutModel data
+        ///     Add new workout template from the provided WorkoutModel data
         /// </summary>
         /// <param name="data">
         ///     The template data
@@ -58,7 +58,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         }
 
         /// <summary>
-        ///    Deletes the template with the provided id
+        ///    Delete the template with the provided id
         /// </summary>
         /// <param name="templateId">
         ///     The template id
@@ -83,7 +83,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         }
 
         /// <summary>
-        ///     Returns list of all workout templates created by the user with the provided id
+        ///     Return list of all workout templates created by the user with the provided id
         /// </summary>
         /// <param name="userId">
         ///     The user who is fetching the templates

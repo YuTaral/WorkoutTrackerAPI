@@ -9,7 +9,7 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups
     public class MuscleGroupService(FitnessAppAPIContext DB) : BaseService(DB), IMuscleGroupService
     {
         /// <summary>
-        ///     Fetches the default Muscle Groups and the user defined Muscle Groups
+        ///     Fetch the default Muscle Groups and the user defined Muscle Groups
         /// </summary>
         /// <param name="userId">
         ///     The user id

@@ -13,7 +13,7 @@ namespace FitnessAppAPI.Controllers
     public class BaseController : ControllerBase
     {
         /// <summary>
-        ///     Returns a JsonResult with all the data needed for a Response
+        ///     Return a JsonResult with all the data needed for a Response
         ///     Returned fields must correspond with client-side CustomResponse class:
         ///         - ResponseCode
         ///         - ResponseMessage
@@ -36,7 +36,7 @@ namespace FitnessAppAPI.Controllers
 
         public OkObjectResult CustomResponse(Constants.ResponseCode ResponseCode, string ResponseMessage)
         {
-            return SendCustomResponse(ResponseCode, ResponseMessage, new List<string>());
+            return SendCustomResponse(ResponseCode, ResponseMessage, []);
         }
 
         public OkObjectResult CustomResponse(Constants.ResponseCode ResponseCode, string ResponseMessage, List<BaseModel> ResponseDataVal)

@@ -277,7 +277,7 @@ namespace FitnessAppAPI.Controllers
         }
 
         /// <summary>
-        ///     Tries to fetch workout with the provided id, and if success returns response, combining
+        ///     Try to fetch workout with the provided id, and if success returns response, combining
         ///     result.ResponseCode, result.ResponseMessage and the workout. The combination is used in
         ///     order to display the message set in previousActionResult variable, which is the result of the 
         ///     previous action (the actual action) executed in the controller method. E.g adding exercise to workout, returing whether
@@ -303,7 +303,7 @@ namespace FitnessAppAPI.Controllers
         }
 
         /// <summary>
-        ///     Tries to fetch the muscle group exercises for the muscle group with the provided id, 
+        ///     Try to fetch the muscle group exercises for the muscle group with the provided id, 
         ///     and if success returns response, combining result.ResponseCode, result.ResponseMessage and the exercises. 
         ///     The combination is used in order to display the message set in previousActionResult variable, 
         ///     which is the result of the previous action (the actual action) executed in the controller method. 
@@ -330,6 +330,5 @@ namespace FitnessAppAPI.Controllers
 
             return CustomResponse(previousActionResult);
         }
-
     }
 }

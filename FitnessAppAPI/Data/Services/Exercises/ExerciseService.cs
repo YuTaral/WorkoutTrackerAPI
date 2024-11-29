@@ -11,7 +11,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
     public class ExerciseService(FitnessAppAPIContext DB) : BaseService(DB), IExerciseService
     {
         /// <summary>
-        ///     Adds the exercise to the workout with the provided id
+        ///     Add the exercise to the workout with the provided id
         /// </summary>
         /// <param name="exerciseData">
         ///     The exercise
@@ -58,7 +58,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         }
 
         /// <summary>
-        ///     Updates the provided exercise
+        ///     Update the provided exercise
         /// </summary>
         /// <param name="exercise">
         ///     The exercise
@@ -150,7 +150,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         }
 
         /// <summary>
-        ///     Deletes the exercise with the provided id
+        ///     Delete the exercise with the provided id
         /// </summary>
         /// <param name="exerciseId">
         ///     The exercise id
@@ -176,7 +176,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         }
 
         /// <summary>
-        ///     Adds the exercise to specific muscle group
+        ///     Add the exercise to specific muscle group
         /// </summary>
         /// <param name="exerciseData">
         ///     The exercise
@@ -231,7 +231,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         }
 
         /// <summary>
-        ///     Adds the exercise to specific muscle group
+        ///     Add the exercise to specific muscle group
         /// </summary>
         /// <param name="exerciseData">
         ///     The exercise
@@ -259,7 +259,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         }
 
         /// <summary>
-        ///     Deletes the muscle group exercise with the provided id
+        ///     Delete the muscle group exercise with the provided id
         /// </summary>
         /// <param name="MGExerciseId">
         ///     The exercise id
@@ -292,7 +292,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
 
 
         /// <summary>
-        ///     Fetches the exercises for the muscle group
+        ///     Fetch the exercises for the muscle group
         /// </summary>
         /// <param name="muscleGroupId">
         ///     The muscle group id
@@ -328,7 +328,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         }
 
         /// <summary>
-        ///     Performs a check whether the exercise exists, returns exercise object if it exists,
+        ///     Perform a check whether the exercise exists, returns exercise object if it exists,
         ///     null otherwise
         /// </summary>
         /// <param name="id">
@@ -343,7 +343,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         }
 
         /// <summary>
-        ///     Performs a check whether the muscle group exercise exists, returns muslce group exercise object if it exists,
+        ///     Perform a check whether the muscle group exercise exists, returns muslce group exercise object if it exists,
         ///     null otherwise
         /// </summary>
         /// <param name="id">
