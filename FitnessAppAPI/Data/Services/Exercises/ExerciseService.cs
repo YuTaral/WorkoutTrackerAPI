@@ -73,8 +73,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         {
             return ExecuteServiceAction(userId => {
                 // Fetch the exact exercise and it's sets
-                var exercise = DBAccess.Exercises.Find(exerciseData.Id);
-
+                var exercise = CheckExerciseExists(exerciseData.Id);
                 if (exercise == null)
                 {
                     return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_NOT_FOUND);
@@ -162,7 +161,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         public ServiceActionResult DeleteExerciseFromWorkout(long exerciseId, string userId)
         {
             return ExecuteServiceAction((userId) => {
-                var exercise = DBAccess.Exercises.Where(e => e.Id == exerciseId).FirstOrDefault();
+                var exercise = CheckExerciseExists(exerciseId);
                 if (exercise == null)
                 {
                     return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_NOT_FOUND);
@@ -242,8 +241,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// </param>
         public ServiceActionResult UpdateExercise(MGExerciseModel exerciseData, string userId) {
             return ExecuteServiceAction(userId => {
-                var mgExercise = DBAccess.MGExercises.Where(mg => mg.Id == exerciseData.Id).FirstOrDefault();
-
+                var mgExercise = CheckMGExerciseExists(exerciseData.Id);
                 if (mgExercise == null)
                 {
                     return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_NOT_FOUND);
@@ -273,8 +271,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         public ServiceActionResult DeleteExercise(long MGExerciseId, string userId)
         {
             return ExecuteServiceAction(userId => {
-                var MGExercise = DBAccess.MGExercises.Where(e => e.Id == MGExerciseId).FirstOrDefault();
-
+                var MGExercise = CheckMGExerciseExists(MGExerciseId);
                 if (MGExercise == null)
                 {
                     return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_NOT_FOUND);
@@ -328,6 +325,33 @@ namespace FitnessAppAPI.Data.Services.Exercises
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
             }, userId);
+        }
+
+        /// <summary>
+        ///     Performs a check whether the exercise exists, returns exercise object if it exists,
+        ///     null otherwise
+        /// </summary>
+        /// <param name="id">
+        ///     The exercise id
+        /// </param>
+        /// <param name="workoutId">
+        ///     The workout id
+        /// </param>
+        private Exercise? CheckExerciseExists(long id)
+        {
+            return DBAccess.Exercises.Where(e => e.Id == id).FirstOrDefault();
+        }
+
+        /// <summary>
+        ///     Performs a check whether the muscle group exercise exists, returns muslce group exercise object if it exists,
+        ///     null otherwise
+        /// </summary>
+        /// <param name="id">
+        ///     The muscle group exercise id
+        /// </param>
+        private MGExercise? CheckMGExerciseExists(long id)
+        {
+            return DBAccess.MGExercises.Where(e => e.Id == id).FirstOrDefault();
         }
     }
 }

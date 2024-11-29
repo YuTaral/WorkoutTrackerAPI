@@ -23,12 +23,6 @@ namespace FitnessAppAPI.Data.Services.Workouts
         public ServiceActionResult AddWorkout(WorkoutModel data, string userId)
         {
             return ExecuteServiceAction(userId => {
-                // Verify user with this id exists
-                if (!UserExists(DBAccess, userId))
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_DOES_NOT_EXISTS);
-                }
-
                 var workout = new Workout
                 {
                     Name = data.Name,
@@ -57,13 +51,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         public ServiceActionResult EditWorkout(WorkoutModel data, string userId)
         {
             return ExecuteServiceAction(userId => {
-                // Verify user with this id exists
-                if (!UserExists(DBAccess, userId))
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_DOES_NOT_EXISTS);
-                }
-
-                var workout = CheckWorkoutExists(data.Id);
+                var workout = CheckWorkoutExists(data.Id, userId);
                 if (workout == null)
                 {
                     return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_WORKOUT_DOES_NOT_EXIST);
@@ -91,7 +79,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// </param>
         public ServiceActionResult DeleteWorkout(long workoutId, string userId) {
             return ExecuteServiceAction(userId => {
-                var workout = CheckWorkoutExists(workoutId);
+                var workout = CheckWorkoutExists(workoutId, userId);
                 if (workout == null)
                 {
                     return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_WORKOUT_DOES_NOT_EXIST);
@@ -139,7 +127,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// </param>
         public ServiceActionResult GetWorkout(long id, string userId) {
             return ExecuteServiceAction(userId => {
-                var workout = CheckWorkoutExists(id);
+                var workout = CheckWorkoutExists(id, userId);
                 if (workout == null)
                 {
                     return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_WORKOUT_DOES_NOT_EXIST);
@@ -179,10 +167,12 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <param name="id">
         ///     The workout id
         /// </param>
-
-        private Workout? CheckWorkoutExists(long id)
+        /// <param name="userId">
+        ///     The userId owner of the workout
+        /// </param>
+        private Workout? CheckWorkoutExists(long id, string userId)
         {
-            return DBAccess.Workouts.Where(w => w.Id == id).FirstOrDefault();
+            return DBAccess.Workouts.Where(w => w.Id == id && w.UserId == userId).FirstOrDefault();
         }
     }
 }

@@ -55,14 +55,6 @@ namespace FitnessAppAPI.Data.Services
         }
 
         /// <summary>
-        ///     Checks whether a user with the provided id exists and returns true / false
-        /// </summary>
-        protected bool UserExists(FitnessAppAPIContext DBAccess, string userId)
-        {
-            return DBAccess.Users.Find(userId) != null;
-        }
-
-        /// <summary>
         ///    Returns List<BaseModel> adding the BaseModel
         /// </summary>
         /// <param name="model">

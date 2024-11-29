@@ -25,12 +25,6 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         public ServiceActionResult AddWorkoutTemplate(WorkoutModel data, string userId) {
             return ExecuteServiceAction(userId =>
             {
-                // Verify user with this id exists
-                if (!UserExists(DBAccess, userId))
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_DOES_NOT_EXISTS);
-                }
-
                 // Create Workout record, with Template = "Y"
                 var template = new Workout
                 {
