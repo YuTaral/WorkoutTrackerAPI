@@ -55,8 +55,6 @@
         public const string MSG_CHANGE_PASS_FAIL = "Password not provided";
         public const string MSG_PASSWORD_CHANGED = "Password changed successfully";
 
-
-
         /// <summary>
         ///     Class containing the DB constants
         /// </summary>

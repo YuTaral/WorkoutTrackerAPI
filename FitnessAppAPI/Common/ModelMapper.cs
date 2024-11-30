@@ -3,6 +3,7 @@ using FitnessAppAPI.Data.Services.Exercises.Models;
 using FitnessAppAPI.Data.Services.MuscleGroups.Models;
 using FitnessAppAPI.Data;
 using FitnessAppAPI.Data.Services.Workouts.Models;
+using FitnessAppAPI.Data.Services.User.Models;
 
 namespace FitnessAppAPI.Common
 {
@@ -149,6 +150,29 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
+        ///     Map the User and UserDefaultValue to UserModel
+        /// </summary>
+        public static UserModel MapToUserModel(User user, UserDefaultValue? defaultValues, string weightUnit)
+        {
+            var defaultValuesModel = GetEmptyUserDefaultValuesModel();
+
+            if (defaultValues != null) {
+                defaultValuesModel.Id = defaultValues.Id;
+                defaultValuesModel.Sets = defaultValues.Sets;
+                defaultValuesModel.Reps = defaultValues.Reps;
+                defaultValuesModel.Weight = defaultValues.Weight;
+                defaultValuesModel.WeightUnit = weightUnit;
+            }
+
+            return new UserModel
+            {
+                Id = user.Id,
+                Email = user.Email,
+                DefaultValues = defaultValuesModel
+            };
+        }
+
+        /// <summary>
         ///    Return empty MuscleGroupModel
         /// </summary>
         public static ExerciseModel GetEmptyExerciseModel()
@@ -214,6 +238,21 @@ namespace FitnessAppAPI.Common
                 Date = DateTime.UtcNow,
                 Template = false,
                 Exercises = { }
+            };
+        }
+
+        /// <summary>
+        ///    Return empty WorkoutModel
+        /// </summary>
+        private static UserDefaultValuesModel GetEmptyUserDefaultValuesModel()
+        {
+            return new UserDefaultValuesModel
+            {
+                Id = 0,
+                Sets = 0,
+                Reps = 0,
+                Weight = 0,
+                WeightUnit = ""
             };
         }
     } 

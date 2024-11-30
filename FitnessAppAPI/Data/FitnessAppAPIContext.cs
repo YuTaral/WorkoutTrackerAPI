@@ -9,13 +9,14 @@ namespace FitnessAppAPI.Data;
 /// </summary>
 public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options) : IdentityDbContext<User>(options)
 {
-    public DbSet<Workout> Workouts { get; init; }
-    public DbSet<Exercise> Exercises { get; init; }
-    public DbSet<Set> Sets { get; init; }
-    public DbSet<MuscleGroup> MuscleGroups { get; init; }
-    public DbSet<MGExercise> MGExercises { get; init; }
-    public DbSet<SystemLog> SystemLogs { get; init; }
-
+    public required DbSet<Workout> Workouts { get; init; }
+    public required DbSet<Exercise> Exercises { get; init; }
+    public required DbSet<Set> Sets { get; init; }
+    public required DbSet<MuscleGroup> MuscleGroups { get; init; }
+    public required DbSet<MGExercise> MGExercises { get; init; }
+    public required DbSet<SystemLog> SystemLogs { get; init; }
+    public required DbSet<UserDefaultValue> UserDefaultValues { get; init; }
+    public required DbSet<WeightUnit> WeightUnits { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -65,21 +66,36 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .HasForeignKey(m => m.MuscleGroupId)
                .OnDelete(DeleteBehavior.Cascade);
 
-        //// MuscleGroupExercise -> User relation via MuscleGroupId.UserId
-        //// Manually delete MuscleGroupExercise when User is deleted to avoid
-        //// "multiple cascade paths" on delete
+        // MuscleGroupExercise -> User relation via MuscleGroupId.UserId
+        // Manually delete MuscleGroupExercise when User is deleted to avoid
+        // "multiple cascade paths" on delete
         modelBuilder.Entity<MGExercise>()
                .HasOne<User>()
                .WithMany()
                .HasForeignKey(m => m.UserId)
                .OnDelete(DeleteBehavior.NoAction);
 
-        //// SystemLog -> User relation via SystemLog.UserId
-        modelBuilder.Entity<SystemLog>()
+        // ExerciseDefaultValue -> User relation via ExerciseDefaultValue.UserId
+        // Manually delete ExerciseDefaultValue when User is deleted to avoid
+        // "multiple cascade paths" on delete
+        modelBuilder.Entity<UserDefaultValue>()
                .HasOne<User>()
                .WithMany()
-               .HasForeignKey(s => s.UserId)
+               .HasForeignKey(e => e.UserId)
                .OnDelete(DeleteBehavior.NoAction);
+
+        // ExerciseDefaultValue -> MGExercise relation via ExerciseDefaultValue.MGExeciseId
+        modelBuilder.Entity<UserDefaultValue>()
+               .HasOne<MGExercise>()
+               .WithMany()
+               .HasForeignKey(e => e.MGExeciseId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+        // Add the default Weight Units
+        modelBuilder.Entity<WeightUnit>().HasData(
+            new WeightUnit { Code = "KG", Text = "Kg" },
+            new WeightUnit { Code = "LB", Text = "Lb" }
+        );
 
         // Add the default Muscle Groups
         modelBuilder.Entity<MuscleGroup>().HasData(
@@ -142,6 +158,5 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
            new MGExercise { Id = 21, Name = "Triceps pushdown", Description = "Set Up the Exercise\r\nStand facing the cable machine with a rope, bar, or V-bar attachment at the high pulley. Grip the attachment with both hands, palms facing down (pronated grip). Step back slightly so there's tension in the cable, and stand with your feet shoulder-width apart, keeping your elbows at your sides and your upper arms stationary.\r\nPush the Attachment Down\r\nPush the rope or bar down by extending your elbows, fully contracting your triceps at the bottom of the movement. Keep your forearms parallel to the floor, and your elbows should stay close to your torso throughout the movement.\r\nReturn Slowly\r\nSlowly allow the attachment to return to the starting position by bending your elbows, controlling the weight on the way up. Repeat for your desired number of reps.\r\nTip\r\nAvoid using momentum or leaning forward to help push the weight down. Keep your core engaged and focus on squeezing your triceps at the bottom of the movement.", MuscleGroupId = 11 },
            new MGExercise { Id = 22, Name = "EZ bar skull crusher", Description = "Set Up the Exercise\r\nLie on a flat bench with an EZ bar in your hands, gripping it with an overhand (pronated) grip. Your hands should be about shoulder-width apart, and the bar should be directly over your chest with your arms fully extended. Keep your feet flat on the floor, and your core engaged to stabilize your body.\r\nLower the Bar\r\nSlowly lower the EZ bar toward your forehead by bending your elbows, keeping your upper arms stationary. Keep your elbows pointed forward, and lower the bar until your forearms are parallel to the ground or slightly beyond, feeling a stretch in your triceps.\r\nPush the Bar Back Up\r\nPress the EZ bar back up by extending your elbows, fully contracting your triceps at the top of the movement. Be sure to keep control of the weight and avoid letting your elbows flare out. Repeat for your desired number of reps.\r\nTip\r\nTo avoid stress on your elbows or shoulders, keep your movements slow and controlled. Focus on using your triceps to lift the weight, and avoid arching your back.", MuscleGroupId = 11 }
         );
-
     }
 }

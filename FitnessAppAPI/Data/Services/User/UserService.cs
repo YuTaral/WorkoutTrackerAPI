@@ -63,7 +63,10 @@ namespace FitnessAppAPI.Data
                     return new ServiceActionResult(Constants.ResponseCode.FAIL, Utils.UserErrorsToString(result.Errors));
                 }
 
+                CreateDefaultValues(userId);
+
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_REGISTER_SUCCESS);
+
             }, userId);
         }
 
@@ -79,11 +82,21 @@ namespace FitnessAppAPI.Data
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public LoginResponseModel? Login(string email, string password)
+        public LoginResponseModel Login(string email, string password)
         {
             var userId = "";
             var returnToken = "";
-            var returnUserModel = new UserModel { Id = "", Email = "" };
+            var returnUserModel = new UserModel { 
+                Id = "",
+                Email = "",
+                DefaultValues = new UserDefaultValuesModel { 
+                    Id = 0,
+                    Sets = 0,
+                    Reps = 0,
+                    Weight = 0,
+                    WeightUnit = ""
+                }
+            };
 
             var result = ExecuteServiceAction(userId => {
                 // Login attempt
@@ -110,24 +123,19 @@ namespace FitnessAppAPI.Data
                     return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAILED);
                 }
 
-                returnUserModel.Id = user.Id;
-                returnUserModel.Email = user.Email;
+                returnUserModel = CreateUserModel(user);
                 returnToken = token;
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
 
             }, userId);
 
-            if (!result.IsSuccess())
-            {
-                return null;
-            } 
-
-            // Return LoginResponseModel as the token is not BaseModel
+            
             return new LoginResponseModel
             {
                 User = returnUserModel,
                 Token = returnToken,
+                Result = result
             };
         }
 
@@ -230,6 +238,59 @@ namespace FitnessAppAPI.Data
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
             return (IUserEmailStore<User>)_userStore;
+        }
+
+        /// <summary>
+        ///     Create record in ExerciseDefaultValue with the default values for the user
+        /// </summary>
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
+        private void CreateDefaultValues(string userId)
+        {
+            var kg = DBAccess.WeightUnits.Where(w => w.Code == "KG").FirstOrDefault();
+            if (kg == null) { 
+                // Must NOT happen
+                return;
+            }
+
+            // Create ExerciseDefaultValue record for the user
+            var defaultValues = new UserDefaultValue
+            {
+                Sets = 0,
+                Reps = 0,
+                Weight = 0,
+                WeightUnit = kg.Code,
+                UserId = userId
+            };
+
+            DBAccess.UserDefaultValues.Add(defaultValues);
+            DBAccess.SaveChanges();
+        }
+
+        /// <summary>
+        ///     Create UserModel object
+        /// </summary>
+        /// <param name="user">
+        ///     The user 
+        /// </param>
+        private UserModel CreateUserModel(User user)
+        {
+            var defaultValues = DBAccess.UserDefaultValues.Where(u => u.UserId == user.Id).FirstOrDefault();
+            var weightUnit = "";
+
+            if (defaultValues != null)
+            {
+                weightUnit = DBAccess.WeightUnits.Where(w => w.Code == defaultValues.WeightUnit)
+                                                    .Select(w => w.Text)
+                                                    .FirstOrDefault();
+            }
+
+            if (weightUnit == null) {
+                weightUnit = "";
+            }
+
+            return ModelMapper.MapToUserModel(user, defaultValues, weightUnit);
         }
     }
 }

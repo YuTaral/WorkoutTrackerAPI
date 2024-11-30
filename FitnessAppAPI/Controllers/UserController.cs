@@ -37,12 +37,12 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL);
             }
 
-            LoginResponseModel? model = service.Login(email, password);
+            LoginResponseModel model = service.Login(email, password);
 
             // Success check
-            if (model == null)
+            if (!model.Result.IsSuccess())
             {
-                return CustomResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_LOGIN_FAILED);
+                return CustomResponse(model.Result.ResponseCode, model.Result.ResponseMessage);
             }
 
             // Construct the return data list
