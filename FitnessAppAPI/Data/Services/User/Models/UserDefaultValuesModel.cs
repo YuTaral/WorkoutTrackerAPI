@@ -1,4 +1,6 @@
 ﻿using FitnessAppAPI.Data.Models;
+using System.ComponentModel.DataAnnotations;
+
 
 namespace FitnessAppAPI.Data.Services.User.Models
 {
@@ -9,12 +11,15 @@ namespace FitnessAppAPI.Data.Services.User.Models
     /// </summary>
     public class UserDefaultValuesModel: BaseModel
     {
+        [Range(0, int.MaxValue)]
         public required int Sets { get; set; }
 
+        [Range(0, int.MaxValue)]
         public required int Reps { get; set; }
 
+        [Range(0, double.MaxValue)]
         public required double Weight { get; set; }
 
-        public required string WeightUnit { get; set; }
+        public required string WeightUnitText { get; set; }
     }
 }

@@ -161,7 +161,7 @@ namespace FitnessAppAPI.Common
                 defaultValuesModel.Sets = defaultValues.Sets;
                 defaultValuesModel.Reps = defaultValues.Reps;
                 defaultValuesModel.Weight = defaultValues.Weight;
-                defaultValuesModel.WeightUnit = weightUnit;
+                defaultValuesModel.WeightUnitText = weightUnit;
             }
 
             return new UserModel
@@ -169,6 +169,35 @@ namespace FitnessAppAPI.Common
                 Id = user.Id,
                 Email = user.Email,
                 DefaultValues = defaultValuesModel
+            };
+        }
+
+        /// <summary>
+        ///     Map the UserDefaultValue to UserDefaultValuesModel
+        /// </summary>
+        public static UserDefaultValuesModel MapToUserDefaultValuesModel(UserDefaultValue? defaultValues, FitnessAppAPIContext DBAccess)
+        {
+            if (defaultValues == null)
+            {
+                return GetEmptyUserDefaultValuesModel();
+            }
+
+            var unitText = DBAccess.WeightUnits.Where(w => w.Code == defaultValues.WeightUnitCode)
+                                               .Select(w => w.Text).FirstOrDefault();
+
+            if (unitText == null)
+            {
+                // Must not happen
+                unitText = "";
+            }
+
+            return new UserDefaultValuesModel
+            {
+                Id = defaultValues.Id,
+                Sets = defaultValues.Sets,
+                Reps = defaultValues.Reps,
+                Weight = defaultValues.Weight,
+                WeightUnitText = unitText
             };
         }
 
@@ -252,7 +281,7 @@ namespace FitnessAppAPI.Common
                 Sets = 0,
                 Reps = 0,
                 Weight = 0,
-                WeightUnit = ""
+                WeightUnitText = ""
             };
         }
     } 

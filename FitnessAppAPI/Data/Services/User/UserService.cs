@@ -8,6 +8,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
 namespace FitnessAppAPI.Data
 {
@@ -94,7 +96,7 @@ namespace FitnessAppAPI.Data
                     Sets = 0,
                     Reps = 0,
                     Weight = 0,
-                    WeightUnit = ""
+                    WeightUnitText = ""
                 }
             };
 
@@ -176,6 +178,54 @@ namespace FitnessAppAPI.Data
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_PASSWORD_CHANGED);
             }, userId); 
+        }
+
+
+        /// <summary>
+        ///     Change user default values
+        /// </summary>
+        /// <param name="data">
+        ///     The new default values
+        /// </param>
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
+        public ServiceActionResult ChangeUserDefaultValues(UserDefaultValuesModel data, string userId)
+        {
+            return ExecuteServiceAction(userId =>
+            {
+                // Find the existing record, it must be only one for the user
+                var existing = DBAccess.UserDefaultValues.Where(u => u.UserId == userId).FirstOrDefault();
+                if (existing == null)
+                {
+                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_DOES_NOT_EXISTS);
+                }
+
+                // Find the unit record and set the code, the model contains the Text column
+                var unitRecord = DBAccess.WeightUnits.Where(w => w.Text == data.WeightUnitText).FirstOrDefault();
+                var unitCode = "";
+
+                if (unitRecord == null) {
+                    unitCode = existing.WeightUnitCode;
+                } 
+                else
+                {
+                    unitCode = unitRecord.Code;
+                }
+
+                // Change the record
+                existing.Sets = data.Sets;
+                existing.Reps = data.Reps;
+                existing.Weight = data.Weight;
+                existing.WeightUnitCode = unitCode;
+
+                DBAccess.Entry(existing).State = EntityState.Modified;
+                DBAccess.SaveChanges();
+
+                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_DEF_VALUES_UPDATED, 
+                    [ModelMapper.MapToUserDefaultValuesModel(existing, DBAccess)]);
+
+            }, userId);
         }
 
         /// <summary>
@@ -260,7 +310,7 @@ namespace FitnessAppAPI.Data
                 Sets = 0,
                 Reps = 0,
                 Weight = 0,
-                WeightUnit = kg.Code,
+                WeightUnitCode = kg.Code,
                 UserId = userId
             };
 
@@ -281,7 +331,7 @@ namespace FitnessAppAPI.Data
 
             if (defaultValues != null)
             {
-                weightUnit = DBAccess.WeightUnits.Where(w => w.Code == defaultValues.WeightUnit)
+                weightUnit = DBAccess.WeightUnits.Where(w => w.Code == defaultValues.WeightUnitCode)
                                                     .Select(w => w.Text)
                                                     .FirstOrDefault();
             }

@@ -54,6 +54,8 @@
         public const string MSG_EX_ALREADY_EXISTS = "Exercise with the same name already exists";
         public const string MSG_CHANGE_PASS_FAIL = "Password not provided";
         public const string MSG_PASSWORD_CHANGED = "Password changed successfully";
+        public const string MSG_CHANGE_USER_DEF_VALUES = "User default values not provided";
+        public const string MSG_DEF_VALUES_UPDATED = "Default values updated";
 
         /// <summary>
         ///     Class containing the DB constants
