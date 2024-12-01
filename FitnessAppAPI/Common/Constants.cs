@@ -78,6 +78,10 @@
             public const string NAME_MAX_LEN_50 = "Name maximum length is 50";
             public const string DESCRIPTION_REQUIRED = "Description is required";
             public const string DESCRIPTION_MAX_LEN_4000 = "Description maximum length is 4000";
+            public const string SETS_MUST_BE_POSITIVE = "Sets must be positive number";
+            public const string REPS_MUST_BE_POSITIVE = "Reps must be positive number";
+            public const string WEIGHT_MUST_BE_POSITIVE = "Weight must be positive number";
+
         }
     }
 }

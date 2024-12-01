@@ -48,23 +48,59 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///     Validate whether the model data is valid
+        ///     Validates whether the provided model and its nested objects are valid. Returns empty string if 
+        ///     the model is valid, otherwise comma-separated list of errors
         /// </summary>
-        /// <returns>
-        /// Empty string if it is valid, otherwise returns the errors
-        /// </returns>
-        public static string ValidateModel(object model)
+        /// <param name="model">The model to validate, inheriting from BaseModel.</param>
+        public static string ValidateModel(BaseModel model)
         {
             var validationResults = new List<ValidationResult>();
-            var validationContext = new ValidationContext(model, null, null);
-            bool isValid = Validator.TryValidateObject(model, validationContext, validationResults, true);
+            ValidateObjectRecursive(model, validationResults);
 
-            if (isValid)
+            if (validationResults.Count == 0)
             {
                 return "";
             }
 
             return string.Join(", ", validationResults.Select(vr => vr.ErrorMessage));
+        }
+
+        /// <summary>
+        ///     Recursively validates an object, including its nested objects and collections.
+        /// </summary>
+        /// <param name="model">
+        ///     The object to validate.
+        /// </param>
+        /// <param name="results">
+        ///     A list to collect validation results from the object and its nested properties.
+        /// </param>
+        private static void ValidateObjectRecursive(object model, List<ValidationResult> results)
+        {
+            var validationContext = new ValidationContext(model, null, null);
+
+            // Validate the current model, if there is error it is added to results
+            Validator.TryValidateObject(model, validationContext, results, true);
+
+            // Go throught all properties of the model
+            foreach (var property in model.GetType().GetProperties())
+            {
+                // Get the current value
+                var value = property.GetValue(model);
+
+                if (value is IEnumerable<object> enumerable)
+                {
+                    // If the current value is enumerable, validate all items
+                    foreach (var item in enumerable)
+                    {
+                        ValidateObjectRecursive(item, results);
+                    }
+                }
+                else if (value != null && !property.PropertyType.IsPrimitive && value is not string)
+                {
+                    // Validate the value if it's another model
+                    ValidateObjectRecursive(value, results);
+                }
+            }
         }
     }
 }
