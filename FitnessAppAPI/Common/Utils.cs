@@ -95,7 +95,7 @@ namespace FitnessAppAPI.Common
                         ValidateObjectRecursive(item, results);
                     }
                 }
-                else if (value != null && !property.PropertyType.IsPrimitive && value is not string)
+                else if (value is BaseModel)
                 {
                     // Validate the value if it's another model
                     ValidateObjectRecursive(value, results);
