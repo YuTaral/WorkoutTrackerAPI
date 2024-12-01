@@ -156,10 +156,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             requestData.TryGetValue("checkExistingEx", out string? checkExistingEx);
-            if (checkExistingEx == null)
-            {
-                checkExistingEx = "Y";
-            }
+            checkExistingEx ??= "Y";
 
             // Add the exercise
             var result = service.AddExercise(exerciseData, GetUserId(), checkExistingEx);
@@ -184,10 +181,7 @@ namespace FitnessAppAPI.Controllers
             // If we got here, workout id is not provided and we don't need to return the updated workout,
             // but the exercises for this specific muscle group, so the client side can update them
             requestData.TryGetValue("onlyForUser", out string? onlyForUser);
-            if (onlyForUser == null)
-            {
-                onlyForUser = "Y";
-            }
+            onlyForUser ??= "Y";
 
             return GetUpdatedMGExercises(exerciseData.MuscleGroupId, onlyForUser, result);
         }
@@ -226,10 +220,7 @@ namespace FitnessAppAPI.Controllers
 
             // Check if we need to return all exercises or only the user defined
             requestData.TryGetValue("onlyForUser", out string? onlyForUser);
-            if (onlyForUser == null)
-            {
-                onlyForUser = "Y";
-            }
+            onlyForUser ??= "Y";
 
             // Return the updated exercises for this muscle group
             return GetUpdatedMGExercises(exerciseData.MuscleGroupId, onlyForUser, result);

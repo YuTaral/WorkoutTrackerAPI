@@ -338,9 +338,7 @@ namespace FitnessAppAPI.Data
                                                     .FirstOrDefault();
             }
 
-            if (weightUnit == null) {
-                weightUnit = "";
-            }
+            weightUnit ??= "";
 
             return ModelMapper.MapToUserModel(user, defaultValues, weightUnit);
         }
