@@ -20,6 +20,8 @@ namespace FitnessAppAPI.Data.Services.User.Models
         [Range(0, double.MaxValue)]
         public required double Weight { get; set; }
 
+        public required bool Completed {  get; set; }
+
         public required string WeightUnitText { get; set; }
     }
 }

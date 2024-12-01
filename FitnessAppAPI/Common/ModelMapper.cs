@@ -197,6 +197,7 @@ namespace FitnessAppAPI.Common
                 Sets = defaultValues.Sets,
                 Reps = defaultValues.Reps,
                 Weight = defaultValues.Weight,
+                Completed = defaultValues.Completed,
                 WeightUnitText = unitText
             };
         }
@@ -281,6 +282,7 @@ namespace FitnessAppAPI.Common
                 Sets = 0,
                 Reps = 0,
                 Weight = 0,
+                Completed = false,
                 WeightUnitText = ""
             };
         }

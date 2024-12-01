@@ -96,6 +96,7 @@ namespace FitnessAppAPI.Data
                     Sets = 0,
                     Reps = 0,
                     Weight = 0,
+                    Completed = false,
                     WeightUnitText = ""
                 }
             };
@@ -194,8 +195,7 @@ namespace FitnessAppAPI.Data
         {
             return ExecuteServiceAction(userId =>
             {
-                // Find the existing record, it must be only one for the user
-                var existing = DBAccess.UserDefaultValues.Where(u => u.UserId == userId).FirstOrDefault();
+                var existing = GetUserDefaultValues(userId);
                 if (existing == null)
                 {
                     return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_DOES_NOT_EXISTS);
@@ -217,6 +217,7 @@ namespace FitnessAppAPI.Data
                 existing.Sets = data.Sets;
                 existing.Reps = data.Reps;
                 existing.Weight = data.Weight;
+                existing.Completed = data.Completed;
                 existing.WeightUnitCode = unitCode;
 
                 DBAccess.Entry(existing).State = EntityState.Modified;
@@ -311,6 +312,7 @@ namespace FitnessAppAPI.Data
                 Reps = 0,
                 Weight = 0,
                 WeightUnitCode = kg.Code,
+                Completed = false,
                 UserId = userId
             };
 
@@ -326,7 +328,7 @@ namespace FitnessAppAPI.Data
         /// </param>
         private UserModel CreateUserModel(User user)
         {
-            var defaultValues = DBAccess.UserDefaultValues.Where(u => u.UserId == user.Id).FirstOrDefault();
+            var defaultValues = GetUserDefaultValues(user.Id);
             var weightUnit = "";
 
             if (defaultValues != null)
@@ -341,6 +343,20 @@ namespace FitnessAppAPI.Data
             }
 
             return ModelMapper.MapToUserModel(user, defaultValues, weightUnit);
+        }
+
+
+        /// <summary>
+        ///     Return the user default values for exercises
+        /// </summary>
+        /// <param name="userId">
+        ///     The user Id
+        /// </param>
+        private UserDefaultValue? GetUserDefaultValues(string userId)
+        {
+            // There must be only one record for the user with exercise id = null
+            // This record represents the default values for all exercise
+            return DBAccess.UserDefaultValues.Where(u => u.UserId == userId && u.MGExeciseId == null).FirstOrDefault();
         }
     }
 }
