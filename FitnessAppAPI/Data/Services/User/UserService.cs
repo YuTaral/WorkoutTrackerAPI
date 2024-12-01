@@ -65,7 +65,7 @@ namespace FitnessAppAPI.Data
                     return new ServiceActionResult(Constants.ResponseCode.FAIL, Utils.UserErrorsToString(result.Errors));
                 }
 
-                CreateDefaultValues(userId);
+                CreateDefaultValues(user.Id);
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_REGISTER_SUCCESS);
 
