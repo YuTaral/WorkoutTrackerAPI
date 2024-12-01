@@ -51,6 +51,28 @@ namespace FitnessAppAPI.Data.Services.Exercises
                         DBAccess.Sets.Add(set);
                         DBAccess.SaveChanges();
                     }
+                } 
+                else
+                {
+                    // Use the default values to add sets
+                    var values = GetUserDefaultValues(userId);
+
+                    if (values != null && values.Sets > 0)
+                    {
+                        for (int i = 0; i < values.Sets; i ++) 
+                        {
+                            var set = new Set
+                            {
+                                Reps = values.Reps,
+                                Weight = values.Weight,
+                                Completed = values.Completed,
+                                ExerciseId = exercise.Id
+                            };
+
+                            DBAccess.Sets.Add(set);
+                            DBAccess.SaveChanges();
+                        }
+                    }
                 }
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED);

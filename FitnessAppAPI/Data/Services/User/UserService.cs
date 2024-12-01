@@ -7,9 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
 namespace FitnessAppAPI.Data
 {
@@ -341,20 +339,6 @@ namespace FitnessAppAPI.Data
             weightUnit ??= "";
 
             return ModelMapper.MapToUserModel(user, defaultValues, weightUnit);
-        }
-
-
-        /// <summary>
-        ///     Return the user default values for exercises
-        /// </summary>
-        /// <param name="userId">
-        ///     The user Id
-        /// </param>
-        private UserDefaultValue? GetUserDefaultValues(string userId)
-        {
-            // There must be only one record for the user with exercise id = null
-            // This record represents the default values for all exercise
-            return DBAccess.UserDefaultValues.Where(u => u.UserId == userId && u.MGExeciseId == null).FirstOrDefault();
         }
     }
 }

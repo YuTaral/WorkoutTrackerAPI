@@ -57,5 +57,18 @@ namespace FitnessAppAPI.Data.Services
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_UNEXPECTED_ERROR);
             }
         }
+
+        /// <summary>
+        ///     Return the user default values for exercises
+        /// </summary>
+        /// <param name="userId">
+        ///     The user Id
+        /// </param>
+        protected UserDefaultValue? GetUserDefaultValues(string userId)
+        {
+            // There must be only one record for the user with exercise id = null
+            // This record represents the default values for all exercise
+            return DBAccess.UserDefaultValues.Where(u => u.UserId == userId && u.MGExeciseId == null).FirstOrDefault();
+        }
     }
 }
