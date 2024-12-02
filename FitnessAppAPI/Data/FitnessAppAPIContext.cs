@@ -87,11 +87,13 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .OnDelete(DeleteBehavior.NoAction);
 
         // ExerciseDefaultValue -> MGExercise relation via ExerciseDefaultValue.MGExeciseId
-        modelBuilder.Entity<UserDefaultValue>()
-               .HasOne<MGExercise>()
-               .WithMany()
-               .HasForeignKey(e => e.MGExeciseId)
-               .OnDelete(DeleteBehavior.Cascade);
+        // Do not create the foreign key as the user default value has MGExerciseId = 0
+        // Handle the delete mannually
+        //modelBuilder.Entity<UserDefaultValue>()
+        //       .HasOne<MGExercise>()
+        //       .WithMany()
+        //       .HasForeignKey(e => e.MGExeciseId)
+        //       .OnDelete(DeleteBehavior.Cascade);
 
         // UserDefaultValue -> MGExeWeightUnitcise relation via WeightUnit.WeightUnitId
         modelBuilder.Entity<UserDefaultValue>()

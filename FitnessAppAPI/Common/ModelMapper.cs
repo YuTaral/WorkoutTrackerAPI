@@ -170,6 +170,7 @@ namespace FitnessAppAPI.Common
                 defaultValuesModel.Completed = defaultValues.Completed;
                 defaultValuesModel.Weight = defaultValues.Weight;
                 defaultValuesModel.WeightUnit = weightUnitModel;
+                defaultValuesModel.MGExerciseId = defaultValues.MGExeciseId;
             }
 
             return new UserModel
@@ -205,7 +206,8 @@ namespace FitnessAppAPI.Common
                 Reps = defaultValues.Reps,
                 Weight = defaultValues.Weight,
                 Completed = defaultValues.Completed,
-                WeightUnit = unitModel
+                WeightUnit = unitModel,
+                MGExerciseId = defaultValues.MGExeciseId
             };
         }
 
@@ -236,6 +238,19 @@ namespace FitnessAppAPI.Common
                 Name = "Unknown",
                 MuscleGroup = GetEmptyMuscleGroupModel(),
                 Sets = { }
+            };
+        }
+
+        /// <summary>
+        ///    Return empty UserModel
+        /// </summary>
+        public static UserModel GetEmptyUserModel()
+        {
+            return new UserModel
+            {
+                Id = "",
+                Email = "",
+                DefaultValues = GetEmptyUserDefaultValuesModel(),
             };
         }
 
@@ -307,6 +322,7 @@ namespace FitnessAppAPI.Common
                 Weight = 0,
                 Completed = false,
                 WeightUnit = GetEmptyWeightUnitModel(),
+                MGExerciseId = 0,
             };
         }
     } 

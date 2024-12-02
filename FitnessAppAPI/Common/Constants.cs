@@ -57,6 +57,8 @@
         public const string MSG_CHANGE_USER_DEF_VALUES = "User default values not provided";
         public const string MSG_DEF_VALUES_UPDATED = "Default values updated";
         public const string MSG_FAILED_TO_FETCH_WEIGHT_UNITS = "Failed to fetch weight units";
+        public const string MSG_FAILED_TO_FETCH_DEFAULT_VALUES = "Failed to fetch default values";
+        public const string MSG_FAILED_TO_UPDATE_DEFAULT_VALUES = "Failed to fetch update values";
 
         /// <summary>
         ///     Class containing the DB constants

@@ -96,18 +96,7 @@ namespace FitnessAppAPI.Data
         {
             var userId = "";
             var returnToken = "";
-            var returnUserModel = new UserModel { 
-                Id = "",
-                Email = "",
-                DefaultValues = new UserDefaultValuesModel { 
-                    Id = 0,
-                    Sets = 0,
-                    Reps = 0,
-                    Weight = 0,
-                    Completed = false,
-                    WeightUnit = ModelMapper.GetEmptyWeightUnitModel()
-                }
-            };
+            var returnUserModel = ModelMapper.GetEmptyUserModel();
 
             var result = ExecuteServiceAction(userId => {
                 // Login attempt
@@ -259,7 +248,7 @@ namespace FitnessAppAPI.Data
         /// </param>
         private UserModel? CreateUserModel(User user)
         {
-            var defaultValues = GetUserDefaultValues(user.Id);
+            var defaultValues = GetUserDefaultValues(0, user.Id);
 
             if (defaultValues != null)
             {

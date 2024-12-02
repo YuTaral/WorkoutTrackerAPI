@@ -30,7 +30,8 @@ namespace FitnessAppAPI.Data.Services.UserProfile
                 Weight = 0,
                 WeightUnitId = kg.Id,
                 Completed = false,
-                UserId = userId
+                UserId = userId,
+                MGExeciseId = 0,
             };
 
             DBAccess.UserDefaultValues.Add(defaultValues);
@@ -52,10 +53,28 @@ namespace FitnessAppAPI.Data.Services.UserProfile
         {
             return ExecuteServiceAction(userId =>
             {
-                var existing = GetUserDefaultValues(userId);
+                var existing = GetUserDefaultValues(data.MGExerciseId, userId);
                 if (existing == null)
                 {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_DOES_NOT_EXISTS);
+                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_UPDATE_DEFAULT_VALUES);
+                }
+
+                if (existing.MGExeciseId == 0 && data.MGExerciseId > 0)
+                {
+                    // If the existing returned with MGExeciseId = 0 and data.MGExerciseId > 0
+                    // this means we are trying to create default values for specific exercise
+                    // (GetUserDefaultValues return 0, because the record does not exist yet
+                    // and the default user values was returned)
+                    var addResult = AddExerciseDefaultValues(data, userId);
+
+                    if (!addResult.IsSuccess())
+                    {
+                        return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_UPDATE_DEFAULT_VALUES);
+
+                    }
+
+                    // Return updated response
+                    return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_DEF_VALUES_UPDATED);
                 }
 
                 // Find the unit record and set the code, the model contains the Text column
@@ -106,6 +125,62 @@ namespace FitnessAppAPI.Data.Services.UserProfile
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, units);
 
             }, userId);
+        }
+
+        /// <summary>
+        ///     Return the user default values for this specific exercise. If there are 
+        ///     no default values for the exercise, return the user default values
+        /// </summary>
+        /// <param name="mgExerciseId">
+        ///     The muscle group exercise id
+        /// </param>
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
+        public ServiceActionResult GetExerciseOrUserDefaultValues(long mgExerciseId, string userId)
+        {
+            // Search for the exercise specific values, if they don't exist,
+            // user default values will be returned
+            var values = GetUserDefaultValues(mgExerciseId, userId);
+
+            if (values == null)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_FETCH_DEFAULT_VALUES);
+            }
+
+            // Return the data, making sure tghe values we are returning are returned with the correct mgExerciseId
+            // Even if we return the default values which has mgExerciseId = 0, on the client side, we need to know
+            // that we are editing exercise specific values, altough they may be initially fetched with mgExerciseId 0 
+            // because there are no exercise specific values yet
+            values.MGExeciseId = mgExerciseId;
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, 
+                                            [ModelMapper.MapToUserDefaultValuesModel(values, DBAccess)]);
+        }
+
+        /// <summary>
+        ///     Create record in ExerciseDefaultValue with the default values for the exercise
+        /// </summary>
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
+        private ServiceActionResult AddExerciseDefaultValues(UserDefaultValuesModel data, string userId)
+        {
+            var values = new UserDefaultValue
+            {
+                Sets = data.Sets,
+                Reps = data.Reps,
+                Weight = data.Weight,
+                WeightUnitId = data.WeightUnit.Id,
+                Completed = data.Completed,
+                UserId = userId,
+                MGExeciseId = data.MGExerciseId
+            };
+
+            DBAccess.UserDefaultValues.Add(values);
+            DBAccess.SaveChanges();
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
         }
     }
 }

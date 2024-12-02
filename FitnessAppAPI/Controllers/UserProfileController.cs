@@ -1,9 +1,11 @@
 ﻿using FitnessAppAPI.Common;
+using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.UserProfile;
 using FitnessAppAPI.Data.Services.UserProfile.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -53,6 +55,14 @@ namespace FitnessAppAPI.Controllers
         public ActionResult GetWeightUnits()
         {
             return CustomResponse(service.GetWeightUnits(GetUserId()));
+        }
+
+        /// <summary>
+        //      Get request to fetch the user default values for specific exercise
+        [HttpGet("get-user-default-values")]
+        public ActionResult Get([FromQuery] long mgExerciseId)
+        {
+            return CustomResponse(service.GetExerciseOrUserDefaultValues(mgExerciseId, GetUserId()));   
         }
     }
 }

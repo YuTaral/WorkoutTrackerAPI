@@ -55,7 +55,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 else
                 {
                     // Use the default values to add sets
-                    var values = GetUserDefaultValues(userId);
+                    var values = GetUserDefaultValues(0, userId);
 
                     if (values != null && values.Sets > 0)
                     {
