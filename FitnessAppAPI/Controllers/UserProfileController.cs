@@ -45,5 +45,14 @@ namespace FitnessAppAPI.Controllers
 
             return CustomResponse(service.UpdateUserDefaultValues(data, GetUserId()));
         }
+
+        /// <summary>
+        //      Get request to fetch the weight units
+        /// </summary>
+        [HttpGet("get-weight-units")]
+        public ActionResult GetWeightUnits()
+        {
+            return CustomResponse(service.GetWeightUnits(GetUserId()));
+        }
     }
 }

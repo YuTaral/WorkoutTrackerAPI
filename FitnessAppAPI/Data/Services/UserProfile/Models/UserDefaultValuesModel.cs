@@ -23,6 +23,6 @@ namespace FitnessAppAPI.Data.Services.UserProfile.Models
 
         public required bool Completed { get; set; }
 
-        public required string WeightUnitText { get; set; }
+        public required WeightUnitModel WeightUnit { get; set; }
     }
 }

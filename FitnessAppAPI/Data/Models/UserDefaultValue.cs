@@ -19,7 +19,8 @@ namespace FitnessAppAPI.Data.Models
 
         public required bool Completed { get; set; }
 
-        public required string WeightUnitCode { get; set; }
+        [ForeignKey("WeightUnit")]
+        public required long WeightUnitId { get; set; }
 
         [ForeignKey("AspNetUser")]
         public required string UserId { get; set; }

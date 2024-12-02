@@ -8,8 +8,8 @@ namespace FitnessAppAPI.Data.Models
     public class WeightUnit
     {
         [Key]
-        [MaxLength(10)]
-        public required string Code { get; set; }
+        public long Id { get; set; }
+
         [MaxLength(10)]
         public required string Text { get; set; }
     }

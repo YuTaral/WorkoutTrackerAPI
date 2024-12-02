@@ -1,6 +1,8 @@
 ﻿using FitnessAppAPI.Data.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
+using FitnessAppAPI.Common;
 
 namespace FitnessAppAPI.Data;
 
@@ -91,10 +93,17 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .HasForeignKey(e => e.MGExeciseId)
                .OnDelete(DeleteBehavior.Cascade);
 
+        // UserDefaultValue -> MGExeWeightUnitcise relation via WeightUnit.WeightUnitId
+        modelBuilder.Entity<UserDefaultValue>()
+               .HasOne<WeightUnit>()
+               .WithMany()
+               .HasForeignKey(u => u.WeightUnitId)
+               .OnDelete(DeleteBehavior.Cascade);
+
         // Add the default Weight Units
         modelBuilder.Entity<WeightUnit>().HasData(
-            new WeightUnit { Code = "KG", Text = "Kg" },
-            new WeightUnit { Code = "LB", Text = "Lb" }
+            new WeightUnit { Id = 1, Text = Common.Constants.DBConstants.KG },
+            new WeightUnit { Id = 2, Text = Common.Constants.DBConstants.LB }
         );
 
         // Add the default Muscle Groups

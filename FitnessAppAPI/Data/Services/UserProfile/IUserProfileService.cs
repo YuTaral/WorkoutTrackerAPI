@@ -10,5 +10,6 @@ namespace FitnessAppAPI.Data.Services.UserProfile
     {
         public ServiceActionResult AddUserDefaultValues(string userId);
         public ServiceActionResult UpdateUserDefaultValues(UserDefaultValuesModel data, string userId);
+        public ServiceActionResult GetWeightUnits(string userId);
     }
 }

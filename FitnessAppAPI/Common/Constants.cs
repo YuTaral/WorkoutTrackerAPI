@@ -56,6 +56,7 @@
         public const string MSG_PASSWORD_CHANGED = "Password changed successfully";
         public const string MSG_CHANGE_USER_DEF_VALUES = "User default values not provided";
         public const string MSG_DEF_VALUES_UPDATED = "Default values updated";
+        public const string MSG_FAILED_TO_FETCH_WEIGHT_UNITS = "Failed to fetch weight units";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -67,6 +68,8 @@
             public const int MaxLen4000 = 4000;
             public const string ExceptionTypeDB = "DB";
             public const string ExceptionTypeUnexpected = "UNEXPECTED";
+            public const string KG = "Kg";
+            public const string LB = "Lb";
         }
 
         /// <summary>

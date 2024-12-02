@@ -153,9 +153,15 @@ namespace FitnessAppAPI.Common
         /// <summary>
         ///     Map the User and UserDefaultValue to UserModel
         /// </summary>
-        public static UserModel MapToUserModel(User user, UserDefaultValue? defaultValues, string weightUnit)
+        public static UserModel MapToUserModel(User user, UserDefaultValue? defaultValues, WeightUnit? weightUnit)
         {
             var defaultValuesModel = GetEmptyUserDefaultValuesModel();
+            var weightUnitModel = GetEmptyWeightUnitModel();
+
+            if (weightUnit != null)
+            {
+                weightUnitModel = MapToWeightUnitModel(weightUnit);
+            }
 
             if (defaultValues != null) {
                 defaultValuesModel.Id = defaultValues.Id;
@@ -163,7 +169,7 @@ namespace FitnessAppAPI.Common
                 defaultValuesModel.Reps = defaultValues.Reps;
                 defaultValuesModel.Completed = defaultValues.Completed;
                 defaultValuesModel.Weight = defaultValues.Weight;
-                defaultValuesModel.WeightUnitText = weightUnit;
+                defaultValuesModel.WeightUnit = weightUnitModel;
             }
 
             return new UserModel
@@ -184,13 +190,12 @@ namespace FitnessAppAPI.Common
                 return GetEmptyUserDefaultValuesModel();
             }
 
-            var unitText = DBAccess.WeightUnits.Where(w => w.Code == defaultValues.WeightUnitCode)
-                                               .Select(w => w.Text).FirstOrDefault();
+            var unit = DBAccess.WeightUnits.Where(w => w.Id == defaultValues.WeightUnitId).FirstOrDefault();
+            var unitModel = GetEmptyWeightUnitModel();
 
-            if (unitText == null)
+            if (unit != null)
             {
-                // Must not happen
-                unitText = "";
+                unitModel = MapToWeightUnitModel(unit);
             }
 
             return new UserDefaultValuesModel
@@ -200,8 +205,24 @@ namespace FitnessAppAPI.Common
                 Reps = defaultValues.Reps,
                 Weight = defaultValues.Weight,
                 Completed = defaultValues.Completed,
-                WeightUnitText = unitText
+                WeightUnit = unitModel
             };
+        }
+
+        /// <summary>
+        ///     Map the weightUnit to WeightUnitModel
+        /// </summary>
+        public static WeightUnitModel MapToWeightUnitModel(WeightUnit weightUnit)
+        {
+            return new WeightUnitModel { Id = weightUnit.Id, Text = weightUnit.Text };
+        }
+
+        /// <summary>
+        ///    Return empty WeightUnitModel
+        /// </summary>
+        public static WeightUnitModel GetEmptyWeightUnitModel()
+        {
+            return new WeightUnitModel { Id = 0, Text = "" };
         }
 
         /// <summary>
@@ -285,7 +306,7 @@ namespace FitnessAppAPI.Common
                 Reps = 0,
                 Weight = 0,
                 Completed = false,
-                WeightUnitText = ""
+                WeightUnit = GetEmptyWeightUnitModel(),
             };
         }
     } 

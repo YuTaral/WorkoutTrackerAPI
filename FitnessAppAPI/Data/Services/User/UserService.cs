@@ -105,7 +105,7 @@ namespace FitnessAppAPI.Data
                     Reps = 0,
                     Weight = 0,
                     Completed = false,
-                    WeightUnitText = ""
+                    WeightUnit = ModelMapper.GetEmptyWeightUnitModel()
                 }
             };
 
@@ -257,21 +257,17 @@ namespace FitnessAppAPI.Data
         /// <param name="user">
         ///     The user 
         /// </param>
-        private UserModel CreateUserModel(User user)
+        private UserModel? CreateUserModel(User user)
         {
             var defaultValues = GetUserDefaultValues(user.Id);
-            var weightUnit = "";
 
             if (defaultValues != null)
             {
-                weightUnit = DBAccess.WeightUnits.Where(w => w.Code == defaultValues.WeightUnitCode)
-                                                    .Select(w => w.Text)
-                                                    .FirstOrDefault();
+                var weightUnit = DBAccess.WeightUnits.Where(w => w.Id == defaultValues.WeightUnitId).FirstOrDefault();
+                return ModelMapper.MapToUserModel(user, defaultValues, weightUnit);
             }
 
-            weightUnit ??= "";
-
-            return ModelMapper.MapToUserModel(user, defaultValues, weightUnit);
+            return null;
         }
     }
 }
