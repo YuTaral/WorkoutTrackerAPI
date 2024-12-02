@@ -7,7 +7,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
+using FitnessAppAPI.Data.Services.UserProfile.Models;
+using FitnessAppAPI.Data.Services.UserProfile;
 
 namespace FitnessAppAPI.Data
 {
@@ -21,15 +22,19 @@ namespace FitnessAppAPI.Data
         private readonly IUserEmailStore<User> _emailStore;
         private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly IUserProfileService _userProfileService;
+
 
         public UserService(UserManager<User> userManager, IUserStore<User> userStore, SignInManager<User> signInManager,
-                       IConfiguration configuration, FitnessAppAPIContext DB) : base(DB)
+                       IConfiguration configuration, FitnessAppAPIContext DB,
+                       IUserProfileService userProfileS) : base(DB)
         {
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _configuration = configuration;
+            _userProfileService = userProfileS;
         }
 
         /// <summary>
@@ -63,7 +68,12 @@ namespace FitnessAppAPI.Data
                     return new ServiceActionResult(Constants.ResponseCode.FAIL, Utils.UserErrorsToString(result.Errors));
                 }
 
-                CreateDefaultValues(user.Id);
+                // Create the default values for the user
+                var createUserDefaultValuesResult = _userProfileService.AddUserDefaultValues(user.Id);
+                if (!createUserDefaultValuesResult.IsSuccess())
+                {
+                    return new ServiceActionResult(createUserDefaultValuesResult.ResponseCode, createUserDefaultValuesResult.ResponseMessage);
+                }
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_REGISTER_SUCCESS);
 
@@ -179,54 +189,6 @@ namespace FitnessAppAPI.Data
             }, userId); 
         }
 
-
-        /// <summary>
-        ///     Change user default values
-        /// </summary>
-        /// <param name="data">
-        ///     The new default values
-        /// </param>
-        /// <param name="userId">
-        ///     The user id
-        /// </param>
-        public ServiceActionResult ChangeUserDefaultValues(UserDefaultValuesModel data, string userId)
-        {
-            return ExecuteServiceAction(userId =>
-            {
-                var existing = GetUserDefaultValues(userId);
-                if (existing == null)
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_DOES_NOT_EXISTS);
-                }
-
-                // Find the unit record and set the code, the model contains the Text column
-                var unitRecord = DBAccess.WeightUnits.Where(w => w.Text == data.WeightUnitText).FirstOrDefault();
-                var unitCode = "";
-
-                if (unitRecord == null) {
-                    unitCode = existing.WeightUnitCode;
-                } 
-                else
-                {
-                    unitCode = unitRecord.Code;
-                }
-
-                // Change the record
-                existing.Sets = data.Sets;
-                existing.Reps = data.Reps;
-                existing.Weight = data.Weight;
-                existing.Completed = data.Completed;
-                existing.WeightUnitCode = unitCode;
-
-                DBAccess.Entry(existing).State = EntityState.Modified;
-                DBAccess.SaveChanges();
-
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_DEF_VALUES_UPDATED, 
-                    [ModelMapper.MapToUserDefaultValuesModel(existing, DBAccess)]);
-
-            }, userId);
-        }
-
         /// <summary>
         ///     Generate JwtToken for the logged in user
         /// </summary>
@@ -287,35 +249,6 @@ namespace FitnessAppAPI.Data
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
             return (IUserEmailStore<User>)_userStore;
-        }
-
-        /// <summary>
-        ///     Create record in ExerciseDefaultValue with the default values for the user
-        /// </summary>
-        /// <param name="userId">
-        ///     The user id
-        /// </param>
-        private void CreateDefaultValues(string userId)
-        {
-            var kg = DBAccess.WeightUnits.Where(w => w.Code == "KG").FirstOrDefault();
-            if (kg == null) { 
-                // Must NOT happen
-                return;
-            }
-
-            // Create ExerciseDefaultValue record for the user
-            var defaultValues = new UserDefaultValue
-            {
-                Sets = 0,
-                Reps = 0,
-                Weight = 0,
-                WeightUnitCode = kg.Code,
-                Completed = false,
-                UserId = userId
-            };
-
-            DBAccess.UserDefaultValues.Add(defaultValues);
-            DBAccess.SaveChanges();
         }
 
         /// <summary>

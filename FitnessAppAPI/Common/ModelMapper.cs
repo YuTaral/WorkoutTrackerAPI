@@ -4,6 +4,7 @@ using FitnessAppAPI.Data.Services.MuscleGroups.Models;
 using FitnessAppAPI.Data;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using FitnessAppAPI.Data.Services.User.Models;
+using FitnessAppAPI.Data.Services.UserProfile.Models;
 
 namespace FitnessAppAPI.Common
 {

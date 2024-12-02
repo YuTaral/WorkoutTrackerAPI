@@ -3,14 +3,14 @@ using FitnessAppAPI.Data.Models;
 using System.ComponentModel.DataAnnotations;
 
 
-namespace FitnessAppAPI.Data.Services.User.Models
+namespace FitnessAppAPI.Data.Services.UserProfile.Models
 {
     /// <summary>
     ///     UserDefaultValuesModel class representing the user default values
     ///     for sets, reps, weight and other.
     ///     Must correspond with client-side UserDefaultValuesModel class
     /// </summary>
-    public class UserDefaultValuesModel: BaseModel
+    public class UserDefaultValuesModel : BaseModel
     {
         [Range(0, int.MaxValue, ErrorMessage = Constants.ValidationErrors.SETS_MUST_BE_POSITIVE)]
         public required int Sets { get; set; }
@@ -21,7 +21,7 @@ namespace FitnessAppAPI.Data.Services.User.Models
         [Range(0, double.MaxValue, ErrorMessage = Constants.ValidationErrors.WEIGHT_MUST_BE_POSITIVE)]
         public required double Weight { get; set; }
 
-        public required bool Completed {  get; set; }
+        public required bool Completed { get; set; }
 
         public required string WeightUnitText { get; set; }
     }

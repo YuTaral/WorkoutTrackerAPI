@@ -1,4 +1,6 @@
-﻿namespace FitnessAppAPI.Data.Services.User.Models
+﻿using FitnessAppAPI.Data.Services.UserProfile.Models;
+
+namespace FitnessAppAPI.Data.Services.User.Models
 {
     /// <summary>
     ///     UserModel class representing the logged in user.

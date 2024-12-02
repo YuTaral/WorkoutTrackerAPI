@@ -1,12 +1,9 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Services;
-using FitnessAppAPI.Data.Services.Exercises.Models;
 using FitnessAppAPI.Data.Services.User.Models;
 using FitnessAppAPI.Data.Services.Workouts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using NuGet.Protocol;
 
 namespace FitnessAppAPI.Controllers
@@ -27,7 +24,7 @@ namespace FitnessAppAPI.Controllers
         //      WorkoutService instance
         /// </summary>
         private readonly IWorkoutService workoutService = workoutS;
-
+       
         /// <summary>
         //      POST request to login the user
         /// </summary>
@@ -75,6 +72,7 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL);
             }
 
+            // Register the user
             return CustomResponse(service.Register(email, password));
         }
 
@@ -110,33 +108,6 @@ namespace FitnessAppAPI.Controllers
             }
 
             return CustomResponse(service.ChangePassword(oldPassword, password, GetUserId()));
-        }
-
-        /// <summary>
-        //      POST request to user exercise default values 
-        /// </summary>
-        [HttpPost("change-default_values")]
-        public ActionResult ChangeUserDefaultValues([FromBody] Dictionary<string, string> requestData)
-        {
-            /// Check if new pass is provided
-            if (!requestData.TryGetValue("values", out string? serializedValues))
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_CHANGE_USER_DEF_VALUES);
-            }
-
-            UserDefaultValuesModel? data = JsonConvert.DeserializeObject<UserDefaultValuesModel>(serializedValues);
-            if (data == null)
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "UserDefaultValuesModel"));
-            }
-
-            string validationErrors = Utils.ValidateModel(data);
-            if (!validationErrors.IsNullOrEmpty())
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
-            }
-
-            return CustomResponse(service.ChangeUserDefaultValues(data, GetUserId()));
         }
     }
 }
