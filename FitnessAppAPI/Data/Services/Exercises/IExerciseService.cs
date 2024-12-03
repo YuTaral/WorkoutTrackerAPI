@@ -10,10 +10,10 @@ namespace FitnessAppAPI.Data.Services.Exercises
         public ServiceActionResult AddExerciseToWorkout(ExerciseModel exerciseData, long workoutId, string userId);
         public ServiceActionResult UpdateExerciseFromWorkout(ExerciseModel exerciseData, long workoutId, string userId);
         public ServiceActionResult DeleteExerciseFromWorkout(long exerciseId, string userId);
-        public ServiceActionResult AddExercise(MGExerciseModel exerciseData, string userId, string checkExistingEx);
+        public ServiceActionResult AddExercise(MGExerciseModel MGExerciseData, string userId, string checkExistingEx);
         public ServiceActionResult UpdateExercise(MGExerciseModel exerciseData, string userId);
         public ServiceActionResult DeleteExercise(long MGExerciseId, string userId);
         public ServiceActionResult GetExercisesForMG(long muscleGroupId, string userId, string onlyForUser);
-
+        public ServiceActionResult AddExerciseToWorkout(MGExerciseModel MGExerciseData, long workoutId, string userId);
     }
 }

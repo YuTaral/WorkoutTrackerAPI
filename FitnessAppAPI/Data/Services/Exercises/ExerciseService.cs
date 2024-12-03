@@ -52,31 +52,53 @@ namespace FitnessAppAPI.Data.Services.Exercises
                         DBAccess.SaveChanges();
                     }
                 } 
-                else
-                {
-                    // Use the default values to add sets
-                    var values = GetUserDefaultValues(0, userId);
-
-                    if (values != null && values.Sets > 0)
-                    {
-                        for (int i = 0; i < values.Sets; i ++) 
-                        {
-                            var set = new Set
-                            {
-                                Reps = values.Reps,
-                                Weight = values.Weight,
-                                Completed = values.Completed,
-                                ExerciseId = exercise.Id
-                            };
-
-                            DBAccess.Sets.Add(set);
-                            DBAccess.SaveChanges();
-                        }
-                    }
-                }
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED);
             }, userId);
+        }
+
+        /// <summary>
+        ///     Add the exercise to the workout with the provided id.
+        ///     Used when new muscle group exercise has been added and we
+        ///     need to auto add it to the current workout as exercise to workout
+        /// </summary>
+        /// <param name="exerciseData">
+        ///     The exercise
+        /// </param>
+        /// <param name="workoutId">
+        ///     The workout id
+        /// </param>
+        /// <param name="userId">
+        ///     The user who is adding the exercse
+        /// </param>
+        public ServiceActionResult AddExerciseToWorkout(MGExerciseModel MGExerciseData, long workoutId, string userId)
+        {
+            return ExecuteServiceAction(userId =>
+            {
+                // Find the muscle group
+                var muscleGroup = DBAccess.MuscleGroups.Where(mg => mg.Id == MGExerciseData.MuscleGroupId)
+                                                       .Select(mg => ModelMapper.MapToMuscleGroupModel(mg))
+                                                       .FirstOrDefault();
+
+                if (muscleGroup == null || muscleGroup.Id == 0)
+                {
+                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_UNEXPECTED_ERROR);
+                }
+
+                // Create the Exercise Model
+                var exerciseToAdd = new ExerciseModel
+                {
+                    Id = 0,
+                    Name = MGExerciseData.Name,
+                    MuscleGroup = muscleGroup,
+                    Sets = []
+                };
+
+                // Reuse add exercise to workout
+                return AddExerciseToWorkout(exerciseToAdd, workoutId, userId);
+
+            }, userId);
+            
         }
 
         /// <summary>
@@ -200,7 +222,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <summary>
         ///     Add the exercise to specific muscle group
         /// </summary>
-        /// <param name="exerciseData">
+        /// <param name="MGExerciseData">
         ///     The exercise
         /// </param>
         /// <param name="userId">
@@ -210,15 +232,15 @@ namespace FitnessAppAPI.Data.Services.Exercises
         ///     "Y" if we need to check whether exercise with this name already exists,
         ///     "N" to skip the check
         /// </param>
-        public ServiceActionResult AddExercise(MGExerciseModel exerciseData, string userId, string checkExistingEx)
+        public ServiceActionResult AddExercise(MGExerciseModel MGExerciseData, string userId, string checkExistingEx)
         {
             return ExecuteServiceAction(userId => {
 
                 if (checkExistingEx == "Y")
                 {
                     // Check if exercise with the same name already exists
-                    var existingExercise = DBAccess.MGExercises.Where(e => e.Name.ToLower().Equals(exerciseData.Name.ToLower()) &&
-                                                                           e.MuscleGroupId == exerciseData.MuscleGroupId &&
+                    var existingExercise = DBAccess.MGExercises.Where(e => e.Name.ToLower().Equals(MGExerciseData.Name.ToLower()) &&
+                                                                           e.MuscleGroupId == MGExerciseData.MuscleGroupId &&
                                                                            e.UserId == userId)
                                                                            .FirstOrDefault();
 
@@ -231,24 +253,24 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 }
                
                 // Create new exercise
-                var exercise = new MGExercise
+                var MGExercise = new MGExercise
                 {
-                    Name = exerciseData.Name,
-                    Description = exerciseData.Description,
-                    MuscleGroupId = exerciseData.MuscleGroupId,
+                    Name = MGExerciseData.Name,
+                    Description = MGExerciseData.Description,
+                    MuscleGroupId = MGExerciseData.MuscleGroupId,
                     UserId = userId
                 };
 
-                DBAccess.MGExercises.Add(exercise);
+                DBAccess.MGExercises.Add(MGExercise);
                 DBAccess.SaveChanges();
 
                 // Get the MGExercises results and convert them to Enumerable, to avoid errors that the Entity Framerwork
-                // cannot translate the method into SQL when MapToExerciseModel() is called
-                var MGExercisesEnum = DBAccess.MGExercises.Where(e => e.Id == exercise.Id).AsEnumerable();
-                var model = MGExercisesEnum.Select(e => ModelMapper.MapToExerciseModel(e, DBAccess))
-                                            .FirstOrDefault(ModelMapper.GetEmptyExerciseModel());
+                // cannot translate the method into SQL when MapToExerciseModel() is called.
+                // Return the newly added MGExercise
+                var MGExercisesEnum = DBAccess.MGExercises.Where(e => e.Id == MGExercise.Id).AsEnumerable();
+                var model = MGExercisesEnum.Select(e => (BaseModel) ModelMapper.MapToMGExerciseModel(e)).ToList();
 
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED, [model]);
+                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED, model);
             }, userId);
         }
 

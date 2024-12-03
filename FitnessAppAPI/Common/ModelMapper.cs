@@ -65,34 +65,6 @@ namespace FitnessAppAPI.Common
             };
         }
 
-        /// <summary>
-        ///     Map the MGExercise to ExerciseModel
-        /// </summary>
-        public static ExerciseModel MapToExerciseModel(MGExercise MGExercise, FitnessAppAPIContext DBAccess)
-        {
-            if (MGExercise == null)
-            {
-                return GetEmptyExerciseModel();
-            }
-
-            // Get the MuscleGroups results and convert them to Enumerable, to avoid errors that the Entity Framerwork
-            // cannot translate the method into SQL when MapToMuscleGroupModel() is called
-            var muscleGroupEnum = DBAccess.MuscleGroups.Where(mg => mg.Id == MGExercise.MuscleGroupId).AsEnumerable();
-            var muscleGroup = muscleGroupEnum.Select(mg => MapToMuscleGroupModel(mg)).FirstOrDefault(GetEmptyMuscleGroupModel());
-
-            // Get the Sets results and convert them to Enumerable, to avoid errors that the Entity Framerwork
-            // cannot translate the method into SQL when MapToSetModel() is called
-            var setEnum = DBAccess.Sets.Where(s => s.ExerciseId == MGExercise.Id).AsEnumerable();
-            var sets = setEnum.Select(s => MapToSetModel(s)).ToList();
-
-            return new ExerciseModel
-            {
-                Id = MGExercise.Id,
-                Name = MGExercise.Name,
-                MuscleGroup = muscleGroup,
-                Sets = sets
-            };
-        }
 
         /// <summary>
         ///     Map the MGExercises to MGExerciseModel

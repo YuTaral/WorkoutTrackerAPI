@@ -170,7 +170,7 @@ namespace FitnessAppAPI.Controllers
             var workoutId = long.Parse(id);
             if (workoutId > 0)
             {
-                var addExToWorkoutResult = service.AddExerciseToWorkout((ExerciseModel) result.ResponseData[0], workoutId, GetUserId());
+                var addExToWorkoutResult = service.AddExerciseToWorkout((MGExerciseModel)result.ResponseData[0], workoutId, GetUserId());
                 if (addExToWorkoutResult.IsSuccess())
                 {
                     // Return the updated workout on success
