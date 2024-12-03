@@ -53,7 +53,9 @@ namespace FitnessAppAPI.Data.Services.UserProfile
         {
             return ExecuteServiceAction(userId =>
             {
+                var oldWeightUnit = 0L;
                 var existing = GetUserDefaultValues(data.MGExerciseId, userId);
+
                 if (existing == null)
                 {
                     return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_UPDATE_DEFAULT_VALUES);
@@ -90,6 +92,9 @@ namespace FitnessAppAPI.Data.Services.UserProfile
                     unitId = unitRecord.Id;
                 }
 
+                // Store the old weight unit
+                oldWeightUnit = existing.WeightUnitId;
+
                 // Change the record
                 existing.Sets = data.Sets;
                 existing.Reps = data.Reps;
@@ -98,10 +103,26 @@ namespace FitnessAppAPI.Data.Services.UserProfile
                 existing.WeightUnitId = unitId;
 
                 DBAccess.Entry(existing).State = EntityState.Modified;
+
+                // If the weight unit has changed, change all records for the user to use the new weight unit
+                if (oldWeightUnit != unitId)
+                {
+                    var records = DBAccess.UserDefaultValues.Where(u => u.UserId == userId && u.MGExeciseId > 0).ToList();
+
+                    if (records != null && records.Count > 0)
+                    {
+                        foreach (UserDefaultValue r in records)
+                        {
+                            r.WeightUnitId = unitId;
+                            DBAccess.Entry(r).State = EntityState.Modified;
+                        }
+                    }
+                }
+
                 DBAccess.SaveChanges();
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_DEF_VALUES_UPDATED,
-                    [ModelMapper.MapToUserDefaultValuesModel(existing, DBAccess)]);
+                                                [ModelMapper.MapToUserDefaultValuesModel(existing, DBAccess)]);
 
             }, userId);
         }
