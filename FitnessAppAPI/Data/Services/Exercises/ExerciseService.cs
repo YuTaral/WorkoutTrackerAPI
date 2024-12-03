@@ -305,6 +305,10 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 }
 
                 DBAccess.MGExercises.Remove(MGExercise);
+
+                // Delete all records for default values for this muscle group exercise
+                DBAccess.UserDefaultValues.RemoveRange(DBAccess.UserDefaultValues.Where(u => u.MGExeciseId == MGExerciseId && u.UserId == userId));
+
                 DBAccess.SaveChanges();
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_DELETED,
