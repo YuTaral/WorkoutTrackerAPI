@@ -109,5 +109,20 @@ namespace FitnessAppAPI.Controllers
 
             return CustomResponse(service.ChangePassword(oldPassword, password, GetUserId()));
         }
+
+        /// <summary>
+        //      POST request to validate token
+        /// </summary>
+        [HttpPost("validate-token")]
+        public ActionResult ValidateToken([FromBody] Dictionary<string, string> requestData)
+        {
+            /// Check if new pass is provided
+            if (!requestData.TryGetValue("token", out string? token))
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_TOKEN_VALIDATION_FAILED);
+            }
+
+            return CustomResponse(service.ValidateToken(token, GetUserId()));
+        }
     }
 }

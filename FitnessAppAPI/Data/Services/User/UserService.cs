@@ -178,6 +178,50 @@ namespace FitnessAppAPI.Data
             }, userId); 
         }
 
+
+        /// <summary>
+        ///     Validate the token
+        /// </summary>
+        /// <param name="token">
+        ///     The token to validate
+        /// </param>
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
+        public ServiceActionResult ValidateToken(string token, string userId)
+        {
+            return ExecuteServiceAction(userId =>
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var keyString = _configuration["JwtSettings:SecretKey"];
+
+                if (keyString == null)
+                {
+                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TOKEN_VALIDATION_FAILED);
+                }
+
+                var key = Encoding.ASCII.GetBytes(keyString);
+
+                try
+                {
+                    handler.ValidateToken(token, new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ClockSkew = TimeSpan.Zero
+                    }, out SecurityToken validatedToken);
+
+                    return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+                }
+                catch
+                {
+                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TOKEN_VALIDATION_FAILED);
+                }
+            }, userId);
+        }
+
         /// <summary>
         ///     Generate JwtToken for the logged in user
         /// </summary>
