@@ -2,9 +2,11 @@
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mail;
+using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Common
 {
@@ -101,6 +103,23 @@ namespace FitnessAppAPI.Common
                     ValidateObjectRecursive(value, results);
                 }
             }
+        }
+
+        /// <summary>
+        ///     Create response object
+        ///     Returned fields must correspond with client-side CustomResponse class:
+        ///         - ResponseCode
+        ///         - ResponseMessage
+        ///         - ResponseData
+        /// </summary>
+        public static Object CreateResponseObject(ResponseCode ResponseCode, string ResponseMessage, List<string> ResponseData)
+        {
+            return (new
+            {
+                ResponseCode,
+                ResponseMessage,
+                ResponseData
+            });
         }
     }
 }

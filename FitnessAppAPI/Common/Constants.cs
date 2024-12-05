@@ -13,7 +13,9 @@
             SUCCESS,
             FAIL,
             UNEXPECTED_ERROR,
-            EXERCISE_ALREADY_EXISTS
+            EXERCISE_ALREADY_EXISTS,
+            TOKEN_EXPIRED,
+            REFRESH_TOKEN
         }
 
         /// <summary>
@@ -21,7 +23,8 @@
         /// </summary>
         public const string MSG_SUCCESS = "Success";
         public const string MSG_NOT_ENOUGH_DATA = "Not enough data provided to process the request";
-        public const string MSG_REG_FAIL = "Registration failed. Invalid email or password";
+        public const string MSG_REG_FAIL = "Registration failed. Email or password not provided";
+        public const string MSG_LOGIN_FAIL = "Login failed. Email or password not provided";
         public const string MSG_REG_FAIL_EMAIL = "Registration failed. Invalid email";
         public const string MSG_LOGIN_FAILED = "Invalid email or password.";
         public const string MSG_WORKOUT_ADD_FAIL_NO_DATA = "Add workout failed. Name or user not provided";
@@ -60,6 +63,7 @@
         public const string MSG_FAILED_TO_FETCH_DEFAULT_VALUES = "Failed to fetch default values";
         public const string MSG_FAILED_TO_UPDATE_DEFAULT_VALUES = "Failed to fetch update values";
         public const string MSG_TOKEN_VALIDATION_FAILED = "Token validation failed";
+        public const string MSG_TOKEN_EXPIRED = "Token expired";
 
 
         /// <summary>
@@ -89,6 +93,17 @@
             public const string REPS_MUST_BE_POSITIVE = "Reps must be positive number";
             public const string WEIGHT_MUST_BE_POSITIVE = "Weight must be positive number";
 
+        }
+
+        /// <summary>
+        ///    Request path values
+        /// </summary>
+        public static class RequestPaths
+        {
+            public const string PATH_TO_API = "/api";
+            public const string PATH_TO_FAVICON = "/favicon.ico";
+            public const string PATH_TO_LOGIN = PATH_TO_API + "/user/login";
+            public const string PATH_TO_LOGOUT = PATH_TO_API + "/user/logout";
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace FitnessAppAPI.Extensions
+﻿using FitnessAppAPI.Middlewares;
+
+namespace FitnessAppAPI.Extensions
 {
     /// <summary>
     /// Provides extension methods for configuring middleware and HTTP request pipeline in the application.
@@ -35,6 +37,7 @@
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseMiddleware<TokenValidationMiddleware>();
             app.MapControllers();
 
             return app;

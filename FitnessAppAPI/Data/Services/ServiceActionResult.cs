@@ -34,5 +34,20 @@ namespace FitnessAppAPI.Data.Services
             return ResponseCode == Constants.ResponseCode.SUCCESS;
         }
 
+        /// <summary>
+        ///   True if the ResponseCode is REFRESH_TOKEN, false otherwise
+        /// </summary>
+        public bool IsRefreshToken()
+        {
+            return ResponseCode == Constants.ResponseCode.REFRESH_TOKEN;
+        }
+
+        /// <summary>
+        ///   True if the ResponseCode is TOKEN_EXPIRED, false otherwise
+        /// </summary>
+        public bool IsTokenExpired()
+        {
+            return ResponseCode == Constants.ResponseCode.TOKEN_EXPIRED;
+        }
     }
 }

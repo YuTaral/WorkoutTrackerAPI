@@ -24,7 +24,7 @@ namespace FitnessAppAPI.Controllers
         //      WorkoutService instance
         /// </summary>
         private readonly IWorkoutService workoutService = workoutS;
-       
+
         /// <summary>
         //      POST request to login the user
         /// </summary>
@@ -34,10 +34,10 @@ namespace FitnessAppAPI.Controllers
             /// Check if username and password are provided
             if (!requestData.TryGetValue("email", out string? email) || !requestData.TryGetValue("password", out string? password))
             {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAIL);
             }
 
-            LoginResponseModel model = service.Login(email, password);
+            TokenResponseModel model = service.Login(email, password);
 
             // Success check
             if (!model.Result.IsSuccess())
@@ -122,7 +122,22 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_TOKEN_VALIDATION_FAILED);
             }
 
-            return CustomResponse(service.ValidateToken(token, GetUserId()));
+            var tokenResponseModel = service.ValidateToken(token, GetUserId());
+
+            if (tokenResponseModel.Result.IsSuccess())
+            {
+                // Token validation is successfull
+                return CustomResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+
+            } 
+            else if (tokenResponseModel.Result.IsRefreshToken())
+            {
+                // Need to refresh the token on the client side, return the token
+                return CustomResponse(Constants.ResponseCode.REFRESH_TOKEN, Constants.MSG_SUCCESS, [tokenResponseModel.Token]);
+            }
+
+            // Token validation failed, probably token expired
+            return CustomResponse(tokenResponseModel.Result.ResponseCode, tokenResponseModel.Result.ResponseMessage);
         }
     }
 }

@@ -7,7 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using FitnessAppAPI.Data.Services.UserProfile.Models;
 using FitnessAppAPI.Data.Services.UserProfile;
 
 namespace FitnessAppAPI.Data
@@ -23,7 +22,6 @@ namespace FitnessAppAPI.Data
         private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly IUserProfileService _userProfileService;
-
 
         public UserService(UserManager<User> userManager, IUserStore<User> userStore, SignInManager<User> signInManager,
                        IConfiguration configuration, FitnessAppAPIContext DB,
@@ -92,7 +90,7 @@ namespace FitnessAppAPI.Data
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public LoginResponseModel Login(string email, string password)
+        public TokenResponseModel Login(string email, string password)
         {
             var userId = "";
             var returnToken = "";
@@ -131,7 +129,7 @@ namespace FitnessAppAPI.Data
             }, userId);
 
             
-            return new LoginResponseModel
+            return new TokenResponseModel
             {
                 User = returnUserModel,
                 Token = returnToken,
@@ -178,7 +176,6 @@ namespace FitnessAppAPI.Data
             }, userId); 
         }
 
-
         /// <summary>
         ///     Validate the token
         /// </summary>
@@ -188,9 +185,19 @@ namespace FitnessAppAPI.Data
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public ServiceActionResult ValidateToken(string token, string userId)
+        public TokenResponseModel ValidateToken(string token, string userId)
         {
-            return ExecuteServiceAction(userId =>
+            if (userId.IsNullOrEmpty()) {
+                // Make sure the userId is set when validation token
+                var jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+
+                userId = jwtToken.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            }
+
+            var returnToken = "";
+            var returnUserModel = ModelMapper.GetEmptyUserModel();
+
+            var result = ExecuteServiceAction(userId =>
             {
                 var handler = new JwtSecurityTokenHandler();
                 var keyString = _configuration["JwtSettings:SecretKey"];
@@ -213,13 +220,32 @@ namespace FitnessAppAPI.Data
                         ClockSkew = TimeSpan.Zero
                     }, out SecurityToken validatedToken);
 
+                    if (RefreshJwtToken(validatedToken) && userId != "")
+                    {
+                        // If the token expires soon, generate new token
+                        var user = DBAccess.Users.Where(u => u.Id == userId).FirstOrDefault();
+
+                        if (user != null)
+                        {
+                            returnToken = GenerateJwtToken(user);
+                            return new ServiceActionResult(Constants.ResponseCode.REFRESH_TOKEN, Constants.MSG_SUCCESS);
+                        }
+                    }
+
                     return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
                 }
                 catch
                 {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TOKEN_VALIDATION_FAILED);
+                    return new ServiceActionResult(Constants.ResponseCode.TOKEN_EXPIRED, Constants.MSG_TOKEN_EXPIRED);
                 }
             }, userId);
+
+            return new TokenResponseModel
+            {
+                User = returnUserModel,
+                Token = returnToken,
+                Result = result
+            };
         }
 
         /// <summary>
@@ -251,6 +277,46 @@ namespace FitnessAppAPI.Data
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        /// <summary>
+        ///     Return true if the current token expires within 2 days, false otherwse
+        /// </summary>
+        /// <param name="token">
+        ///     The token to check    
+        /// </param>
+        /// <returns></returns>
+        private static bool RefreshJwtToken(SecurityToken token)
+        {
+            // Extract the JWT token claims
+            JwtSecurityToken? jwtToken = token as JwtSecurityToken;
+
+            if (jwtToken == null)
+            {
+                // Refresh the token if parsing failed, it should not happen
+                return true;
+            }
+
+            var expirationClaim = jwtToken?.Claims.FirstOrDefault(c => c.Type == "exp");
+
+            if (expirationClaim == null)
+            {
+                // Refresh the token if expiration date not found, it should not happen
+                return true;
+            }
+
+            // Convert the expiration time to a DateTime
+            var expirationUnixTime = long.Parse(expirationClaim.Value);
+            var expirationDateTime = DateTimeOffset.FromUnixTimeSeconds(expirationUnixTime).DateTime;
+
+            // Check if the token expires within 2 days
+            if (expirationDateTime <= DateTime.UtcNow.AddDays(2))
+            {
+                return true;
+            }
+
+            // No refresh needed
+            return false;
         }
 
         /// <summary>
