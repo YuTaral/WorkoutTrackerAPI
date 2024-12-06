@@ -9,21 +9,21 @@ namespace FitnessAppAPI.Data.Services
     /// </summary>
     public class ServiceActionResult
     {
-        public Constants.ResponseCode ResponseCode { get; set; }
-        public string ResponseMessage { get; set; }    
-        public List<BaseModel> ResponseData { get; set; }
+        public Constants.ResponseCode Code { get; set; }
+        public string Message { get; set; }    
+        public List<BaseModel> Data { get; set; }
 
-        public ServiceActionResult(Constants.ResponseCode ResponseCodeVal, string ResponseMessageVal) {
-            ResponseCode = ResponseCodeVal;
-            ResponseMessage = ResponseMessageVal;
-            ResponseData = [];
+        public ServiceActionResult(Constants.ResponseCode CodeVal, string MessageVal) {
+            Code = CodeVal;
+            Message = MessageVal;
+            Data = [];
         }
 
-        public ServiceActionResult(Constants.ResponseCode ResponseCodeVal, string ResponseMessageVal, List<BaseModel> ResponseDataVal)
+        public ServiceActionResult(Constants.ResponseCode CodeVal, string MessageVal, List<BaseModel> DataVal)
         {
-            ResponseCode = ResponseCodeVal;
-            ResponseMessage = ResponseMessageVal;
-            ResponseData = ResponseDataVal;
+            Code = CodeVal;
+            Message = MessageVal;
+            Data = DataVal;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace FitnessAppAPI.Data.Services
         /// </summary>
         public bool IsSuccess()
         {
-            return ResponseCode == Constants.ResponseCode.SUCCESS;
+            return Code == Constants.ResponseCode.SUCCESS;
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace FitnessAppAPI.Data.Services
         /// </summary>
         public bool IsRefreshToken()
         {
-            return ResponseCode == Constants.ResponseCode.REFRESH_TOKEN;
+            return Code == Constants.ResponseCode.REFRESH_TOKEN;
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace FitnessAppAPI.Data.Services
         /// </summary>
         public bool IsTokenExpired()
         {
-            return ResponseCode == Constants.ResponseCode.TOKEN_EXPIRED;
+            return Code == Constants.ResponseCode.TOKEN_EXPIRED;
         }
     }
 }

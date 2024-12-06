@@ -42,7 +42,7 @@ namespace FitnessAppAPI.Controllers
             // Success check
             if (!model.Result.IsSuccess())
             {
-                return CustomResponse(model.Result.ResponseCode, model.Result.ResponseMessage);
+                return CustomResponse(model.Result.Code, model.Result.Message);
             }
 
             // Construct the return data list
@@ -51,13 +51,13 @@ namespace FitnessAppAPI.Controllers
             // Get the last workout
             var result = workoutService.GetLastWorkout(model.User.Id);
 
-            if (result.IsSuccess() && result.ResponseData.Count > 0) 
+            if (result.IsSuccess() && result.Data.Count > 0) 
             {
                 // If workout exists for the user, add it to the returnData
-                returnData.Add(result.ResponseData[0].ToJson());
+                returnData.Add(result.Data[0].ToJson());
             }
 
-            return CustomResponse(result.ResponseCode, result.ResponseMessage, returnData);
+            return CustomResponse(result.Code, result.Message, returnData);
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             // Token validation failed, probably token expired
-            return CustomResponse(tokenResponseModel.Result.ResponseCode, tokenResponseModel.Result.ResponseMessage);
+            return CustomResponse(tokenResponseModel.Result.Code, tokenResponseModel.Result.Message);
         }
     }
 }

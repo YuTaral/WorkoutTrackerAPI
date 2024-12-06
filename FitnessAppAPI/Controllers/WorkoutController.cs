@@ -69,13 +69,13 @@ namespace FitnessAppAPI.Controllers
             // Check if this is template and add the exercises if so
             if (workoutData.Template && workoutData.Exercises != null) {
                 foreach (ExerciseModel e in workoutData.Exercises) {
-                    exerciseService.AddExerciseToWorkout(e, result.ResponseData[0].Id, userId);
+                    exerciseService.AddExerciseToWorkout(e, result.Data[0].Id, userId);
                 }
 
                 // Get the updated workout
-                var getWorkoutResult = service.GetWorkout(result.ResponseData[0].Id, userId);
+                var getWorkoutResult = service.GetWorkout(result.Data[0].Id, userId);
                 if (getWorkoutResult.IsSuccess()) {
-                    return CustomResponse(result.ResponseCode, result.ResponseMessage, getWorkoutResult.ResponseData);
+                    return CustomResponse(result.Code, result.Message, getWorkoutResult.Data);
                 }
             }
 

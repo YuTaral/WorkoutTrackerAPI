@@ -124,7 +124,7 @@ namespace FitnessAppAPI.Controllers
             if (result.IsSuccess())
             {
                 // Return the updated workout on success
-                return GetUpdatedWorkout(result.ResponseData[0].Id, result);
+                return GetUpdatedWorkout(result.Data[0].Id, result);
             }
 
             return CustomResponse(result);
@@ -170,7 +170,7 @@ namespace FitnessAppAPI.Controllers
             var workoutId = long.Parse(id);
             if (workoutId > 0)
             {
-                var addExToWorkoutResult = service.AddExerciseToWorkout((MGExerciseModel)result.ResponseData[0], workoutId, GetUserId());
+                var addExToWorkoutResult = service.AddExerciseToWorkout((MGExerciseModel)result.Data[0], workoutId, GetUserId());
                 if (addExToWorkoutResult.IsSuccess())
                 {
                     // Return the updated workout on success
@@ -247,7 +247,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             // Return the updated exercises for this muscle group
-            return GetUpdatedMGExercises(result.ResponseData[0].Id, "Y", result);
+            return GetUpdatedMGExercises(result.Data[0].Id, "Y", result);
         }
 
         /// <summary>
@@ -286,7 +286,7 @@ namespace FitnessAppAPI.Controllers
             if (getWorkoutResult.IsSuccess())
             {
                 // Combine the response and message from the previous action result with the updated workout
-                return CustomResponse(previousActionResult.ResponseCode, previousActionResult.ResponseMessage, getWorkoutResult.ResponseData);
+                return CustomResponse(previousActionResult.Code, previousActionResult.Message, getWorkoutResult.Data);
             }
 
             // If get workout failed, return the previous result
@@ -315,8 +315,8 @@ namespace FitnessAppAPI.Controllers
 
             if (getExercisesForMGResult.IsSuccess())
             {
-                return CustomResponse(previousActionResult.ResponseCode, previousActionResult.ResponseMessage, 
-                                    getExercisesForMGResult.ResponseData);
+                return CustomResponse(previousActionResult.Code, previousActionResult.Message, 
+                                    getExercisesForMGResult.Data);
             }
 
             return CustomResponse(previousActionResult);

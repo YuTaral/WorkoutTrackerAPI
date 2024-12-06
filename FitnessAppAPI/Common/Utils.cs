@@ -108,17 +108,17 @@ namespace FitnessAppAPI.Common
         /// <summary>
         ///     Create response object
         ///     Returned fields must correspond with client-side CustomResponse class:
-        ///         - ResponseCode
-        ///         - ResponseMessage
-        ///         - ResponseData
+        ///         - Code
+        ///         - Message
+        ///         - Data
         /// </summary>
-        public static Object CreateResponseObject(ResponseCode ResponseCode, string ResponseMessage, List<string> ResponseData)
+        public static Object CreateResponseObject(ResponseCode Code, string Message, List<string> Data)
         {
             return (new
             {
-                ResponseCode,
-                ResponseMessage,
-                ResponseData
+                Code,
+                Message,
+                Data
             });
         }
     }

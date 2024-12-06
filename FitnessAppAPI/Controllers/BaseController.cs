@@ -15,35 +15,35 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         ///     Return status 200OK Response with the provided data
         ///     Returned fields must correspond with client-side CustomResponse class:
-        ///         - ResponseCode
-        ///         - ResponseMessage
-        ///         - ResponseData
+        ///         - Code
+        ///         - Message
+        ///         - Data
         /// </summary>
-        private OkObjectResult SendCustomResponse(Constants.ResponseCode ResponseCode, string ResponseMessage, List<string> ResponseData)
+        private OkObjectResult SendCustomResponse(Constants.ResponseCode Code, string Message, List<string> Data)
         {
-            return Ok(Utils.CreateResponseObject(ResponseCode, ResponseMessage, ResponseData));
+            return Ok(Utils.CreateResponseObject(Code, Message, Data));
         }
 
-        public OkObjectResult CustomResponse(Constants.ResponseCode ResponseCode, string ResponseMessage, List<string> ResponseData)
+        public OkObjectResult CustomResponse(Constants.ResponseCode Code, string Message, List<string> Data)
         {
-            return SendCustomResponse(ResponseCode, ResponseMessage, ResponseData);
+            return SendCustomResponse(Code, Message, Data);
         }
 
-        public OkObjectResult CustomResponse(Constants.ResponseCode ResponseCode, string ResponseMessage)
+        public OkObjectResult CustomResponse(Constants.ResponseCode Code, string Message)
         {
-            return SendCustomResponse(ResponseCode, ResponseMessage, []);
+            return SendCustomResponse(Code, Message, []);
         }
 
-        public OkObjectResult CustomResponse(Constants.ResponseCode ResponseCode, string ResponseMessage, List<BaseModel> ResponseDataVal)
+        public OkObjectResult CustomResponse(Constants.ResponseCode Code, string Message, List<BaseModel> DataVal)
         {
-            var ResponseData = new List<String>();
+            var Data = new List<String>();
 
-            if (ResponseDataVal.Count > 0)
+            if (DataVal.Count > 0)
             {
-                ResponseData.AddRange(ResponseDataVal.Select(m => m.ToJson()));
+                Data.AddRange(DataVal.Select(m => m.ToJson()));
             }
 
-            return SendCustomResponse(ResponseCode, ResponseMessage, ResponseData);
+            return SendCustomResponse(Code, Message, Data);
            
         }
 
@@ -51,11 +51,11 @@ namespace FitnessAppAPI.Controllers
         {
             var ResponseData = new List<String>();
 
-            if (result.ResponseData.Count > 0) {
-                ResponseData.AddRange(result.ResponseData.Select(m => m.ToJson()));
+            if (result.Data.Count > 0) {
+                ResponseData.AddRange(result.Data.Select(m => m.ToJson()));
             }
 
-            return SendCustomResponse(result.ResponseCode, result.ResponseMessage, ResponseData);
+            return SendCustomResponse(result.Code, result.Message, ResponseData);
         }
 
 

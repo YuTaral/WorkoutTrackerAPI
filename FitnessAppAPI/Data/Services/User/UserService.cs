@@ -70,7 +70,7 @@ namespace FitnessAppAPI.Data
                 var createUserDefaultValuesResult = _userProfileService.AddUserDefaultValues(user.Id);
                 if (!createUserDefaultValuesResult.IsSuccess())
                 {
-                    return new ServiceActionResult(createUserDefaultValuesResult.ResponseCode, createUserDefaultValuesResult.ResponseMessage);
+                    return new ServiceActionResult(createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
                 }
 
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_REGISTER_SUCCESS);
