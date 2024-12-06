@@ -12,7 +12,7 @@ namespace FitnessAppAPI.Controllers
     ///     User Controller
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route(Constants.RequestEndPoints.USER)]
     public class UserController(IUserService s, IWorkoutService workoutS) : BaseController
     {
         /// <summary>
@@ -28,7 +28,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to login the user
         /// </summary>
-        [HttpPost("login")]
+        [HttpPost(Constants.RequestEndPoints.LOGIN)]
         public ActionResult Login([FromBody] Dictionary<string, string> requestData)
         {
             /// Check if username and password are provided
@@ -63,7 +63,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to register the user
         /// </summary>
-        [HttpPost("register")]
+        [HttpPost(Constants.RequestEndPoints.REGISTER)]
         public ActionResult Register([FromBody] Dictionary<string, string> requestData)
         {
             /// Check if username and password are provided
@@ -79,7 +79,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to logout the user
         /// </summary>
-        [HttpPost("logout")]
+        [HttpPost(Constants.RequestEndPoints.LOGOUT)]
         [Authorize]
         public ActionResult Logout()
         {
@@ -98,7 +98,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to change password
         /// </summary>
-        [HttpPost("change-password")]
+        [HttpPost(Constants.RequestEndPoints.CHANGE_PASSWORD)]
         public ActionResult ChangePassword([FromBody] Dictionary<string, string> requestData)
         {
             /// Check if new pass is provided
@@ -113,7 +113,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to validate token
         /// </summary>
-        [HttpPost("validate-token")]
+        [HttpPost(Constants.RequestEndPoints.VALIDATE_TOKEN)]
         public ActionResult ValidateToken([FromBody] Dictionary<string, string> requestData)
         {
             /// Check if new pass is provided

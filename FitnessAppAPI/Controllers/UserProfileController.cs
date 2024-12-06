@@ -13,7 +13,7 @@ namespace FitnessAppAPI.Controllers
     ///     User Profile Controller
     /// </summary>
     [ApiController]
-    [Route("api/user-profile")]
+    [Route(Constants.RequestEndPoints.USER_PROFILE)]
     public class UserProfileController(IUserProfileService s) : BaseController
     {
         /// <summary>
@@ -24,7 +24,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to update user exercise default values 
         /// </summary>
-        [HttpPost("update-default-values")]
+        [HttpPost(Constants.RequestEndPoints.UPDATE_USER_DEFAULT_VALUES)]
         public ActionResult UpdateUserDefaultValues([FromBody] Dictionary<string, string> requestData)
         {
             /// Check if new pass is provided
@@ -51,7 +51,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      Get request to fetch the weight units
         /// </summary>
-        [HttpGet("get-weight-units")]
+        [HttpGet(Constants.RequestEndPoints.GET_WEIGHT_UNITS)]
         public ActionResult GetWeightUnits()
         {
             return CustomResponse(service.GetWeightUnits(GetUserId()));
@@ -59,7 +59,7 @@ namespace FitnessAppAPI.Controllers
 
         /// <summary>
         //      Get request to fetch the user default values for specific exercise
-        [HttpGet("get-user-default-values")]
+        [HttpGet(Constants.RequestEndPoints.GET_USER_DEFAULT_VALUES)]
         public ActionResult Get([FromQuery] long mgExerciseId)
         {
             return CustomResponse(service.GetExerciseOrUserDefaultValues(mgExerciseId, GetUserId()));   

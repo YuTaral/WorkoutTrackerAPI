@@ -16,7 +16,7 @@ namespace FitnessAppAPI.Controllers
     /// </summary>
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route(Constants.RequestEndPoints.WORKOUT)]
     public class WorkoutController(IWorkoutService s, IExerciseService eService) : BaseController
     {
         /// <summary>
@@ -33,7 +33,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to create a new workout
         /// </summary>
-        [HttpPost("add")]
+        [HttpPost(Constants.RequestEndPoints.ADD_WORKOUT)]
         [Authorize]
         public ActionResult Add([FromBody] Dictionary<string, string> requestData)
         {
@@ -85,9 +85,9 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to edit a workout
         /// </summary>
-        [HttpPost("edit")]
+        [HttpPost(Constants.RequestEndPoints.UPDATE_WORKOUT)]
         [Authorize]
-        public ActionResult Edit([FromBody] Dictionary<string, string> requestData)
+        public ActionResult Update([FromBody] Dictionary<string, string> requestData)
         {
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("workout", out string? serializedWorkout))
@@ -107,13 +107,13 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
             }
 
-            return CustomResponse(service.EditWorkout(workoutData, GetUserId()));
+            return CustomResponse(service.UpdateWorkout(workoutData, GetUserId()));
         }
 
         /// <summary>
         //      POST request to delete the workout with the provided id
         /// </summary>
-        [HttpPost("delete")]
+        [HttpPost(Constants.RequestEndPoints.DELETE_WORKOUT)]
         [Authorize]
         public ActionResult Delete([FromQuery] string workoutId)
         {
@@ -129,7 +129,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      GET request to fetch the latest workouts for user
         /// </summary>
-        [HttpGet("get-workouts")]
+        [HttpGet(Constants.RequestEndPoints.GET_WORKOUTS)]
         [Authorize]
         public ActionResult GetLatestWorkouts()
         {
@@ -139,7 +139,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      GET request to fetch the workout with the provided id
         /// </summary>
-        [HttpGet("get-workout")]
+        [HttpGet(Constants.RequestEndPoints.GET_WORKOUT)]
         [Authorize]
         public ActionResult GetWorkout([FromQuery] long workoutId)
         {

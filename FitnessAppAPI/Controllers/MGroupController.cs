@@ -1,6 +1,7 @@
 ﻿using FitnessAppAPI.Data.Services.MuscleGroups;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using FitnessAppAPI.Common;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -9,7 +10,7 @@ namespace FitnessAppAPI.Controllers
     /// </summary>
     /// </summary>
     [ApiController]
-    [Route("api/muscle-group")]
+    [Route(Constants.RequestEndPoints.MUSCLE_GROUP)]
     public class MGroupController(IMuscleGroupService s) : BaseController
     {
         /// <summary>
@@ -20,7 +21,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      GET request to fetch the muscle groups for the user with the provided id
         /// </summary>
-        [HttpGet("get-by-user")]
+        [HttpGet(Constants.RequestEndPoints.GET_MUSCLE_GROUPS_FOR_USER)]
         [Authorize]
         public ActionResult GetMuscleGroups()
         {

@@ -4,7 +4,6 @@ using FitnessAppAPI.Common;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using FitnessAppAPI.Data.Services.Workouts;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using FitnessAppAPI.Data.Services;
 
@@ -15,7 +14,7 @@ namespace FitnessAppAPI.Controllers
     /// </summary>
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route(Constants.RequestEndPoints.EXERCISE)]
     public class ExerciseController(IExerciseService s, IWorkoutService ws) : BaseController
     {
         /// <summary>
@@ -31,7 +30,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to add a new exercise to workout
         /// </summary>
-        [HttpPost("add-to-workout")]
+        [HttpPost(Constants.RequestEndPoints.ADD_EXERCISE_TO_WORKOUT)]
         [Authorize]
         public ActionResult AddExerciseToWorkout([FromBody] Dictionary<string, string> requestData)
         {
@@ -69,7 +68,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to update an exercise
         /// </summary>
-        [HttpPost("update-exercise-from-workout")]
+        [HttpPost(Constants.RequestEndPoints.UPDATE_EXERCISE_FROM_WORKOUT)]
         [Authorize]
         public ActionResult UpdateExerciseFromWorkout([FromBody] Dictionary<string, string> requestData)
         {
@@ -108,7 +107,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to delete an exercise from workout
         /// </summary>
-        [HttpPost("delete-exercise-from-workout")]
+        [HttpPost(Constants.RequestEndPoints.DELETE_EXERCISE_FROM_WORKOUT)]
         [Authorize]
         public ActionResult DeleteExerciseFromWorkout([FromQuery] long exerciseId)
         {
@@ -133,7 +132,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to add a new exercise for specific muscle group
         /// </summary>
-        [HttpPost("add")]
+        [HttpPost(Constants.RequestEndPoints.ADD_EXERCISE)]
         [Authorize]
         public ActionResult AddExercise([FromBody] Dictionary<string, string> requestData)
         {
@@ -189,7 +188,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to update the muscle group exercise
         /// </summary>
-        [HttpPost("update")]
+        [HttpPost(Constants.RequestEndPoints.UPDATE_EXERCISE)]
         [Authorize]
         public ActionResult UpdateExercise([FromBody] Dictionary<string, string> requestData)
         {
@@ -229,7 +228,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to delete an exercise
         /// </summary>
-        [HttpPost("delete")]
+        [HttpPost(Constants.RequestEndPoints.DELETE_EXERCISE)]
         [Authorize]
         public ActionResult DeleteExercise([FromQuery] long MGExerciseId)
         {
@@ -253,7 +252,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      GET request to fetch the exercise for muscle groups with the provided id
         /// </summary>
-        [HttpGet("get-by-mg-id")]
+        [HttpGet(Constants.RequestEndPoints.GET_EXERCISES_FOR_MG)]
         [Authorize]
         public ActionResult GetExercisesForMuscleGroup([FromQuery] long muscleGroupId, [FromQuery] string onlyForUser)
         {

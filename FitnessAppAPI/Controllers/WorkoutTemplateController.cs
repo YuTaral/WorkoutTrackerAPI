@@ -12,7 +12,7 @@ namespace FitnessAppAPI.Controllers
     ///     Workout Templates Controller
     /// </summary>
     [ApiController]
-    [Route("api/workout-template/")]
+    [Route(Constants.RequestEndPoints.WORKOUT_TEMPLATE)]
     public class WorkoutTemplateController(IWorkoutTemplateService s) : BaseController
     {
         /// <summary>
@@ -23,7 +23,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to create a new workout template
         /// </summary>
-        [HttpPost("add")]
+        [HttpPost(Constants.RequestEndPoints.ADD_WORKOUT_TEMPLATE)]
         [Authorize]
         public ActionResult Add([FromBody] Dictionary<string, string> requestData)
         {
@@ -51,7 +51,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to delete the workout template
         /// </summary>
-        [HttpPost("delete")]
+        [HttpPost(Constants.RequestEndPoints.DELETE_WORKOUT_TEMPLATE)]
         [Authorize]
         public ActionResult Delete([FromQuery] long templateId)
         {
@@ -68,7 +68,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      Get request to fetch the workout templates of the logged in user
         /// </summary>
-        [HttpGet("get-templates")]
+        [HttpGet(Constants.RequestEndPoints.GET_WORKOUT_TEMPLATES)]
         [Authorize]
         public ActionResult GetTemplates()
         {

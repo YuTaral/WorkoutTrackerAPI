@@ -65,7 +65,6 @@
         public const string MSG_TOKEN_VALIDATION_FAILED = "Token validation failed";
         public const string MSG_TOKEN_EXPIRED = "Token expired";
 
-
         /// <summary>
         ///     Class containing the DB constants
         /// </summary>
@@ -96,14 +95,49 @@
         }
 
         /// <summary>
-        ///    Request path values
+        ///    Request end point values
         /// </summary>
-        public static class RequestPaths
+        public static class RequestEndPoints
         {
-            public const string PATH_TO_API = "/api";
-            public const string PATH_TO_FAVICON = "/favicon.ico";
-            public const string PATH_TO_LOGIN = PATH_TO_API + "/user/login";
-            public const string PATH_TO_LOGOUT = PATH_TO_API + "/user/logout";
+            public const string API = "/api";
+            public const string FAVICON = "/favicon.ico";
+
+            public const string USER = $"{API}/user";
+            public const string WORKOUT = $"{API}/workout";
+            public const string EXERCISE = $"{API}/exercise";
+            public const string MUSCLE_GROUP = $"{API}/muscle-group";
+            public const string USER_PROFILE = $"{API}/user-profile";
+            public const string WORKOUT_TEMPLATE = $"{API}/workout-template";
+
+            public const string REGISTER = $"{USER}/register";
+            public const string LOGIN = $"{USER}/login";
+            public const string LOGOUT = $"{USER}/logout";
+            public const string CHANGE_PASSWORD = $"{USER}/change-password";
+            public const string VALIDATE_TOKEN = $"{USER}/validate-token";
+
+            public const string ADD_WORKOUT = $"{WORKOUT}/add";
+            public const string UPDATE_WORKOUT = $"{WORKOUT}/update";
+            public const string DELETE_WORKOUT = $"{WORKOUT}/delete";
+            public const string GET_WORKOUTS = $"{WORKOUT}/get-workouts";
+            public const string GET_WORKOUT = $"{WORKOUT}/get-workout";
+
+            public const string ADD_EXERCISE_TO_WORKOUT = $"{EXERCISE}/add-to-workout";
+            public const string UPDATE_EXERCISE_FROM_WORKOUT = $"{EXERCISE}/update-exercise-from-workout";
+            public const string DELETE_EXERCISE_FROM_WORKOUT = $"{EXERCISE}/delete-exercise-from-workout";
+            public const string ADD_EXERCISE = $"{EXERCISE}/add";
+            public const string UPDATE_EXERCISE = $"{EXERCISE}/update";
+            public const string DELETE_EXERCISE = $"{EXERCISE}/delete";
+            public const string GET_EXERCISES_FOR_MG = $"{EXERCISE}/get-by-mg-id";
+
+            public const string GET_MUSCLE_GROUPS_FOR_USER = $"{MUSCLE_GROUP}/get-by-user";
+
+            public const string UPDATE_USER_DEFAULT_VALUES = $"{USER_PROFILE}/update-default-values";
+            public const string GET_USER_DEFAULT_VALUES = $"{USER_PROFILE}/get-default-values";
+            public const string GET_WEIGHT_UNITS = $"{USER_PROFILE}/get-weight-units";
+
+            public const string ADD_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATE}/add";
+            public const string DELETE_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATE}/delete";
+            public const string GET_WORKOUT_TEMPLATES= $"{WORKOUT_TEMPLATE}/get-templates";
         }
     }
 }

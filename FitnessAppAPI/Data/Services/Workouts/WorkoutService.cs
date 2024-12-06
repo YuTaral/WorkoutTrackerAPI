@@ -48,7 +48,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <param name="userId">
         ///     The user who is updating the workout
         /// </param>
-        public ServiceActionResult EditWorkout(WorkoutModel data, string userId)
+        public ServiceActionResult UpdateWorkout(WorkoutModel data, string userId)
         {
             return ExecuteServiceAction(userId => {
                 var workout = CheckWorkoutExists(data.Id, userId);
