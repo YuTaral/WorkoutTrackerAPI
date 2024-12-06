@@ -40,7 +40,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             string validationErrors = Utils.ValidateModel(workoutData);
-            if (!validationErrors.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(validationErrors))
             {
                 return CustomResponse(Constants.ResponseCode.UNEXPECTED_ERROR, validationErrors);
             }

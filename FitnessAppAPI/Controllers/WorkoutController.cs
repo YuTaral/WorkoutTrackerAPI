@@ -50,7 +50,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             string validationErrors = Utils.ValidateModel(workoutData);
-            if (!validationErrors.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(validationErrors))
             {
                 return CustomResponse(Constants.ResponseCode.UNEXPECTED_ERROR, validationErrors);
             }
@@ -102,7 +102,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             string validationErrors = Utils.ValidateModel(workoutData);
-            if (!validationErrors.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(validationErrors))
             {
                 return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
             }
@@ -118,7 +118,7 @@ namespace FitnessAppAPI.Controllers
         public ActionResult Delete([FromQuery] string workoutId)
         {
             // Check if the neccessary data is provided
-            if (workoutId.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(workoutId))
             {
                 return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
             }

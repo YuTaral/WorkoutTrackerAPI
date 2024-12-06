@@ -48,7 +48,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             string validationErrors = Utils.ValidateModel(exerciseData);
-            if (!validationErrors.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(validationErrors))
             {
                 return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
             }
@@ -87,7 +87,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             string validationErrors = Utils.ValidateModel(exerciseData);
-            if (!validationErrors.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(validationErrors))
             {
                 return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
             }
@@ -150,7 +150,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             string validationErrors = Utils.ValidateModel(exerciseData);
-            if (!validationErrors.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(validationErrors))
             {
                 return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
             }
@@ -206,7 +206,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             string validationErrors = Utils.ValidateModel(exerciseData);
-            if (!validationErrors.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(validationErrors))
             {
                 return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
             }
