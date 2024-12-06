@@ -127,26 +127,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             }, userId);
         }
 
-        /// <summary>
-        ///     Return the weight units
-        /// </summary>
-        /// <param name="userId">
-        ///     The user id
-        /// </param>
-        public ServiceActionResult GetWeightUnits(string userId)
-        {
-            return ExecuteServiceAction(userId =>
-            {
-                var units = DBAccess.WeightUnits.Select(w => (BaseModel) ModelMapper.MapToWeightUnitModel(w)).ToList();
-
-                if (units.Count == 0) {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_FETCH_WEIGHT_UNITS);
-                }
-
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, units);
-
-            }, userId);
-        }
+        
 
         /// <summary>
         ///     Return the user default values for this specific exercise. If there are 

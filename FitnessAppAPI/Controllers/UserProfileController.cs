@@ -49,15 +49,6 @@ namespace FitnessAppAPI.Controllers
         }
 
         /// <summary>
-        //      Get request to fetch the weight units
-        /// </summary>
-        [HttpGet(Constants.RequestEndPoints.GET_WEIGHT_UNITS)]
-        public ActionResult GetWeightUnits()
-        {
-            return CustomResponse(service.GetWeightUnits(GetUserId()));
-        }
-
-        /// <summary>
         //      Get request to fetch the user default values for specific exercise
         [HttpGet(Constants.RequestEndPoints.GET_USER_DEFAULT_VALUES)]
         public ActionResult Get([FromQuery] long mgExerciseId)

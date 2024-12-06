@@ -120,6 +120,7 @@
             public const string DELETE_WORKOUT = $"{WORKOUT}/delete";
             public const string GET_WORKOUTS = $"{WORKOUT}/get-workouts";
             public const string GET_WORKOUT = $"{WORKOUT}/get-workout";
+            public const string GET_WEIGHT_UNITS = $"{WORKOUT}/get-weight-units";
 
             public const string ADD_EXERCISE_TO_WORKOUT = $"{EXERCISE}/add-to-workout";
             public const string UPDATE_EXERCISE_FROM_WORKOUT = $"{EXERCISE}/update-exercise-from-workout";
@@ -133,7 +134,6 @@
 
             public const string UPDATE_USER_DEFAULT_VALUES = $"{USER_PROFILE}/update-default-values";
             public const string GET_USER_DEFAULT_VALUES = $"{USER_PROFILE}/get-default-values";
-            public const string GET_WEIGHT_UNITS = $"{USER_PROFILE}/get-weight-units";
 
             public const string ADD_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATE}/add";
             public const string DELETE_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATE}/delete";
