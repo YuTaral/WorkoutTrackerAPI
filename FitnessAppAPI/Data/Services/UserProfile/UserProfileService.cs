@@ -37,7 +37,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             DBAccess.UserDefaultValues.Add(defaultValues);
             DBAccess.SaveChanges();
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
         }
 
         /// <summary>
@@ -201,7 +201,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             DBAccess.UserDefaultValues.Add(values);
             DBAccess.SaveChanges();
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
         }
     }
 }

@@ -29,6 +29,11 @@ namespace FitnessAppAPI.Controllers
             return SendCustomResponse(Code, Message, Data);
         }
 
+        public OkObjectResult CustomResponse(Constants.ResponseCode Code)
+        {
+            return SendCustomResponse(Code, Constants.MSG_SUCCESS, []);
+        }
+
         public OkObjectResult CustomResponse(Constants.ResponseCode Code, string Message)
         {
             return SendCustomResponse(Code, Message, []);

@@ -13,6 +13,13 @@ namespace FitnessAppAPI.Data.Services
         public string Message { get; set; }    
         public List<BaseModel> Data { get; set; }
 
+        public ServiceActionResult(Constants.ResponseCode CodeVal)
+        {
+            Code = CodeVal;
+            Message = Constants.MSG_SUCCESS;
+            Data = [];
+        }
+
         public ServiceActionResult(Constants.ResponseCode CodeVal, string MessageVal) {
             Code = CodeVal;
             Message = MessageVal;

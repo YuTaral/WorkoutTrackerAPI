@@ -124,7 +124,7 @@ namespace FitnessAppAPI.Data
                 returnUserModel = CreateUserModel(user);
                 returnToken = token;
 
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+                return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
 
             }, userId);
 
@@ -147,7 +147,7 @@ namespace FitnessAppAPI.Data
         {
             return ExecuteServiceAction(userId => {
                 _signInManager.SignOutAsync().Wait();
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+                return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
             }, userId);
         }
 
@@ -232,7 +232,7 @@ namespace FitnessAppAPI.Data
                         }
                     }
 
-                    return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+                    return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
                 }
                 catch
                 {

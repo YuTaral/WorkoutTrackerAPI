@@ -89,7 +89,7 @@ namespace FitnessAppAPI.Controllers
             var loggedOut = GetUserId() != "";
 
             if (loggedOut) { 
-                return CustomResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+                return CustomResponse(Constants.ResponseCode.SUCCESS);
             }
 
             return CustomResponse(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR);
@@ -127,7 +127,7 @@ namespace FitnessAppAPI.Controllers
             if (tokenResponseModel.Result.IsSuccess())
             {
                 // Token validation is successfull
-                return CustomResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+                return CustomResponse(Constants.ResponseCode.SUCCESS);
 
             } 
             else if (tokenResponseModel.Result.IsRefreshToken())
