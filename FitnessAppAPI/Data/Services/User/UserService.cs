@@ -187,7 +187,7 @@ namespace FitnessAppAPI.Data
         /// </param>
         public TokenResponseModel ValidateToken(string token, string userId)
         {
-            if (string.IsNullOrEmpty(userId)) {
+            if (string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(token)) {
                 // Make sure the userId is set when validation token
                 var jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
 

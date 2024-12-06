@@ -64,9 +64,9 @@ namespace FitnessAppAPI.Middlewares
         /// </param>
         private static bool IsAPIPath(string? path)
         {
-            return path != null && (path.Equals(Constants.RequestPaths.PATH_TO_API,
+            return path != null && (path.Equals(Constants.RequestEndpoints.API,
                                                 StringComparison.CurrentCultureIgnoreCase)
-                                 || path.Equals(Constants.RequestPaths.PATH_TO_FAVICON,
+                                 || path.Equals(Constants.RequestEndpoints.FAVICON,
                                                 StringComparison.CurrentCultureIgnoreCase));
         }
 
@@ -78,9 +78,11 @@ namespace FitnessAppAPI.Middlewares
         /// </param>
         private static bool SkipValidation(string? path)
         {
-            return path != null && (path.Equals(Constants.RequestPaths.PATH_TO_LOGIN,
+            return path != null && (path.Equals(Constants.RequestEndpoints.REGISTER,
                                                 StringComparison.CurrentCultureIgnoreCase)
-                                 || path.Equals(Constants.RequestPaths.PATH_TO_LOGOUT,
+                                    || path.Equals(Constants.RequestEndpoints.LOGIN,
+                                                StringComparison.CurrentCultureIgnoreCase)
+                                    || path.Equals(Constants.RequestEndpoints.LOGOUT,
                                                 StringComparison.CurrentCultureIgnoreCase));
         }
     }
