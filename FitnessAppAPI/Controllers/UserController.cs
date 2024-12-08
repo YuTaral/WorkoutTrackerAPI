@@ -83,7 +83,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public ActionResult Logout()
         {
-            service.Logout(GetUserId());
+            service.Logout();
 
             // Double check the user is logged out successfully
             var loggedOut = GetUserId() != "";

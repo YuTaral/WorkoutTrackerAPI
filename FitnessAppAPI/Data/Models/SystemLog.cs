@@ -9,9 +9,8 @@ namespace FitnessAppAPI.Data.Models
     {
         [Key]
         public long Id { get; set; }
-        public required string ActionName { get; set; }
-        public required string ExceptionType { get; set; }
         public required string ExceptionDescription { get; set; }
+        public required string ExceptionStackTrace { get; set; }
         public DateTime Date { get; set; }
         public string? UserId { get; set; }
     }

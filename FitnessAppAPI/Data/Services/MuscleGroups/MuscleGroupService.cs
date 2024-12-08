@@ -16,20 +16,18 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups
         /// </param>
         public ServiceActionResult GetMuscleGroups(String userId)
         {
-            return ExecuteServiceAction(userId => {
-                var returnData = DBAccess.MuscleGroups.Where(m => m.UserId == userId || m.UserId == null)
-                                                    .OrderBy(m => m.Id)
-                                                    .Select(m => (BaseModel)ModelMapper.MapToMuscleGroupModel(m))
-                                                    .ToList();
+            var returnData = DBAccess.MuscleGroups.Where(m => m.UserId == userId || m.UserId == null)
+                                                .OrderBy(m => m.Id)
+                                                .Select(m => (BaseModel)ModelMapper.MapToMuscleGroupModel(m))
+                                                .ToList();
 
-                if (returnData.Count > 0)
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
-                }
+            if (returnData.Count > 0)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
+            }
 
-                // Should not happen as there are always default muscle groups
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_NO_MUSCLE_GROUPS_FOUND, returnData);
-            }, userId);
+            // Should not happen as there are always default muscle groups
+            return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_NO_MUSCLE_GROUPS_FOUND, returnData);
         }
     }
 }

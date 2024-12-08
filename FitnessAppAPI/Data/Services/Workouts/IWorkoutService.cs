@@ -13,6 +13,6 @@ namespace FitnessAppAPI.Data.Services.Workouts
         public ServiceActionResult GetWorkout(long id, string userId);
         public ServiceActionResult GetLatestWorkouts(string userId);
         public ServiceActionResult GetLastWorkout(string userId);
-        public ServiceActionResult GetWeightUnits(string userId);
+        public ServiceActionResult GetWeightUnits();
     }
 }

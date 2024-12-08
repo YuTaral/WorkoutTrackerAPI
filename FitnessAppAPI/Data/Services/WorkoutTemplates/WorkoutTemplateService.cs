@@ -23,38 +23,35 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         ///     The user who is adding the template
         /// </param>
         public ServiceActionResult AddWorkoutTemplate(WorkoutModel data, string userId) {
-            return ExecuteServiceAction(userId =>
+            // Create Workout record, with Template = "Y"
+            var template = new Workout
             {
-                // Create Workout record, with Template = "Y"
-                var template = new Workout
+                Name = data.Name,
+                UserId = userId,
+                Date = DateTime.Now,
+                Template = "Y"
+            };
+
+            DBAccess.Workouts.Add(template);
+            DBAccess.SaveChanges();
+
+            // Add the Exercises and sets
+            if (data.Exercises != null)
+            {
+
+                foreach (ExerciseModel exerciseData in data.Exercises)
                 {
-                    Name = data.Name,
-                    UserId = userId,
-                    Date = DateTime.Now,
-                    Template = "Y"
-                };
+                    var result = exerciseService.AddExerciseToWorkout(exerciseData, template.Id);
 
-                DBAccess.Workouts.Add(template);
-                DBAccess.SaveChanges();
-
-                // Add the Exercises and sets
-                if (data.Exercises != null)
-                {
-
-                    foreach (ExerciseModel exerciseData in data.Exercises)
+                    if (!result.IsSuccess())
                     {
-                        var result = exerciseService.AddExerciseToWorkout(exerciseData, template.Id, userId);
-
-                        if (!result.IsSuccess())
-                        {
-                            return result;
-                        }
+                        return result;
                     }
-
                 }
 
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_ADDED);
-            }, userId);
+            }
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_ADDED);
         }
 
         /// <summary>
@@ -63,23 +60,18 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         /// <param name="templateId">
         ///     The template id
         /// </param>
-        /// <param name="userId">
-        ///     The user who is deleting the template
-        /// </param>
-        public ServiceActionResult DeleteWorkoutTemplate(long templateId, string userId) {
-            return ExecuteServiceAction(userId => {
-                var template = DBAccess.Workouts.Where(w => w.Id == templateId && w.Template == "Y").FirstOrDefault();
+        public ServiceActionResult DeleteWorkoutTemplate(long templateId) {
+            var template = DBAccess.Workouts.Where(w => w.Id == templateId && w.Template == "Y").FirstOrDefault();
 
-                if (template == null)
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TEMPLATE_DOES_NOT_EXIST);
-                }
+            if (template == null)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TEMPLATE_DOES_NOT_EXIST);
+            }
 
-                DBAccess.Workouts.Remove(template);
-                DBAccess.SaveChanges();
+            DBAccess.Workouts.Remove(template);
+            DBAccess.SaveChanges();
 
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_DELETED);
-            }, userId);
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_DELETED);
         }
 
         /// <summary>
@@ -90,19 +82,17 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         /// </param>
         public ServiceActionResult GetWorkoutTemplates(string userId)
         {
-            return ExecuteServiceAction(userId => {
-                var templates = DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "Y")
-                                                .OrderByDescending(w => w.Date)
-                                                .Select(t => (BaseModel)ModelMapper.MapToWorkoutModel(t, DBAccess))
-                                                .ToList();
+            var templates = DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "Y")
+                                            .OrderByDescending(w => w.Date)
+                                            .Select(t => (BaseModel)ModelMapper.MapToWorkoutModel(t, DBAccess))
+                                            .ToList();
 
-                if (templates.Count == 0)
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_NO_TEMPLATES);
-                }
+            if (templates.Count == 0)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_NO_TEMPLATES);
+            }
 
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, templates);
-            }, userId);
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, templates);
         }
     }
 }

@@ -51,80 +51,77 @@ namespace FitnessAppAPI.Data.Services.UserProfile
         /// </param>
         public ServiceActionResult UpdateUserDefaultValues(UserDefaultValuesModel data, string userId)
         {
-            return ExecuteServiceAction(userId =>
+            var oldWeightUnit = 0L;
+            var existing = GetUserDefaultValues(data.MGExerciseId, userId);
+            
+            if (existing == null)
             {
-                var oldWeightUnit = 0L;
-                var existing = GetUserDefaultValues(data.MGExerciseId, userId);
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_UPDATE_DEFAULT_VALUES);
+            }
 
-                if (existing == null)
+            if (existing.MGExeciseId == 0 && data.MGExerciseId > 0)
+            {
+                // If the existing returned with MGExeciseId = 0 and data.MGExerciseId > 0
+                // this means we are trying to create default values for specific exercise
+                // (GetUserDefaultValues return 0, because the record does not exist yet
+                // and the default user values was returned)
+                var addResult = AddExerciseDefaultValues(data, userId);
+
+                if (!addResult.IsSuccess())
                 {
                     return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_UPDATE_DEFAULT_VALUES);
+
                 }
 
-                if (existing.MGExeciseId == 0 && data.MGExerciseId > 0)
-                {
-                    // If the existing returned with MGExeciseId = 0 and data.MGExerciseId > 0
-                    // this means we are trying to create default values for specific exercise
-                    // (GetUserDefaultValues return 0, because the record does not exist yet
-                    // and the default user values was returned)
-                    var addResult = AddExerciseDefaultValues(data, userId);
+                // Return updated response
+                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_DEF_VALUES_UPDATED);
+            }
 
-                    if (!addResult.IsSuccess())
+            // Find the unit record and set the code, the model contains the Text column
+            var unitRecord = DBAccess.WeightUnits.Where(w => w.Id == data.WeightUnit.Id).FirstOrDefault();
+            var unitId = 0L;
+
+            if (unitRecord == null)
+            {
+                unitId = existing.WeightUnitId;
+            }
+            else
+            {
+                unitId = unitRecord.Id;
+            }
+
+            // Store the old weight unit
+            oldWeightUnit = existing.WeightUnitId;
+
+            // Change the record
+            existing.Sets = data.Sets;
+            existing.Reps = data.Reps;
+            existing.Weight = data.Weight;
+            existing.Completed = data.Completed;
+            existing.WeightUnitId = unitId;
+
+            DBAccess.Entry(existing).State = EntityState.Modified;
+
+            // If the weight unit has changed, change all records for the user to use the new weight unit
+            if (oldWeightUnit != unitId)
+            {
+                var records = DBAccess.UserDefaultValues.Where(u => u.UserId == userId && u.MGExeciseId > 0).ToList();
+
+                if (records != null && records.Count > 0)
+                {
+                    foreach (UserDefaultValue r in records)
                     {
-                        return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_UPDATE_DEFAULT_VALUES);
-
-                    }
-
-                    // Return updated response
-                    return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_DEF_VALUES_UPDATED);
-                }
-
-                // Find the unit record and set the code, the model contains the Text column
-                var unitRecord = DBAccess.WeightUnits.Where(w => w.Id == data.WeightUnit.Id).FirstOrDefault();
-                var unitId = 0L;
-
-                if (unitRecord == null)
-                {
-                    unitId = existing.WeightUnitId;
-                }
-                else
-                {
-                    unitId = unitRecord.Id;
-                }
-
-                // Store the old weight unit
-                oldWeightUnit = existing.WeightUnitId;
-
-                // Change the record
-                existing.Sets = data.Sets;
-                existing.Reps = data.Reps;
-                existing.Weight = data.Weight;
-                existing.Completed = data.Completed;
-                existing.WeightUnitId = unitId;
-
-                DBAccess.Entry(existing).State = EntityState.Modified;
-
-                // If the weight unit has changed, change all records for the user to use the new weight unit
-                if (oldWeightUnit != unitId)
-                {
-                    var records = DBAccess.UserDefaultValues.Where(u => u.UserId == userId && u.MGExeciseId > 0).ToList();
-
-                    if (records != null && records.Count > 0)
-                    {
-                        foreach (UserDefaultValue r in records)
-                        {
-                            r.WeightUnitId = unitId;
-                            DBAccess.Entry(r).State = EntityState.Modified;
-                        }
+                        r.WeightUnitId = unitId;
+                        DBAccess.Entry(r).State = EntityState.Modified;
                     }
                 }
+            }
 
-                DBAccess.SaveChanges();
+            DBAccess.SaveChanges();
 
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_DEF_VALUES_UPDATED,
-                                                [ModelMapper.MapToUserDefaultValuesModel(existing, DBAccess)]);
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_DEF_VALUES_UPDATED,
+                                            [ModelMapper.MapToUserDefaultValuesModel(existing, DBAccess)]);
 
-            }, userId);
         }
 
         

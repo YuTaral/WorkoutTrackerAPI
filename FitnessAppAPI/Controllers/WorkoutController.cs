@@ -69,7 +69,7 @@ namespace FitnessAppAPI.Controllers
             // Check if this is template and add the exercises if so
             if (workoutData.Template && workoutData.Exercises != null) {
                 foreach (ExerciseModel e in workoutData.Exercises) {
-                    exerciseService.AddExerciseToWorkout(e, result.Data[0].Id, userId);
+                    exerciseService.AddExerciseToWorkout(e, result.Data[0].Id);
                 }
 
                 // Get the updated workout
@@ -158,7 +158,7 @@ namespace FitnessAppAPI.Controllers
         [HttpGet(Constants.RequestEndPoints.GET_WEIGHT_UNITS)]
         public ActionResult GetWeightUnits()
         {
-            return CustomResponse(service.GetWeightUnits(GetUserId()));
+            return CustomResponse(service.GetWeightUnits());
         }
     }
 }

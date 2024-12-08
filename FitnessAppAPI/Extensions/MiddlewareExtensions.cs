@@ -34,10 +34,10 @@ namespace FitnessAppAPI.Extensions
         /// <returns>The configured web application.</returns>
         public static WebApplication ConfigureMiddlewares(this WebApplication app)
         {
+            app.UseMiddleware<TokenValidationMiddleware>();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseMiddleware<TokenValidationMiddleware>();
             app.MapControllers();
 
             return app;

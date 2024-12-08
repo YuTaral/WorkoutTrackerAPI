@@ -46,36 +46,32 @@ namespace FitnessAppAPI.Data
         /// </param>
         public ServiceActionResult Register(string email, string password)
         {
-            var userId = "";
+            // Validate
+            if (!Utils.IsValidEmail(email))
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL_EMAIL);
+            }
 
-            return ExecuteServiceAction(userId => {
-                // Validate
-                if (!Utils.IsValidEmail(email))
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL_EMAIL);
-                }
+            // Create the user
+            var user = CreateUser();
+            _userStore.SetUserNameAsync(user, email, CancellationToken.None).Wait();
+            _emailStore.SetEmailAsync(user, email, CancellationToken.None).Wait();
+            var result = _userManager.CreateAsync(user, password).Result;
 
-                // Create the user
-                var user = CreateUser();
-                _userStore.SetUserNameAsync(user, email, CancellationToken.None).Wait();
-                _emailStore.SetEmailAsync(user, email, CancellationToken.None).Wait();
-                var result = _userManager.CreateAsync(user, password).Result;
+            if (!result.Succeeded)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Utils.UserErrorsToString(result.Errors));
+            }
 
-                if (!result.Succeeded)
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Utils.UserErrorsToString(result.Errors));
-                }
+            // Create the default values for the user
+            var createUserDefaultValuesResult = _userProfileService.AddUserDefaultValues(user.Id);
+            if (!createUserDefaultValuesResult.IsSuccess())
+            {
+                return new ServiceActionResult(createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
+            }
 
-                // Create the default values for the user
-                var createUserDefaultValuesResult = _userProfileService.AddUserDefaultValues(user.Id);
-                if (!createUserDefaultValuesResult.IsSuccess())
-                {
-                    return new ServiceActionResult(createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
-                }
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_REGISTER_SUCCESS);
 
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_REGISTER_SUCCESS);
-
-            }, userId);
         }
 
         /// <summary>
@@ -87,54 +83,42 @@ namespace FitnessAppAPI.Data
         /// <param name="password">
         ///     The user password
         /// </param>
-        /// <param name="userId">
-        ///     The user id
-        /// </param>
         public TokenResponseModel Login(string email, string password)
         {
-            var userId = "";
-            var returnToken = "";
             var returnUserModel = ModelMapper.GetEmptyUserModel();
+            ServiceActionResult? serviceActionResult;
 
-            var result = ExecuteServiceAction(userId => {
-                // Login attempt
-                var result = _signInManager.PasswordSignInAsync(email, password, true, lockoutOnFailure: false).Result;
+            // Login attempt
+            var result = _signInManager.PasswordSignInAsync(email, password, true, lockoutOnFailure: false).Result;
 
-                // Process result
-                if (!result.Succeeded)
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAILED);
-                }
-
-                // Retrieve the logged in user
-                var user = _userManager.FindByEmailAsync(email).Result;
-
-                if (user == null || user.Email == null)
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAILED);
-                }
-
-                // Generate JwtToken
-                var token = GenerateJwtToken(user);
-                if (token == "")
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAILED);
-                }
-
-                returnUserModel = CreateUserModel(user);
-                returnToken = token;
-
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
-
-            }, userId);
-
-            
-            return new TokenResponseModel
+            // Process result
+            if (!result.Succeeded)
             {
-                User = returnUserModel,
-                Token = returnToken,
-                Result = result
-            };
+                serviceActionResult = new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAILED);
+                return new TokenResponseModel(returnUserModel, "", serviceActionResult);
+            }
+
+            // Retrieve the logged in user
+            var user = _userManager.FindByEmailAsync(email).Result;
+
+            if (user == null || user.Email == null)
+            {
+                serviceActionResult = new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAILED);
+                return new TokenResponseModel(returnUserModel, "", serviceActionResult);
+            }
+
+            // Generate JwtToken
+            var token = GenerateJwtToken(user);
+            if (token == "")
+            {
+                serviceActionResult = new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAILED);
+            } 
+            else
+            {
+                serviceActionResult = new ServiceActionResult(Constants.ResponseCode.SUCCESS);
+            }
+
+            return new TokenResponseModel(CreateUserModel(user), token, serviceActionResult);
         }
 
         /// <summary>
@@ -143,12 +127,10 @@ namespace FitnessAppAPI.Data
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public ServiceActionResult Logout(string userId)
+        public ServiceActionResult Logout()
         {
-            return ExecuteServiceAction(userId => {
-                _signInManager.SignOutAsync().Wait();
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
-            }, userId);
+            _signInManager.SignOutAsync().Wait();
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
         }
 
         /// <summary>
@@ -156,24 +138,22 @@ namespace FitnessAppAPI.Data
         /// </summary>
         public ServiceActionResult ChangePassword(string oldPassword, string password, string userId)
         {
-            return ExecuteServiceAction(userId => {
                 // Find the user by id
-                var user = _userManager.FindByIdAsync(userId).Result;
-                if (user == null)
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_DOES_NOT_EXISTS);
-                }
+            var user = _userManager.FindByIdAsync(userId).Result;
+            if (user == null)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_DOES_NOT_EXISTS);
+            }
 
-                // Change the password
-                var result = _userManager.ChangePasswordAsync(user, oldPassword, password).Result;
+            // Change the password
+            var result = _userManager.ChangePasswordAsync(user, oldPassword, password).Result;
 
-                if (!result.Succeeded)
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Utils.UserErrorsToString(result.Errors));
-                }
+            if (!result.Succeeded)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Utils.UserErrorsToString(result.Errors));
+            }
 
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_PASSWORD_CHANGED);
-            }, userId); 
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_PASSWORD_CHANGED);
         }
 
         /// <summary>
@@ -187,6 +167,10 @@ namespace FitnessAppAPI.Data
         /// </param>
         public TokenResponseModel ValidateToken(string token, string userId)
         {
+            var returnToken = "";
+            var returnUserModel = ModelMapper.GetEmptyUserModel();
+            ServiceActionResult? serviceActionResult;
+
             if (string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(token)) {
                 // Make sure the userId is set when validation token
                 var jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -194,58 +178,50 @@ namespace FitnessAppAPI.Data
                 userId = jwtToken.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
             }
 
-            var returnToken = "";
-            var returnUserModel = ModelMapper.GetEmptyUserModel();
+            var handler = new JwtSecurityTokenHandler();
+            var keyString = _configuration["JwtSettings:SecretKey"];
 
-            var result = ExecuteServiceAction(userId =>
+            if (keyString == null)
             {
-                var handler = new JwtSecurityTokenHandler();
-                var keyString = _configuration["JwtSettings:SecretKey"];
+                serviceActionResult = new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TOKEN_VALIDATION_FAILED);
+                return new TokenResponseModel(returnUserModel, "", serviceActionResult);
+            }
 
-                if (keyString == null)
+            var key = Encoding.ASCII.GetBytes(keyString);
+
+            try
+            {
+                handler.ValidateToken(token, new TokenValidationParameters
                 {
-                    return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TOKEN_VALIDATION_FAILED);
-                }
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
 
-                var key = Encoding.ASCII.GetBytes(keyString);
-
-                try
+                if (RefreshJwtToken(validatedToken) && userId != "")
                 {
-                    handler.ValidateToken(token, new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(key),
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ClockSkew = TimeSpan.Zero
-                    }, out SecurityToken validatedToken);
+                    // If the token expires soon, generate new token
+                    var user = DBAccess.Users.Where(u => u.Id == userId).FirstOrDefault();
 
-                    if (RefreshJwtToken(validatedToken) && userId != "")
+                    if (user != null)
                     {
-                        // If the token expires soon, generate new token
-                        var user = DBAccess.Users.Where(u => u.Id == userId).FirstOrDefault();
+                        returnToken = GenerateJwtToken(user);
+                        serviceActionResult = new ServiceActionResult(Constants.ResponseCode.REFRESH_TOKEN, Constants.MSG_SUCCESS);
 
-                        if (user != null)
-                        {
-                            returnToken = GenerateJwtToken(user);
-                            return new ServiceActionResult(Constants.ResponseCode.REFRESH_TOKEN, Constants.MSG_SUCCESS);
-                        }
+                        return new TokenResponseModel(returnUserModel, returnToken, serviceActionResult);
                     }
-
-                    return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
                 }
-                catch
-                {
-                    return new ServiceActionResult(Constants.ResponseCode.TOKEN_EXPIRED, Constants.MSG_TOKEN_EXPIRED);
-                }
-            }, userId);
 
-            return new TokenResponseModel
+                serviceActionResult = new ServiceActionResult(Constants.ResponseCode.SUCCESS);
+            }
+            catch
             {
-                User = returnUserModel,
-                Token = returnToken,
-                Result = result
-            };
+                serviceActionResult =  new ServiceActionResult(Constants.ResponseCode.TOKEN_EXPIRED, Constants.MSG_TOKEN_EXPIRED);
+            }
+
+            return new TokenResponseModel(returnUserModel, returnToken, serviceActionResult);
         }
 
         /// <summary>
@@ -356,7 +332,7 @@ namespace FitnessAppAPI.Data
         /// <param name="user">
         ///     The user 
         /// </param>
-        private UserModel? CreateUserModel(User user)
+        private UserModel CreateUserModel(User user)
         {
             var defaultValues = GetUserDefaultValues(0, user.Id);
 
@@ -366,7 +342,7 @@ namespace FitnessAppAPI.Data
                 return ModelMapper.MapToUserModel(user, defaultValues, weightUnit);
             }
 
-            return null;
+            return ModelMapper.GetEmptyUserModel();
         }
     }
 }

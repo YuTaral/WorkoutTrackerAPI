@@ -9,7 +9,7 @@ namespace FitnessAppAPI.Data.Services
     {
         public ServiceActionResult Register(string email, string password);
         public TokenResponseModel Login(string email, string password);
-        public ServiceActionResult Logout(string userId);
+        public ServiceActionResult Logout();
         public ServiceActionResult ChangePassword(string oldPassword, string password, string userId);
         public TokenResponseModel ValidateToken(string token, string userId);
     }

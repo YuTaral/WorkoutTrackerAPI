@@ -1,7 +1,5 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Services;
-using Microsoft.AspNetCore.Http;
-using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Middlewares
 {

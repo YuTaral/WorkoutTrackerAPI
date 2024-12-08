@@ -62,7 +62,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             // Delete the template
-            return CustomResponse(service.DeleteWorkoutTemplate(templateId, GetUserId()));
+            return CustomResponse(service.DeleteWorkoutTemplate(templateId));
         }
 
         /// <summary>
