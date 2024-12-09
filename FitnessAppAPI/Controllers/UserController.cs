@@ -29,7 +29,7 @@ namespace FitnessAppAPI.Controllers
         //      POST request to login the user
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.LOGIN)]
-        public ActionResult Login([FromBody] Dictionary<string, string> requestData)
+        public async Task<ActionResult> Login([FromBody] Dictionary<string, string> requestData)
         {
             /// Check if username and password are provided
             if (!requestData.TryGetValue("email", out string? email) || !requestData.TryGetValue("password", out string? password))
@@ -37,7 +37,7 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAIL);
             }
 
-            TokenResponseModel model = service.Login(email, password);
+            TokenResponseModel model = await service.Login(email, password);
 
             // Success check
             if (!model.Result.IsSuccess())
@@ -49,7 +49,7 @@ namespace FitnessAppAPI.Controllers
             var returnData = new List<string> { model.User.ToJson(), model.Token };
 
             // Get the last workout
-            var result = workoutService.GetLastWorkout(model.User.Id);
+            var result = await workoutService.GetLastWorkout(model.User.Id);
 
             if (result.IsSuccess() && result.Data.Count > 0) 
             {
@@ -64,7 +64,7 @@ namespace FitnessAppAPI.Controllers
         //      POST request to register the user
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.REGISTER)]
-        public ActionResult Register([FromBody] Dictionary<string, string> requestData)
+        public async Task<ActionResult> Register([FromBody] Dictionary<string, string> requestData)
         {
             /// Check if username and password are provided
             if (!requestData.TryGetValue("email", out string? email) || !requestData.TryGetValue("password", out string? password))
@@ -73,7 +73,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             // Register the user
-            return CustomResponse(service.Register(email, password));
+            return CustomResponse(await service.Register(email, password));
         }
 
         /// <summary>
@@ -81,9 +81,9 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.LOGOUT)]
         [Authorize]
-        public ActionResult Logout()
+        public async Task<ActionResult> Logout()
         {
-            service.Logout();
+            await service.Logout();
 
             // Double check the user is logged out successfully
             var loggedOut = GetUserId() != "";
@@ -99,7 +99,7 @@ namespace FitnessAppAPI.Controllers
         //      POST request to change password
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.CHANGE_PASSWORD)]
-        public ActionResult ChangePassword([FromBody] Dictionary<string, string> requestData)
+        public async Task<ActionResult> ChangePassword([FromBody] Dictionary<string, string> requestData)
         {
             /// Check if new pass is provided
             if (!requestData.TryGetValue("oldPassword", out string? oldPassword) || !requestData.TryGetValue("password", out string? password))
@@ -107,14 +107,14 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_CHANGE_PASS_FAIL);
             }
 
-            return CustomResponse(service.ChangePassword(oldPassword, password, GetUserId()));
+            return CustomResponse(await service.ChangePassword(oldPassword, password, GetUserId()));
         }
 
         /// <summary>
         //      POST request to validate token
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.VALIDATE_TOKEN)]
-        public ActionResult ValidateToken([FromBody] Dictionary<string, string> requestData)
+        public async Task<ActionResult> ValidateToken([FromBody] Dictionary<string, string> requestData)
         {
             /// Check if new pass is provided
             if (!requestData.TryGetValue("token", out string? token))
@@ -122,7 +122,7 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_TOKEN_VALIDATION_FAILED);
             }
 
-            var tokenResponseModel = service.ValidateToken(token, GetUserId());
+            var tokenResponseModel = await service.ValidateToken(token, GetUserId());
 
             if (tokenResponseModel.Result.IsSuccess())
             {

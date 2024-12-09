@@ -5,6 +5,7 @@ using FitnessAppAPI.Data;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using FitnessAppAPI.Data.Services.User.Models;
 using FitnessAppAPI.Data.Services.UserProfile.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessAppAPI.Common
 {
@@ -16,7 +17,7 @@ namespace FitnessAppAPI.Common
         /// <summary>
         ///     Map the Workout to WorkoutModel
         /// </summary>
-        public static WorkoutModel MapToWorkoutModel(Workout workout, FitnessAppAPIContext DBAccess)
+        public static async Task<WorkoutModel> MapToWorkoutModel(Workout workout, FitnessAppAPIContext DBAccess)
         {
 
             if (workout == null)
@@ -30,9 +31,9 @@ namespace FitnessAppAPI.Common
                 Name = workout.Name,
                 Date = workout.Date,
                 Template = workout.Template == "Y",
-                Exercises = DBAccess.Exercises.Where(e => e.WorkoutId == workout.Id)
+                Exercises = await DBAccess.Exercises.Where(e => e.WorkoutId == workout.Id)
                                               .Select(e => MapToExerciseModel(e, DBAccess))
-                                              .ToList()
+                                              .ToListAsync()
             };
         }
 
@@ -49,7 +50,9 @@ namespace FitnessAppAPI.Common
             // Get the MuscleGroups results and convert them to Enumerable, to avoid errors that the Entity Framerwork
             // cannot translate the method into SQL when MapToMuscleGroupModel() is called
             var muscleGroupEnum = DBAccess.MuscleGroups.Where(mg => mg.Id == exercise.MuscleGroupId).AsEnumerable();
-            var muscleGroup = muscleGroupEnum.Select(mg => MapToMuscleGroupModel(mg)).FirstOrDefault(GetEmptyMuscleGroupModel());
+            var muscleGroup = muscleGroupEnum.Select(mg => MapToMuscleGroupModel(mg)).FirstOrDefault();
+
+            muscleGroup ??= GetEmptyMuscleGroupModel();
 
             // Get the Sets results and convert them to Enumerable, to avoid errors that the Entity Framerwork
             // cannot translate the method into SQL when MapToSetModel() is called
@@ -156,14 +159,14 @@ namespace FitnessAppAPI.Common
         /// <summary>
         ///     Map the UserDefaultValue to UserDefaultValuesModel
         /// </summary>
-        public static UserDefaultValuesModel MapToUserDefaultValuesModel(UserDefaultValue? defaultValues, FitnessAppAPIContext DBAccess)
+        public async static Task<UserDefaultValuesModel> MapToUserDefaultValuesModel(UserDefaultValue? defaultValues, FitnessAppAPIContext DBAccess)
         {
             if (defaultValues == null)
             {
                 return GetEmptyUserDefaultValuesModel();
             }
 
-            var unit = DBAccess.WeightUnits.Where(w => w.Id == defaultValues.WeightUnitId).FirstOrDefault();
+            var unit = await DBAccess.WeightUnits.Where(w => w.Id == defaultValues.WeightUnitId).FirstOrDefaultAsync();
             var unitModel = GetEmptyWeightUnitModel();
 
             if (unit != null)

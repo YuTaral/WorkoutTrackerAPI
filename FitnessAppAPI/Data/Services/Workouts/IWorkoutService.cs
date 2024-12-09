@@ -7,12 +7,12 @@ namespace FitnessAppAPI.Data.Services.Workouts
     /// </summary>
     public interface IWorkoutService
     {
-        public ServiceActionResult AddWorkout(WorkoutModel data, string userId);
-        public ServiceActionResult UpdateWorkout(WorkoutModel data, string userId);
-        public ServiceActionResult DeleteWorkout(long workoutId, string userId);
-        public ServiceActionResult GetWorkout(long id, string userId);
-        public ServiceActionResult GetLatestWorkouts(string userId);
-        public ServiceActionResult GetLastWorkout(string userId);
-        public ServiceActionResult GetWeightUnits();
+        public Task<ServiceActionResult> AddWorkout(WorkoutModel data, string userId);
+        public Task<ServiceActionResult> UpdateWorkout(WorkoutModel data, string userId);
+        public Task<ServiceActionResult> DeleteWorkout(long workoutId, string userId);
+        public Task<ServiceActionResult> GetWorkout(long id, string userId);
+        public Task<ServiceActionResult> GetLatestWorkouts(string userId);
+        public Task<ServiceActionResult> GetLastWorkout(string userId);
+        public Task<ServiceActionResult> GetWeightUnits();
     }
 }

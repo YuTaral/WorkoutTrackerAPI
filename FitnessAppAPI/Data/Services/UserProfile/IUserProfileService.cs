@@ -8,8 +8,8 @@ namespace FitnessAppAPI.Data.Services.UserProfile
     /// </summary>
     public interface IUserProfileService
     {
-        public ServiceActionResult AddUserDefaultValues(string userId);
-        public ServiceActionResult UpdateUserDefaultValues(UserDefaultValuesModel data, string userId);
-        public ServiceActionResult GetExerciseOrUserDefaultValues(long mgExerciseId, string userId);
+        public Task<ServiceActionResult> AddUserDefaultValues(string userId);
+        public Task<ServiceActionResult> UpdateUserDefaultValues(UserDefaultValuesModel data, string userId);
+        public Task<ServiceActionResult> GetExerciseOrUserDefaultValues(long mgExerciseId, string userId);
     }
 }

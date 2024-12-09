@@ -7,6 +7,6 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups
     /// </summary>
     public interface IMuscleGroupService
     {
-        public ServiceActionResult GetMuscleGroups(string userId);
+        public Task<ServiceActionResult> GetMuscleGroups(string userId);
     }
 }

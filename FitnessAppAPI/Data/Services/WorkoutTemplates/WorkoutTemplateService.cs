@@ -3,6 +3,9 @@ using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services.Exercises.Models;
 using FitnessAppAPI.Data.Services.Workouts.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
+using System.Collections.Generic;
 
 namespace FitnessAppAPI.Data.Services.WorkoutTemplates
 {
@@ -22,7 +25,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         /// <param name="userId">
         ///     The user who is adding the template
         /// </param>
-        public ServiceActionResult AddWorkoutTemplate(WorkoutModel data, string userId) {
+        public async Task<ServiceActionResult> AddWorkoutTemplate(WorkoutModel data, string userId) {
             // Create Workout record, with Template = "Y"
             var template = new Workout
             {
@@ -32,8 +35,8 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
                 Template = "Y"
             };
 
-            DBAccess.Workouts.Add(template);
-            DBAccess.SaveChanges();
+            await DBAccess.Workouts.AddAsync(template);
+            await DBAccess.SaveChangesAsync();
 
             // Add the Exercises and sets
             if (data.Exercises != null)
@@ -41,7 +44,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
 
                 foreach (ExerciseModel exerciseData in data.Exercises)
                 {
-                    var result = exerciseService.AddExerciseToWorkout(exerciseData, template.Id);
+                    var result = await exerciseService.AddExerciseToWorkout(exerciseData, template.Id);
 
                     if (!result.IsSuccess())
                     {
@@ -60,8 +63,8 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         /// <param name="templateId">
         ///     The template id
         /// </param>
-        public ServiceActionResult DeleteWorkoutTemplate(long templateId) {
-            var template = DBAccess.Workouts.Where(w => w.Id == templateId && w.Template == "Y").FirstOrDefault();
+        public async Task<ServiceActionResult> DeleteWorkoutTemplate(long templateId) {
+            var template = await DBAccess.Workouts.Where(w => w.Id == templateId && w.Template == "Y").FirstOrDefaultAsync();
 
             if (template == null)
             {
@@ -69,7 +72,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
             }
 
             DBAccess.Workouts.Remove(template);
-            DBAccess.SaveChanges();
+            await DBAccess.SaveChangesAsync();
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_DELETED);
         }
@@ -80,19 +83,28 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         /// <param name="userId">
         ///     The user who is fetching the templates
         /// </param>
-        public ServiceActionResult GetWorkoutTemplates(string userId)
+        public async Task<ServiceActionResult> GetWorkoutTemplates(string userId)
         {
-            var templates = DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "Y")
+            // Fetch the templats asynchonously
+            var templates = await DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "Y")
                                             .OrderByDescending(w => w.Date)
-                                            .Select(t => (BaseModel)ModelMapper.MapToWorkoutModel(t, DBAccess))
-                                            .ToList();
+                                            .ToListAsync();
+
+
+            // Create the list asynchonously
+            var templateModels = new List<BaseModel>();
+            foreach (var template in templates)
+            {
+                var workoutModel = await ModelMapper.MapToWorkoutModel(template, DBAccess);
+                templateModels.Add(workoutModel);
+            }
 
             if (templates.Count == 0)
             {
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_NO_TEMPLATES);
             }
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, templates);
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, templateModels);
         }
     }
 }

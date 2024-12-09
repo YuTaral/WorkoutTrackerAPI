@@ -23,10 +23,10 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpGet(Constants.RequestEndPoints.GET_MUSCLE_GROUPS_FOR_USER)]
         [Authorize]
-        public ActionResult GetMuscleGroups()
+        public async Task<ActionResult> GetMuscleGroups()
         {
             // Fetch the default and user defined muscle groups
-            return CustomResponse(service.GetMuscleGroups(GetUserId()));
+            return CustomResponse(await service.GetMuscleGroups(GetUserId()));
         }
     }
 }

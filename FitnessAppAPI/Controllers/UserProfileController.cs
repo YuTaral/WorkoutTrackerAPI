@@ -25,7 +25,7 @@ namespace FitnessAppAPI.Controllers
         //      POST request to update user exercise default values 
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.UPDATE_USER_DEFAULT_VALUES)]
-        public ActionResult UpdateUserDefaultValues([FromBody] Dictionary<string, string> requestData)
+        public async Task<ActionResult> UpdateUserDefaultValues([FromBody] Dictionary<string, string> requestData)
         {
             /// Check if new pass is provided
             if (!requestData.TryGetValue("values", out string? serializedValues))
@@ -45,15 +45,15 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
             }
 
-            return CustomResponse(service.UpdateUserDefaultValues(data, GetUserId()));
+            return CustomResponse(await service.UpdateUserDefaultValues(data, GetUserId()));
         }
 
         /// <summary>
         //      Get request to fetch the user default values for specific exercise
         [HttpGet(Constants.RequestEndPoints.GET_USER_DEFAULT_VALUES)]
-        public ActionResult Get([FromQuery] long mgExerciseId)
+        public async Task<ActionResult> Get([FromQuery] long mgExerciseId)
         {
-            return CustomResponse(service.GetExerciseOrUserDefaultValues(mgExerciseId, GetUserId()));   
+            return CustomResponse(await service.GetExerciseOrUserDefaultValues(mgExerciseId, GetUserId()));   
         }
     }
 }

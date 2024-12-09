@@ -6,6 +6,8 @@ using FitnessAppAPI.Data;
 using FitnessAppAPI.Data.Services.WorkoutTemplates;
 using FitnessAppAPI.Data.Services.UserProfile;
 using FitnessAppAPI.Data.Services.SystemLogs;
+using Microsoft.AspNetCore.Identity;
+using FitnessAppAPI.Data.Models;
 
 namespace FitnessAppAPI.Extensions
 {
@@ -21,15 +23,13 @@ namespace FitnessAppAPI.Extensions
         /// <returns>The service collection with the added application services.</returns>
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            //services.AddScoped<GlobalExceptionFilter>();
-
-            services.AddTransient<IUserService, UserService>();
-            services.AddTransient<IWorkoutService, WorkoutService>();
-            services.AddTransient<IExerciseService, ExerciseService>();
-            services.AddTransient<IMuscleGroupService, MuscleGroupService>();
-            services.AddTransient<IWorkoutTemplateService, WorkoutTemplateService>();
-            services.AddTransient<IUserProfileService, UserProfileService>();
-            services.AddTransient<ISystemLogService, SystemLogService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IWorkoutService, WorkoutService>();
+            services.AddScoped<IExerciseService, ExerciseService>();
+            services.AddScoped<IMuscleGroupService, MuscleGroupService>();
+            services.AddScoped<IWorkoutTemplateService, WorkoutTemplateService>();
+            services.AddScoped<IUserProfileService, UserProfileService>();
+            services.AddScoped<ISystemLogService, SystemLogService>();
 
             return services;
         }

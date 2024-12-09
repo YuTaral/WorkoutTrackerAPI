@@ -32,7 +32,7 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.ADD_EXERCISE_TO_WORKOUT)]
         [Authorize]
-        public ActionResult AddExerciseToWorkout([FromBody] Dictionary<string, string> requestData)
+        public async Task<ActionResult> AddExerciseToWorkout([FromBody] Dictionary<string, string> requestData)
         {
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("exercise", out string? serializedExercise) || !requestData.TryGetValue("workoutId", out string? workoutId))
@@ -54,12 +54,12 @@ namespace FitnessAppAPI.Controllers
 
             // Add the exercise
             long id = long.Parse(workoutId);
-            var result = service.AddExerciseToWorkout(exerciseData, id);
+            var result = await service.AddExerciseToWorkout(exerciseData, id);
 
             if (result.IsSuccess())
             {
                 // Return the updated workout on success
-                return GetUpdatedWorkout(id, result);
+                return await GetUpdatedWorkout(id, result);
             }
 
             return CustomResponse(result);
@@ -70,7 +70,7 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.UPDATE_EXERCISE_FROM_WORKOUT)]
         [Authorize]
-        public ActionResult UpdateExerciseFromWorkout([FromBody] Dictionary<string, string> requestData)
+        public async Task<ActionResult> UpdateExerciseFromWorkout([FromBody] Dictionary<string, string> requestData)
         {
 
             // Check if the neccessary data is provided
@@ -93,12 +93,12 @@ namespace FitnessAppAPI.Controllers
 
             // Update the exercise
             long id = long.Parse(workoutId);
-            var result = service.UpdateExerciseFromWorkout(exerciseData, id);
+            var result = await service.UpdateExerciseFromWorkout(exerciseData, id);
 
             if (result.IsSuccess())
             {
                 // Return the updated workout on success
-                return GetUpdatedWorkout(id, result);
+                return await GetUpdatedWorkout(id, result);
             }
 
             return CustomResponse(result);
@@ -109,7 +109,7 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.DELETE_EXERCISE_FROM_WORKOUT)]
         [Authorize]
-        public ActionResult DeleteExerciseFromWorkout([FromQuery] long exerciseId)
+        public async Task<ActionResult> DeleteExerciseFromWorkout([FromQuery] long exerciseId)
         {
             // Check if the neccessary data is provided
             if (exerciseId < 1)
@@ -118,12 +118,12 @@ namespace FitnessAppAPI.Controllers
             }
 
             // Delete the exercise
-            var result = service.DeleteExerciseFromWorkout(exerciseId);
+            var result = await service.DeleteExerciseFromWorkout(exerciseId);
 
             if (result.IsSuccess())
             {
                 // Return the updated workout on success
-                return GetUpdatedWorkout(result.Data[0].Id, result);
+                return await GetUpdatedWorkout(result.Data[0].Id, result);
             }
 
             return CustomResponse(result);
@@ -134,7 +134,7 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.ADD_EXERCISE)]
         [Authorize]
-        public ActionResult AddExercise([FromBody] Dictionary<string, string> requestData)
+        public async Task<ActionResult> AddExercise([FromBody] Dictionary<string, string> requestData)
         {
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("exercise", out string? serializedExercise) || !requestData.TryGetValue("workoutId", out string? id))
@@ -158,7 +158,7 @@ namespace FitnessAppAPI.Controllers
             checkExistingEx ??= "Y";
 
             // Add the exercise
-            var result = service.AddExercise(exerciseData, GetUserId(), checkExistingEx);
+            var result = await service.AddExercise(exerciseData, GetUserId(), checkExistingEx);
 
             if (!result.IsSuccess())
             {
@@ -169,11 +169,11 @@ namespace FitnessAppAPI.Controllers
             var workoutId = long.Parse(id);
             if (workoutId > 0)
             {
-                var addExToWorkoutResult = service.AddExerciseToWorkout((MGExerciseModel)result.Data[0], workoutId);
+                var addExToWorkoutResult = await service.AddExerciseToWorkout((MGExerciseModel)result.Data[0], workoutId);
                 if (addExToWorkoutResult.IsSuccess())
                 {
                     // Return the updated workout on success
-                    return GetUpdatedWorkout(workoutId, addExToWorkoutResult);
+                    return await GetUpdatedWorkout(workoutId, addExToWorkoutResult);
                 }
             }
 
@@ -182,7 +182,7 @@ namespace FitnessAppAPI.Controllers
             requestData.TryGetValue("onlyForUser", out string? onlyForUser);
             onlyForUser ??= "Y";
 
-            return GetUpdatedMGExercises(exerciseData.MuscleGroupId, onlyForUser, result);
+            return await GetUpdatedMGExercises(exerciseData.MuscleGroupId, onlyForUser, result);
         }
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.UPDATE_EXERCISE)]
         [Authorize]
-        public ActionResult UpdateExercise([FromBody] Dictionary<string, string> requestData)
+        public async Task<ActionResult> UpdateExercise([FromBody] Dictionary<string, string> requestData)
         {
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("exercise", out string? serializedExercise))
@@ -211,7 +211,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             // Update the exercise
-            var result = service.UpdateExercise(exerciseData);
+            var result = await service.UpdateExercise(exerciseData);
             if (!result.IsSuccess())
             {
                 return CustomResponse(result);
@@ -222,7 +222,7 @@ namespace FitnessAppAPI.Controllers
             onlyForUser ??= "Y";
 
             // Return the updated exercises for this muscle group
-            return GetUpdatedMGExercises(exerciseData.MuscleGroupId, onlyForUser, result);
+            return await GetUpdatedMGExercises(exerciseData.MuscleGroupId, onlyForUser, result);
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.DELETE_EXERCISE)]
         [Authorize]
-        public ActionResult DeleteExercise([FromQuery] long MGExerciseId)
+        public async Task<ActionResult> DeleteExercise([FromQuery] long MGExerciseId)
         {
             // Check if the neccessary data is provided
             if (MGExerciseId < 1)
@@ -239,14 +239,14 @@ namespace FitnessAppAPI.Controllers
             }
 
             // Delete the exercise
-            var result = service.DeleteExercise(MGExerciseId, GetUserId());
+            var result = await service.DeleteExercise(MGExerciseId, GetUserId());
             if (!result.IsSuccess())
             {
                 return CustomResponse(result);
             }
 
             // Return the updated exercises for this muscle group
-            return GetUpdatedMGExercises(result.Data[0].Id, "Y", result);
+            return await GetUpdatedMGExercises(result.Data[0].Id, "Y", result);
         }
 
         /// <summary>
@@ -254,7 +254,7 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpGet(Constants.RequestEndPoints.GET_EXERCISES_FOR_MG)]
         [Authorize]
-        public ActionResult GetExercisesForMuscleGroup([FromQuery] long muscleGroupId, [FromQuery] string onlyForUser)
+        public async Task<ActionResult> GetExercisesForMuscleGroup([FromQuery] long muscleGroupId, [FromQuery] string onlyForUser)
         {
             // Check if the neccessary data is provided
             if (muscleGroupId < 1)
@@ -263,7 +263,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             // Return the exercises for this muscle group
-            return CustomResponse(service.GetExercisesForMG(muscleGroupId, GetUserId(), onlyForUser));
+            return CustomResponse(await service.GetExercisesForMG(muscleGroupId, GetUserId(), onlyForUser));
         }
 
         /// <summary>
@@ -280,8 +280,8 @@ namespace FitnessAppAPI.Controllers
         ///     The result of the main action executed in the controller method
         /// </param>
         
-        private OkObjectResult GetUpdatedWorkout(long id, ServiceActionResult previousActionResult) {
-            var getWorkoutResult = workoutService.GetWorkout(id, GetUserId());
+        private async Task<OkObjectResult> GetUpdatedWorkout(long id, ServiceActionResult previousActionResult) {
+            var getWorkoutResult = await workoutService.GetWorkout(id, GetUserId());
             if (getWorkoutResult.IsSuccess())
             {
                 // Combine the response and message from the previous action result with the updated workout
@@ -309,13 +309,13 @@ namespace FitnessAppAPI.Controllers
         /// <param name="previousActionResult">
         ///     The result of the main action executed in the controller method
         /// </param>
-        private OkObjectResult GetUpdatedMGExercises(long muscleGroupId, string onlyForUser, ServiceActionResult previousActionResult) {
-            var getExercisesForMGResult = service.GetExercisesForMG(muscleGroupId, GetUserId(), onlyForUser);
+        private async Task<OkObjectResult> GetUpdatedMGExercises(long muscleGroupId, string onlyForUser, ServiceActionResult previousActionResult) {
+            var getExercisesForMGResult = await service.GetExercisesForMG(muscleGroupId, GetUserId(), onlyForUser);
 
             if (getExercisesForMGResult.IsSuccess())
             {
                 return CustomResponse(previousActionResult.Code, previousActionResult.Message, 
-                                    getExercisesForMGResult.Data);
+                                        getExercisesForMGResult.Data);
             }
 
             return CustomResponse(previousActionResult);

@@ -1,5 +1,6 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessAppAPI.Data.Services.MuscleGroups
 {
@@ -14,12 +15,12 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public ServiceActionResult GetMuscleGroups(String userId)
+        public async Task<ServiceActionResult> GetMuscleGroups(String userId)
         {
-            var returnData = DBAccess.MuscleGroups.Where(m => m.UserId == userId || m.UserId == null)
+            var returnData = await DBAccess.MuscleGroups.Where(m => m.UserId == userId || m.UserId == null)
                                                 .OrderBy(m => m.Id)
                                                 .Select(m => (BaseModel)ModelMapper.MapToMuscleGroupModel(m))
-                                                .ToList();
+                                                .ToListAsync();
 
             if (returnData.Count > 0)
             {

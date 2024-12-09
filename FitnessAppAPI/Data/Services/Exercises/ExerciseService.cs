@@ -19,7 +19,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="workoutId">
         ///     The workout id
         /// </param>
-        public ServiceActionResult AddExerciseToWorkout(ExerciseModel exerciseData, long workoutId)
+        public async Task<ServiceActionResult> AddExerciseToWorkout(ExerciseModel exerciseData, long workoutId)
         {
             var exercise = new Exercise
             {
@@ -28,8 +28,8 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 MuscleGroupId = exerciseData.MuscleGroup.Id,
             };
 
-            DBAccess.Exercises.Add(exercise);
-            DBAccess.SaveChanges();
+            await DBAccess.Exercises.AddAsync(exercise);
+            await DBAccess.SaveChangesAsync();
 
             // Check if we need to add sets
             if (exerciseData.Sets != null && exerciseData.Sets.Count > 0)
@@ -44,10 +44,11 @@ namespace FitnessAppAPI.Data.Services.Exercises
                         ExerciseId = exercise.Id
                     };
 
-                    DBAccess.Sets.Add(set);
-                    DBAccess.SaveChanges();
+                    await DBAccess.Sets.AddAsync(set);
                 }
-            } 
+
+                await DBAccess.SaveChangesAsync();
+            }
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED);
         }
@@ -63,12 +64,12 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="workoutId">
         ///     The workout id
         /// </param>
-        public ServiceActionResult AddExerciseToWorkout(MGExerciseModel MGExerciseData, long workoutId)
+        public async Task<ServiceActionResult> AddExerciseToWorkout(MGExerciseModel MGExerciseData, long workoutId)
         {
             // Find the muscle group
-            var muscleGroup = DBAccess.MuscleGroups.Where(mg => mg.Id == MGExerciseData.MuscleGroupId)
+            var muscleGroup = await DBAccess.MuscleGroups.Where(mg => mg.Id == MGExerciseData.MuscleGroupId)
                                                     .Select(mg => ModelMapper.MapToMuscleGroupModel(mg))
-                                                    .FirstOrDefault();
+                                                    .FirstOrDefaultAsync();
 
             if (muscleGroup == null || muscleGroup.Id == 0)
             {
@@ -85,7 +86,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
             };
 
             // Reuse add exercise to workout
-            return AddExerciseToWorkout(exerciseToAdd, workoutId);
+            return await AddExerciseToWorkout(exerciseToAdd, workoutId);
         }
 
         /// <summary>
@@ -97,16 +98,16 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="workoutId">
         ///     The workout id
         /// </param>
-        public ServiceActionResult UpdateExerciseFromWorkout(ExerciseModel exerciseData, long workoutId)
+        public async Task<ServiceActionResult> UpdateExerciseFromWorkout(ExerciseModel exerciseData, long workoutId)
         {
             // Fetch the exact exercise and it's sets
-            var exercise = CheckExerciseExists(exerciseData.Id);
+            var exercise = await CheckExerciseExists(exerciseData.Id);
             if (exercise == null)
             {
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_NOT_FOUND);
             }
 
-            var sets = DBAccess.Sets.Where(s => s.ExerciseId == exerciseData.Id).ToList();
+            var sets = await DBAccess.Sets.Where(s => s.ExerciseId == exerciseData.Id).ToListAsync();
 
             if (!exercise.Name.Equals(exerciseData.Name))
             {
@@ -130,13 +131,12 @@ namespace FitnessAppAPI.Data.Services.Exercises
                             ExerciseId = exerciseData.Id
                         };
 
-                        DBAccess.Sets.Add(set);
-
+                        await DBAccess.Sets.AddAsync(set);
                     }
                     else
                     {
                         // Update the set
-                        var set = DBAccess.Sets.Find(s.Id);
+                        var set = await DBAccess.Sets.FindAsync(s.Id);
 
                         if (set != null)
                         {
@@ -155,12 +155,11 @@ namespace FitnessAppAPI.Data.Services.Exercises
                         DBAccess.Sets.Remove(set);
                     }
                 }
-
             }
             else
             {
                 // Delete all sets for this exercise
-                var setsToRemove = DBAccess.Sets.Where(s => s.ExerciseId == exercise.Id).ToList();
+                var setsToRemove = await DBAccess.Sets.Where(s => s.ExerciseId == exercise.Id).ToListAsync();
 
                 foreach (Set set in setsToRemove)
                 {
@@ -170,7 +169,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
             }
 
             // Save all changes
-            DBAccess.SaveChanges();
+            await DBAccess.SaveChangesAsync();
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_UPDATED);
         }
@@ -181,16 +180,16 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="exerciseId">
         ///     The exercise id
         /// </param>
-        public ServiceActionResult DeleteExerciseFromWorkout(long exerciseId)
+        public async Task<ServiceActionResult> DeleteExerciseFromWorkout(long exerciseId)
         {
-            var exercise = CheckExerciseExists(exerciseId);
+            var exercise = await CheckExerciseExists(exerciseId);
             if (exercise == null)
             {
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_NOT_FOUND);
             }
 
             DBAccess.Exercises.Remove(exercise);
-            DBAccess.SaveChanges();
+            await DBAccess.SaveChangesAsync();
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_DELETED,
                                                 [new BaseModel { Id = exercise.WorkoutId }]);
@@ -209,15 +208,15 @@ namespace FitnessAppAPI.Data.Services.Exercises
         ///     "Y" if we need to check whether exercise with this name already exists,
         ///     "N" to skip the check
         /// </param>
-        public ServiceActionResult AddExercise(MGExerciseModel MGExerciseData, string userId, string checkExistingEx)
+        public async Task<ServiceActionResult> AddExercise(MGExerciseModel MGExerciseData, string userId, string checkExistingEx)
         {
             if (checkExistingEx == "Y")
             {
                 // Check if exercise with the same name already exists
-                var existingExercise = DBAccess.MGExercises.Where(e => e.Name.ToLower().Equals(MGExerciseData.Name.ToLower()) &&
+                var existingExercise = await DBAccess.MGExercises.Where(e => e.Name.ToLower().Equals(MGExerciseData.Name.ToLower()) &&
                                                                         e.MuscleGroupId == MGExerciseData.MuscleGroupId &&
                                                                         e.UserId == userId)
-                                                                        .FirstOrDefault();
+                                                                        .FirstOrDefaultAsync();
 
                 if (existingExercise != null)
                 {
@@ -236,8 +235,8 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 UserId = userId
             };
 
-            DBAccess.MGExercises.Add(MGExercise);
-            DBAccess.SaveChanges();
+            await DBAccess.MGExercises.AddAsync(MGExercise);
+            await DBAccess.SaveChangesAsync();
 
             // Get the MGExercises results and convert them to Enumerable, to avoid errors that the Entity Framerwork
             // cannot translate the method into SQL when MapToExerciseModel() is called.
@@ -254,8 +253,8 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="exerciseData">
         ///     The exercise
         /// </param>
-        public ServiceActionResult UpdateExercise(MGExerciseModel exerciseData) {
-            var mgExercise = CheckMGExerciseExists(exerciseData.Id);
+        public async Task<ServiceActionResult> UpdateExercise(MGExerciseModel exerciseData) {
+            var mgExercise = await CheckMGExerciseExists(exerciseData.Id);
             if (mgExercise == null)
             {
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_NOT_FOUND);
@@ -266,7 +265,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
             mgExercise.Description = exerciseData.Description;
 
             DBAccess.Entry(mgExercise).State = EntityState.Modified;
-            DBAccess.SaveChanges();
+            await DBAccess.SaveChangesAsync();
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_UPDATED);
         }
@@ -280,9 +279,9 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="userId">
         ///     The user id who deleting the exercise
         /// </param>
-        public ServiceActionResult DeleteExercise(long MGExerciseId, string userId)
+        public async Task<ServiceActionResult> DeleteExercise(long MGExerciseId, string userId)
         {
-            var MGExercise = CheckMGExerciseExists(MGExerciseId);
+            var MGExercise = await CheckMGExerciseExists(MGExerciseId);
             if (MGExercise == null)
             {
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_NOT_FOUND);
@@ -298,7 +297,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
             // Delete all records for default values for this muscle group exercise
             DBAccess.UserDefaultValues.RemoveRange(DBAccess.UserDefaultValues.Where(u => u.MGExeciseId == MGExerciseId && u.UserId == userId));
 
-            DBAccess.SaveChanges();
+            await DBAccess.SaveChangesAsync();
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_DELETED,
                             [new BaseModel { Id = MGExercise.MuscleGroupId }]);
@@ -319,21 +318,21 @@ namespace FitnessAppAPI.Data.Services.Exercises
         ///     which are considered editable and can be deleted / updated
         ///     If "N" the method will return all default and user defined exercises for this muscle group
         /// </param>
-        public ServiceActionResult GetExercisesForMG(long muscleGroupId, string userId, string onlyForUser) {
+        public async Task<ServiceActionResult> GetExercisesForMG(long muscleGroupId, string userId, string onlyForUser) {
             var returnData = new List<BaseModel>();
 
             if (onlyForUser == "Y")
             {
 
-                returnData = DBAccess.MGExercises.Where(e => e.MuscleGroupId == muscleGroupId && e.UserId == userId)
+                returnData = await DBAccess.MGExercises.Where(e => e.MuscleGroupId == muscleGroupId && e.UserId == userId)
                                                     .Select(e => (BaseModel)ModelMapper.MapToMGExerciseModel(e))
-                                                    .ToList();
+                                                    .ToListAsync();
             }
             else
             {
-                returnData = DBAccess.MGExercises.Where(e => e.MuscleGroupId == muscleGroupId && (e.UserId == null || e.UserId == userId))
+                returnData = await DBAccess.MGExercises.Where(e => e.MuscleGroupId == muscleGroupId && (e.UserId == null || e.UserId == userId))
                                                     .Select(e => (BaseModel)ModelMapper.MapToMGExerciseModel(e))
-                                                    .ToList();
+                                                    .ToListAsync();
             }
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
@@ -349,9 +348,9 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="workoutId">
         ///     The workout id
         /// </param>
-        private Exercise? CheckExerciseExists(long id)
+        private async Task<Exercise?> CheckExerciseExists(long id)
         {
-            return DBAccess.Exercises.Where(e => e.Id == id).FirstOrDefault();
+            return await DBAccess.Exercises.Where(e => e.Id == id).FirstOrDefaultAsync();
         }
 
         /// <summary>
@@ -361,9 +360,9 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="id">
         ///     The muscle group exercise id
         /// </param>
-        private MGExercise? CheckMGExerciseExists(long id)
+        private async Task<MGExercise?> CheckMGExerciseExists(long id)
         {
-            return DBAccess.MGExercises.Where(e => e.Id == id).FirstOrDefault();
+            return await DBAccess.MGExercises.Where(e => e.Id == id).FirstOrDefaultAsync();
         }
     }
 }

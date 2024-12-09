@@ -8,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using FitnessAppAPI.Data.Services.UserProfile;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessAppAPI.Data
 {
@@ -16,23 +17,23 @@ namespace FitnessAppAPI.Data
     /// </summary>
     public class UserService: BaseService, IUserService
     {
-        private readonly UserManager<User> _userManager;
-        private readonly IUserStore<User> _userStore;
-        private readonly IUserEmailStore<User> _emailStore;
-        private readonly SignInManager<User> _signInManager;
-        private readonly IConfiguration _configuration;
-        private readonly IUserProfileService _userProfileService;
+        private readonly UserManager<User> userManager;
+        private readonly IUserStore<User> userStore;
+        private readonly IUserEmailStore<User> emailStore;
+        private readonly SignInManager<User> singInManager;
+        private readonly IConfiguration configuration;
+        private readonly IUserProfileService userProfileService;
 
-        public UserService(UserManager<User> userManager, IUserStore<User> userStore, SignInManager<User> signInManager,
-                       IConfiguration configuration, FitnessAppAPIContext DB,
+        public UserService(UserManager<User> userManagerObj, IUserStore<User> userStoreObj, SignInManager<User> signInManagerObj,
+                       IConfiguration configurationObj, FitnessAppAPIContext DB,
                        IUserProfileService userProfileS) : base(DB)
         {
-            _userManager = userManager;
-            _userStore = userStore;
-            _emailStore = GetEmailStore();
-            _signInManager = signInManager;
-            _configuration = configuration;
-            _userProfileService = userProfileS;
+            userManager = userManagerObj;
+            userStore = userStoreObj;
+            emailStore = GetEmailStore();
+            singInManager = signInManagerObj;
+            configuration = configurationObj;
+            userProfileService = userProfileS;
         }
 
         /// <summary>
@@ -44,7 +45,7 @@ namespace FitnessAppAPI.Data
         /// <param name="password">
         ///     The user password
         /// </param>
-        public ServiceActionResult Register(string email, string password)
+        public async Task<ServiceActionResult> Register(string email, string password)
         {
             // Validate
             if (!Utils.IsValidEmail(email))
@@ -54,9 +55,9 @@ namespace FitnessAppAPI.Data
 
             // Create the user
             var user = CreateUser();
-            _userStore.SetUserNameAsync(user, email, CancellationToken.None).Wait();
-            _emailStore.SetEmailAsync(user, email, CancellationToken.None).Wait();
-            var result = _userManager.CreateAsync(user, password).Result;
+            userStore.SetUserNameAsync(user, email, CancellationToken.None).Wait();
+            emailStore.SetEmailAsync(user, email, CancellationToken.None).Wait();
+            var result = await userManager.CreateAsync(user, password);
 
             if (!result.Succeeded)
             {
@@ -64,7 +65,7 @@ namespace FitnessAppAPI.Data
             }
 
             // Create the default values for the user
-            var createUserDefaultValuesResult = _userProfileService.AddUserDefaultValues(user.Id);
+            var createUserDefaultValuesResult = await userProfileService.AddUserDefaultValues(user.Id);
             if (!createUserDefaultValuesResult.IsSuccess())
             {
                 return new ServiceActionResult(createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
@@ -83,13 +84,13 @@ namespace FitnessAppAPI.Data
         /// <param name="password">
         ///     The user password
         /// </param>
-        public TokenResponseModel Login(string email, string password)
+        public async Task<TokenResponseModel> Login(string email, string password)
         {
             var returnUserModel = ModelMapper.GetEmptyUserModel();
             ServiceActionResult? serviceActionResult;
 
             // Login attempt
-            var result = _signInManager.PasswordSignInAsync(email, password, true, lockoutOnFailure: false).Result;
+            var result = await singInManager.PasswordSignInAsync(email, password, true, lockoutOnFailure: false);
 
             // Process result
             if (!result.Succeeded)
@@ -99,7 +100,7 @@ namespace FitnessAppAPI.Data
             }
 
             // Retrieve the logged in user
-            var user = _userManager.FindByEmailAsync(email).Result;
+            var user = await userManager.FindByEmailAsync(email);
 
             if (user == null || user.Email == null)
             {
@@ -118,7 +119,7 @@ namespace FitnessAppAPI.Data
                 serviceActionResult = new ServiceActionResult(Constants.ResponseCode.SUCCESS);
             }
 
-            return new TokenResponseModel(CreateUserModel(user), token, serviceActionResult);
+            return new TokenResponseModel(await CreateUserModel(user), token, serviceActionResult);
         }
 
         /// <summary>
@@ -127,26 +128,26 @@ namespace FitnessAppAPI.Data
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public ServiceActionResult Logout()
+        public async Task<ServiceActionResult> Logout()
         {
-            _signInManager.SignOutAsync().Wait();
+            await singInManager.SignOutAsync();
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
         }
 
         /// <summary>
         ///     Change user passowrd
         /// </summary>
-        public ServiceActionResult ChangePassword(string oldPassword, string password, string userId)
+        public async Task<ServiceActionResult> ChangePassword(string oldPassword, string password, string userId)
         {
                 // Find the user by id
-            var user = _userManager.FindByIdAsync(userId).Result;
+            var user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_DOES_NOT_EXISTS);
             }
 
             // Change the password
-            var result = _userManager.ChangePasswordAsync(user, oldPassword, password).Result;
+            var result = await userManager.ChangePasswordAsync(user, oldPassword, password);
 
             if (!result.Succeeded)
             {
@@ -165,7 +166,7 @@ namespace FitnessAppAPI.Data
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public TokenResponseModel ValidateToken(string token, string userId)
+        public async Task<TokenResponseModel> ValidateToken(string token, string userId)
         {
             var returnToken = "";
             var returnUserModel = ModelMapper.GetEmptyUserModel();
@@ -179,7 +180,7 @@ namespace FitnessAppAPI.Data
             }
 
             var handler = new JwtSecurityTokenHandler();
-            var keyString = _configuration["JwtSettings:SecretKey"];
+            var keyString = configuration["JwtSettings:SecretKey"];
 
             if (keyString == null)
             {
@@ -203,7 +204,7 @@ namespace FitnessAppAPI.Data
                 if (RefreshJwtToken(validatedToken) && userId != "")
                 {
                     // If the token expires soon, generate new token
-                    var user = DBAccess.Users.Where(u => u.Id == userId).FirstOrDefault();
+                    var user = await DBAccess.Users.Where(u => u.Id == userId).FirstOrDefaultAsync();
 
                     if (user != null)
                     {
@@ -229,7 +230,7 @@ namespace FitnessAppAPI.Data
         /// </summary>
         private string GenerateJwtToken(User user)
         {
-            var secretKey = _configuration["JwtSettings:SecretKey"];
+            var secretKey = configuration["JwtSettings:SecretKey"];
 
             if (string.IsNullOrEmpty(secretKey))
             {
@@ -319,11 +320,11 @@ namespace FitnessAppAPI.Data
         /// <returns>UserStore object if user store supports user email, otherwise throws NotSupportedException.</returns>
         private IUserEmailStore<User> GetEmailStore()
         {
-            if (!_userManager.SupportsUserEmail)
+            if (!userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<User>)_userStore;
+            return (IUserEmailStore<User>)userStore;
         }
 
         /// <summary>
@@ -332,13 +333,13 @@ namespace FitnessAppAPI.Data
         /// <param name="user">
         ///     The user 
         /// </param>
-        private UserModel CreateUserModel(User user)
+        private async Task<UserModel> CreateUserModel(User user)
         {
-            var defaultValues = GetUserDefaultValues(0, user.Id);
+            var defaultValues = await GetUserDefaultValues(0, user.Id);
 
             if (defaultValues != null)
             {
-                var weightUnit = DBAccess.WeightUnits.Where(w => w.Id == defaultValues.WeightUnitId).FirstOrDefault();
+                var weightUnit = await DBAccess.WeightUnits.Where(w => w.Id == defaultValues.WeightUnitId).FirstOrDefaultAsync();
                 return ModelMapper.MapToUserModel(user, defaultValues, weightUnit);
             }
 

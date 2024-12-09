@@ -25,7 +25,7 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.ADD_WORKOUT_TEMPLATE)]
         [Authorize]
-        public ActionResult Add([FromBody] Dictionary<string, string> requestData)
+        public async Task<ActionResult> Add([FromBody] Dictionary<string, string> requestData)
         {
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("workout", out string? serializedWorkout))
@@ -45,7 +45,7 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.UNEXPECTED_ERROR, validationErrors);
             }
 
-            return CustomResponse(service.AddWorkoutTemplate(workoutData, GetUserId()));
+            return CustomResponse(await service.AddWorkoutTemplate(workoutData, GetUserId()));
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.DELETE_WORKOUT_TEMPLATE)]
         [Authorize]
-        public ActionResult Delete([FromQuery] long templateId)
+        public async Task<ActionResult> Delete([FromQuery] long templateId)
         {
             // Check if the neccessary data is provided
             if (templateId < 1)
@@ -62,7 +62,7 @@ namespace FitnessAppAPI.Controllers
             }
 
             // Delete the template
-            return CustomResponse(service.DeleteWorkoutTemplate(templateId));
+            return CustomResponse(await service.DeleteWorkoutTemplate(templateId));
         }
 
         /// <summary>
@@ -70,9 +70,9 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpGet(Constants.RequestEndPoints.GET_WORKOUT_TEMPLATES)]
         [Authorize]
-        public ActionResult GetTemplates()
+        public async Task<ActionResult> GetTemplates()
         {
-            return CustomResponse(service.GetWorkoutTemplates(GetUserId()));
+            return CustomResponse(await service.GetWorkoutTemplates(GetUserId()));
         }
     }
 }

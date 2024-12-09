@@ -5,6 +5,6 @@
     /// </summary>
     public interface ISystemLogService
     {
-        public void Add(Exception exception, string userId);
+        public Task Add(Exception exception, string userId);
     }
 }

@@ -7,8 +7,8 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
     /// </summary>
     public interface IWorkoutTemplateService
     {
-        public ServiceActionResult AddWorkoutTemplate(WorkoutModel data, string userId);
-        public ServiceActionResult DeleteWorkoutTemplate(long templateId);
-        public ServiceActionResult GetWorkoutTemplates(string userId);
+        public Task<ServiceActionResult> AddWorkoutTemplate(WorkoutModel data, string userId);
+        public Task<ServiceActionResult> DeleteWorkoutTemplate(long templateId);
+        public Task<ServiceActionResult> GetWorkoutTemplates(string userId);
     }
 }

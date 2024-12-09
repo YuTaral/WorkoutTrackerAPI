@@ -9,7 +9,7 @@ namespace FitnessAppAPI.Data.Services.SystemLogs
     /// </summary>
     public class SystemLogService(FitnessAppAPIContext DB) : BaseService(DB), ISystemLogService
     {
-        public void Add(Exception exception, string userId)
+        public async Task Add(Exception exception, string userId)
         {
             string stackTrace = "";
 
@@ -25,8 +25,8 @@ namespace FitnessAppAPI.Data.Services.SystemLogs
                 UserId = userId
             };
 
-            DBAccess.SystemLogs.Add(systemLog);
-            DBAccess.SaveChanges();
+            await DBAccess.SystemLogs.AddAsync(systemLog);
+            await DBAccess.SaveChangesAsync();
         }
     }
 }

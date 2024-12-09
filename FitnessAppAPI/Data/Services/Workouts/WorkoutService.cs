@@ -20,7 +20,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <param name="userId">
         ///     The user who is adding the workout
         /// </param>
-        public ServiceActionResult AddWorkout(WorkoutModel data, string userId)
+        public async Task<ServiceActionResult> AddWorkout(WorkoutModel data, string userId)
         {
             var workout = new Workout
             {
@@ -30,11 +30,11 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 Template = "N"
             };
 
-            DBAccess.Workouts.Add(workout);
-            DBAccess.SaveChanges();
+            await DBAccess.Workouts.AddAsync(workout);
+            await DBAccess.SaveChangesAsync();
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_WORKOUT_ADDED,
-                                                [ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
+                                                [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
         }
 
         /// <summary>
@@ -46,9 +46,9 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <param name="userId">
         ///     The user who is updating the workout
         /// </param>
-        public ServiceActionResult UpdateWorkout(WorkoutModel data, string userId)
+        public async Task<ServiceActionResult> UpdateWorkout(WorkoutModel data, string userId)
         {
-            var workout = CheckWorkoutExists(data.Id, userId);
+            var workout = await CheckWorkoutExists(data.Id, userId);
             if (workout == null)
             {
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_WORKOUT_DOES_NOT_EXIST);
@@ -58,10 +58,10 @@ namespace FitnessAppAPI.Data.Services.Workouts
             workout.Name = data.Name;
 
             DBAccess.Entry(workout).State = EntityState.Modified;
-            DBAccess.SaveChanges();
+            await DBAccess.SaveChangesAsync();
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_WORKOUT_UPDATED,
-                                                [ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
+                                                [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
         }
 
         /// <summary>
@@ -73,8 +73,8 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <param name="userId">
         ///     The user who is deleting the workout
         /// </param>
-        public ServiceActionResult DeleteWorkout(long workoutId, string userId) {
-            var workout = CheckWorkoutExists(workoutId, userId);
+        public async Task<ServiceActionResult> DeleteWorkout(long workoutId, string userId) {
+            var workout = await CheckWorkoutExists(workoutId, userId);
             if (workout == null)
             {
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_WORKOUT_DOES_NOT_EXIST);
@@ -82,7 +82,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
 
             // Delete the workout
             DBAccess.Workouts.Remove(workout);
-            DBAccess.SaveChanges();
+            await DBAccess.SaveChangesAsync();
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_WORKOUT_DELETED);
         }
@@ -94,10 +94,10 @@ namespace FitnessAppAPI.Data.Services.Workouts
         ///     The user id
         /// </param>
 
-        public ServiceActionResult GetLastWorkout(string userId) {
-            var workout = DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "N")
+        public async Task<ServiceActionResult> GetLastWorkout(string userId) {
+            var workout = await DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "N")
                                         .OrderByDescending(w => w.Date)
-                                        .FirstOrDefault();
+                                        .FirstOrDefaultAsync();
 
             if (workout == null)
             {
@@ -105,7 +105,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
             }
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS,
-                                               [ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
+                                               [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
         }
 
         /// <summary>
@@ -117,15 +117,15 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <param name="userId">
         ///     The user owner of the workout
         /// </param>
-        public ServiceActionResult GetWorkout(long id, string userId) {
-            var workout = CheckWorkoutExists(id, userId);
+        public async Task<ServiceActionResult> GetWorkout(long id, string userId) {
+            var workout = await CheckWorkoutExists(id, userId);
             if (workout == null)
             {
                 return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_WORKOUT_DOES_NOT_EXIST, []);
             }
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS,
-                                                [ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
+                                                [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
         }
 
         /// <summary>
@@ -134,21 +134,30 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public ServiceActionResult GetLatestWorkouts(string userId) {
-            var workouts = DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "N")
-                                            .OrderByDescending(w => w.Date)
-                                            .Select(w => (BaseModel)ModelMapper.MapToWorkoutModel(w, DBAccess))
-                                            .ToList();
+        public async Task<ServiceActionResult> GetLatestWorkouts(string userId) {
+            // Fetch all workouts asynchonously
+            var workouts = await DBAccess.Workouts
+                                 .Where(w => w.UserId == userId && w.Template == "N")
+                                 .OrderByDescending(w => w.Date)
+                                 .ToListAsync();
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, workouts);
+            // Create the list asynchonously
+            var workoutModels = new List<BaseModel>();
+            foreach (var workout in workouts)
+            {
+                var workoutModel = await ModelMapper.MapToWorkoutModel(workout, DBAccess);
+                workoutModels.Add(workoutModel);
+            }
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, workoutModels);
         }
 
         /// <summary>
         ///     Return the weight units
         /// </summary>
-        public ServiceActionResult GetWeightUnits()
+        public async Task<ServiceActionResult> GetWeightUnits()
         {
-            var units = DBAccess.WeightUnits.Select(w => (BaseModel)ModelMapper.MapToWeightUnitModel(w)).ToList();
+            var units = await DBAccess.WeightUnits.Select(w => (BaseModel)ModelMapper.MapToWeightUnitModel(w)).ToListAsync();
 
             if (units.Count == 0)
             {
@@ -169,9 +178,9 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <param name="userId">
         ///     The userId owner of the workout
         /// </param>
-        private Workout? CheckWorkoutExists(long id, string userId)
+        private async Task<Workout?> CheckWorkoutExists(long id, string userId)
         {
-            return DBAccess.Workouts.Where(w => w.Id == id && w.UserId == userId).FirstOrDefault();
+            return await DBAccess.Workouts.Where(w => w.Id == id && w.UserId == userId).FirstOrDefaultAsync();
         }
     }
 }

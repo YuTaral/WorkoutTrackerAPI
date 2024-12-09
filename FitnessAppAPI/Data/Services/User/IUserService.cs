@@ -7,10 +7,10 @@ namespace FitnessAppAPI.Data.Services
     /// </summary>
     public interface IUserService
     {
-        public ServiceActionResult Register(string email, string password);
-        public TokenResponseModel Login(string email, string password);
-        public ServiceActionResult Logout();
-        public ServiceActionResult ChangePassword(string oldPassword, string password, string userId);
-        public TokenResponseModel ValidateToken(string token, string userId);
+        public Task<ServiceActionResult> Register(string email, string password);
+        public Task<TokenResponseModel> Login(string email, string password);
+        public Task<ServiceActionResult> Logout();
+        public Task<ServiceActionResult> ChangePassword(string oldPassword, string password, string userId);
+        public Task<TokenResponseModel> ValidateToken(string token, string userId);
     }
 }

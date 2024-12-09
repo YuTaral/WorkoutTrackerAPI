@@ -35,8 +35,9 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.ADD_WORKOUT)]
         [Authorize]
-        public ActionResult Add([FromBody] Dictionary<string, string> requestData)
+        public async Task<ActionResult> Add([FromBody] Dictionary<string, string> requestData)
         {
+
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("workout", out string? serializedWorkout))
             {
@@ -57,7 +58,7 @@ namespace FitnessAppAPI.Controllers
 
             var userId = GetUserId();
 
-            ServiceActionResult result = service.AddWorkout(workoutData, userId);
+            ServiceActionResult result = await service.AddWorkout(workoutData, userId);
 
             // Success check
             if (!result.IsSuccess())
@@ -69,11 +70,11 @@ namespace FitnessAppAPI.Controllers
             // Check if this is template and add the exercises if so
             if (workoutData.Template && workoutData.Exercises != null) {
                 foreach (ExerciseModel e in workoutData.Exercises) {
-                    exerciseService.AddExerciseToWorkout(e, result.Data[0].Id);
+                    await exerciseService.AddExerciseToWorkout(e, result.Data[0].Id);
                 }
 
                 // Get the updated workout
-                var getWorkoutResult = service.GetWorkout(result.Data[0].Id, userId);
+                var getWorkoutResult = await service.GetWorkout(result.Data[0].Id, userId);
                 if (getWorkoutResult.IsSuccess()) {
                     return CustomResponse(result.Code, result.Message, getWorkoutResult.Data);
                 }
@@ -87,7 +88,7 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.UPDATE_WORKOUT)]
         [Authorize]
-        public ActionResult Update([FromBody] Dictionary<string, string> requestData)
+        public async Task<ActionResult> Update([FromBody] Dictionary<string, string> requestData)
         {
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("workout", out string? serializedWorkout))
@@ -107,7 +108,7 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
             }
 
-            return CustomResponse(service.UpdateWorkout(workoutData, GetUserId()));
+            return CustomResponse(await service.UpdateWorkout(workoutData, GetUserId()));
         }
 
         /// <summary>
@@ -115,7 +116,7 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.DELETE_WORKOUT)]
         [Authorize]
-        public ActionResult Delete([FromQuery] string workoutId)
+        public async Task<ActionResult> Delete([FromQuery] string workoutId)
         {
             // Check if the neccessary data is provided
             if (string.IsNullOrEmpty(workoutId))
@@ -123,7 +124,7 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
             }
 
-            return CustomResponse(service.DeleteWorkout(long.Parse(workoutId), GetUserId()));
+            return CustomResponse(await service.DeleteWorkout(long.Parse(workoutId), GetUserId()));
         }
 
         /// <summary>
@@ -131,9 +132,9 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpGet(Constants.RequestEndPoints.GET_WORKOUTS)]
         [Authorize]
-        public ActionResult GetLatestWorkouts()
+        public async Task<ActionResult> GetLatestWorkouts()
         {
-            return CustomResponse(service.GetLatestWorkouts(GetUserId()));
+            return CustomResponse(await service.GetLatestWorkouts(GetUserId()));
         }
 
         /// <summary>
@@ -141,7 +142,7 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpGet(Constants.RequestEndPoints.GET_WORKOUT)]
         [Authorize]
-        public ActionResult GetWorkout([FromQuery] long workoutId)
+        public async Task<ActionResult> GetWorkout([FromQuery] long workoutId)
         {
             // Check if the neccessary data is provided
             if (workoutId < 1)
@@ -149,16 +150,16 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
             }
 
-            return CustomResponse(service.GetWorkout(workoutId, GetUserId()));
+            return CustomResponse(await service.GetWorkout(workoutId, GetUserId()));
         }
 
         /// <summary>
         //      Get request to fetch the weight units
         /// </summary>
         [HttpGet(Constants.RequestEndPoints.GET_WEIGHT_UNITS)]
-        public ActionResult GetWeightUnits()
+        public async Task<ActionResult> GetWeightUnits()
         {
-            return CustomResponse(service.GetWeightUnits());
+            return CustomResponse(await service.GetWeightUnits());
         }
     }
 }

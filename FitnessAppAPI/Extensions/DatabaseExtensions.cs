@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using FitnessAppAPI.Data;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace FitnessAppAPI.Extensions
 {

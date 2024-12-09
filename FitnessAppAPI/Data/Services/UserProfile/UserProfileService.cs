@@ -13,9 +13,9 @@ namespace FitnessAppAPI.Data.Services.UserProfile
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public ServiceActionResult AddUserDefaultValues(string userId)
+        public async Task<ServiceActionResult> AddUserDefaultValues(string userId)
         {
-            var kg = DBAccess.WeightUnits.Where(w => w.Text == Constants.DBConstants.KG).FirstOrDefault();
+            var kg = await DBAccess.WeightUnits.Where(w => w.Text == Constants.DBConstants.KG).FirstOrDefaultAsync();
             if (kg == null)
             {
                 // Must NOT happen
@@ -49,10 +49,10 @@ namespace FitnessAppAPI.Data.Services.UserProfile
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public ServiceActionResult UpdateUserDefaultValues(UserDefaultValuesModel data, string userId)
+        public async Task<ServiceActionResult> UpdateUserDefaultValues(UserDefaultValuesModel data, string userId)
         {
             var oldWeightUnit = 0L;
-            var existing = GetUserDefaultValues(data.MGExerciseId, userId);
+            var existing = await GetUserDefaultValues(data.MGExerciseId, userId);
             
             if (existing == null)
             {
@@ -65,7 +65,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
                 // this means we are trying to create default values for specific exercise
                 // (GetUserDefaultValues return 0, because the record does not exist yet
                 // and the default user values was returned)
-                var addResult = AddExerciseDefaultValues(data, userId);
+                var addResult = await AddExerciseDefaultValues(data, userId);
 
                 if (!addResult.IsSuccess())
                 {
@@ -78,7 +78,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             }
 
             // Find the unit record and set the code, the model contains the Text column
-            var unitRecord = DBAccess.WeightUnits.Where(w => w.Id == data.WeightUnit.Id).FirstOrDefault();
+            var unitRecord = await DBAccess.WeightUnits.Where(w => w.Id == data.WeightUnit.Id).FirstOrDefaultAsync();
             var unitId = 0L;
 
             if (unitRecord == null)
@@ -105,7 +105,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             // If the weight unit has changed, change all records for the user to use the new weight unit
             if (oldWeightUnit != unitId)
             {
-                var records = DBAccess.UserDefaultValues.Where(u => u.UserId == userId && u.MGExeciseId > 0).ToList();
+                var records = await DBAccess.UserDefaultValues.Where(u => u.UserId == userId && u.MGExeciseId > 0).ToListAsync();
 
                 if (records != null && records.Count > 0)
                 {
@@ -117,10 +117,10 @@ namespace FitnessAppAPI.Data.Services.UserProfile
                 }
             }
 
-            DBAccess.SaveChanges();
+            await DBAccess.SaveChangesAsync();
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_DEF_VALUES_UPDATED,
-                                            [ModelMapper.MapToUserDefaultValuesModel(existing, DBAccess)]);
+                                            [await ModelMapper.MapToUserDefaultValuesModel(existing, DBAccess)]);
 
         }
 
@@ -136,11 +136,11 @@ namespace FitnessAppAPI.Data.Services.UserProfile
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public ServiceActionResult GetExerciseOrUserDefaultValues(long mgExerciseId, string userId)
+        public async Task<ServiceActionResult> GetExerciseOrUserDefaultValues(long mgExerciseId, string userId)
         {
             // Search for the exercise specific values, if they don't exist,
             // user default values will be returned
-            var values = GetUserDefaultValues(mgExerciseId, userId);
+            var values = await GetUserDefaultValues(mgExerciseId, userId);
 
             if (values == null)
             {
@@ -154,7 +154,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             values.MGExeciseId = mgExerciseId;
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, 
-                                            [ModelMapper.MapToUserDefaultValuesModel(values, DBAccess)]);
+                                            [await ModelMapper.MapToUserDefaultValuesModel(values, DBAccess)]);
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
         /// <param name="userId">
         ///     The user id
         /// </param>
-        private ServiceActionResult AddExerciseDefaultValues(UserDefaultValuesModel data, string userId)
+        private async Task<ServiceActionResult> AddExerciseDefaultValues(UserDefaultValuesModel data, string userId)
         {
             var values = new UserDefaultValue
             {
@@ -176,8 +176,8 @@ namespace FitnessAppAPI.Data.Services.UserProfile
                 MGExeciseId = data.MGExerciseId
             };
 
-            DBAccess.UserDefaultValues.Add(values);
-            DBAccess.SaveChanges();
+            await DBAccess.UserDefaultValues.AddAsync(values);
+            await DBAccess.SaveChangesAsync();
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
         }
