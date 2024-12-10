@@ -62,8 +62,8 @@
         public const string MSG_FAILED_TO_FETCH_WEIGHT_UNITS = "Failed to fetch weight units";
         public const string MSG_FAILED_TO_FETCH_DEFAULT_VALUES = "Failed to fetch default values";
         public const string MSG_FAILED_TO_UPDATE_DEFAULT_VALUES = "Failed to fetch update values";
-        public const string MSG_TOKEN_VALIDATION_FAILED = "Token validation failed";
-        public const string MSG_TOKEN_EXPIRED = "Token expired";
+        public const string MSG_TOKEN_VALIDATION_FAILED = "Authorization failed";
+        public const string MSG_TOKEN_EXPIRED = "Session expired. Please login again";
 
         /// <summary>
         ///     Class containing the DB constants
