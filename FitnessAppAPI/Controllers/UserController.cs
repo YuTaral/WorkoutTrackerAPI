@@ -48,16 +48,7 @@ namespace FitnessAppAPI.Controllers
             // Construct the return data list
             var returnData = new List<string> { model.User.ToJson(), model.Token };
 
-            // Get the last workout
-            var result = await workoutService.GetLastWorkout(model.User.Id);
-
-            if (result.IsSuccess() && result.Data.Count > 0) 
-            {
-                // If workout exists for the user, add it to the returnData
-                returnData.Add(result.Data[0].ToJson());
-            }
-
-            return CustomResponse(result.Code, result.Message, returnData);
+            return CustomResponse(model.Result.Code, model.Result.Message, returnData);
         }
 
         /// <summary>
