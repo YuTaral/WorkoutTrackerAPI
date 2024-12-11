@@ -29,7 +29,8 @@ namespace FitnessAppAPI.Common
             {
                 Id = workout.Id,
                 Name = workout.Name,
-                Date = workout.Date,
+                StartDateTime = workout.StartDateTime,
+                FinishDateTime = workout.FinishDateTime,
                 Template = workout.Template == "Y",
                 Exercises = await DBAccess.Exercises.Where(e => e.WorkoutId == workout.Id)
                                               .Select(e => MapToExerciseModel(e, DBAccess))
@@ -278,7 +279,7 @@ namespace FitnessAppAPI.Common
             return new WorkoutModel {
                 Id = 0,
                 Name = "Unknown",
-                Date = DateTime.UtcNow,
+                StartDateTime = DateTime.UtcNow,
                 Template = false,
                 Exercises = { }
             };

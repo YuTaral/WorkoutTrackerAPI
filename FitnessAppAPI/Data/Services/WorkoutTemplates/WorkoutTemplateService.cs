@@ -31,7 +31,8 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
             {
                 Name = data.Name,
                 UserId = userId,
-                Date = DateTime.Now,
+                StartDateTime = null,
+                FinishDateTime = null,
                 Template = "Y"
             };
 
@@ -87,7 +88,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         {
             // Fetch the templats asynchonously
             var templates = await DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "Y")
-                                            .OrderByDescending(w => w.Date)
+                                            .OrderByDescending(w => w.StartDateTime)
                                             .ToListAsync();
 
 

@@ -26,7 +26,8 @@ namespace FitnessAppAPI.Data.Services.Workouts
             {
                 Name = data.Name,
                 UserId = userId,
-                Date = DateTime.Now,
+                StartDateTime = DateTime.Now,
+                FinishDateTime = null,
                 Template = "N"
             };
 
@@ -56,6 +57,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
 
             // Change the name
             workout.Name = data.Name;
+            workout.FinishDateTime = data.FinishDateTime;
 
             DBAccess.Entry(workout).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();
@@ -96,7 +98,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
 
         public async Task<ServiceActionResult> GetLastWorkout(string userId) {
             var workout = await DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "N")
-                                        .OrderByDescending(w => w.Date)
+                                        .OrderByDescending(w => w.StartDateTime)
                                         .FirstOrDefaultAsync();
 
             if (workout == null)
@@ -138,7 +140,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
             // Fetch all workouts asynchonously
             var workouts = await DBAccess.Workouts
                                  .Where(w => w.UserId == userId && w.Template == "N")
-                                 .OrderByDescending(w => w.Date)
+                                 .OrderByDescending(w => w.StartDateTime)
                                  .ToListAsync();
 
             // Create the list asynchonously

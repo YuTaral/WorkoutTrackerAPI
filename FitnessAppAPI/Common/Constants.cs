@@ -64,6 +64,7 @@
         public const string MSG_FAILED_TO_UPDATE_DEFAULT_VALUES = "Failed to fetch update values";
         public const string MSG_TOKEN_VALIDATION_FAILED = "Authorization failed";
         public const string MSG_TOKEN_EXPIRED = "Session expired. Please login again";
+        public const string MSG_WORKOUT_FINISHED = "Workout finished";
 
         /// <summary>
         ///     Class containing the DB constants
