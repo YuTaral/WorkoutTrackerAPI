@@ -21,5 +21,7 @@ namespace FitnessAppAPI.Data.Models
         public DateTime? FinishDateTime { get; set; }
 
         public required string Template { get; set; }
+
+        public int? DurationSeconds { get; set; }
     }
 }

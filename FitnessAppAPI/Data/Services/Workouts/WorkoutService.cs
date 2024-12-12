@@ -28,7 +28,8 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 UserId = userId,
                 StartDateTime = DateTime.Now,
                 FinishDateTime = null,
-                Template = "N"
+                Template = "N",
+                DurationSeconds = 0,
             };
 
             await DBAccess.Workouts.AddAsync(workout);
@@ -55,9 +56,10 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_WORKOUT_DOES_NOT_EXIST);
             }
 
-            // Change the name
+            // Change the data
             workout.Name = data.Name;
             workout.FinishDateTime = data.FinishDateTime;
+            workout.DurationSeconds = data.DurationSeconds;
 
             DBAccess.Entry(workout).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();

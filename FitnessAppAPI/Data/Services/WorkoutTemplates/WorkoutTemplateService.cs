@@ -33,7 +33,8 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
                 UserId = userId,
                 StartDateTime = null,
                 FinishDateTime = null,
-                Template = "Y"
+                Template = "Y",
+                DurationSeconds = null,
             };
 
             await DBAccess.Workouts.AddAsync(template);

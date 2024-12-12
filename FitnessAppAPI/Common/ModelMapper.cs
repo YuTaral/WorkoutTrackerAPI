@@ -34,7 +34,8 @@ namespace FitnessAppAPI.Common
                 Template = workout.Template == "Y",
                 Exercises = await DBAccess.Exercises.Where(e => e.WorkoutId == workout.Id)
                                               .Select(e => MapToExerciseModel(e, DBAccess))
-                                              .ToListAsync()
+                                              .ToListAsync(),
+                DurationSeconds = workout.DurationSeconds
             };
         }
 

@@ -18,5 +18,6 @@ namespace FitnessAppAPI.Data.Services.Workouts.Models
         public DateTime? FinishDateTime { get; set; }
         public required bool Template { get; set; }
         public List<ExerciseModel>? Exercises { get; set; }
+        public int? DurationSeconds { get; set; }
     }
 }
