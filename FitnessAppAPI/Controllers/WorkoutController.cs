@@ -1,4 +1,5 @@
 ﻿using FitnessAppAPI.Common;
+using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services;
 using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services.Exercises.Models;
@@ -132,9 +133,15 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpGet(Constants.RequestEndPoints.GET_WORKOUTS)]
         [Authorize]
-        public async Task<ActionResult> GetLatestWorkouts()
+        public async Task<ActionResult> GetLatestWorkouts([FromQuery] string filterBy)
         {
-            return CustomResponse(await service.GetLatestWorkouts(GetUserId()));
+            if (string.IsNullOrEmpty(filterBy))
+            {
+                // Default to ALL
+                filterBy = Constants.WorkoutFilters.ALL;
+            }
+
+            return CustomResponse(await service.GetLatestWorkouts(filterBy, GetUserId()));
         }
 
         /// <summary>

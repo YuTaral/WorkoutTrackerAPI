@@ -138,5 +138,16 @@
             public const string DELETE_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATE}/delete";
             public const string GET_WORKOUT_TEMPLATES= $"{WORKOUT_TEMPLATE}/get-templates";
         }
+
+        /// <summary>
+        ///     Filter values when fetching workouts
+        /// </summary>
+        public static class WorkoutFilters
+        {
+            public const string ALL = "ALL";
+            public const string IN_PROGRESS = "IN_PROGRESS";
+            public const string COMPLETED = "COMPLETED";
+
+        }
     }
 }

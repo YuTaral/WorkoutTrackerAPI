@@ -135,15 +135,30 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <summary>
         ///     Fetch the latest workout for the user and returns WorkoutModel list
         /// </summary>
+        /// <param name="filterBy">
+        ///     The filter value - ALL / IN_PROGRESS / COMPLETED
+        /// </param>
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public async Task<ServiceActionResult> GetLatestWorkouts(string userId) {
-            // Fetch all workouts asynchonously
-            var workouts = await DBAccess.Workouts
-                                 .Where(w => w.UserId == userId && w.Template == "N")
-                                 .OrderByDescending(w => w.StartDateTime)
-                                 .ToListAsync();
+        public async Task<ServiceActionResult> GetLatestWorkouts(string filterBy, string userId) {
+            List<Workout>? workouts;
+
+            // Start the query
+            var query = DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "N");
+
+            // Apply the appropriate filter to the query
+            if (filterBy == Constants.WorkoutFilters.IN_PROGRESS)
+            {
+                query = query.Where(w => w.FinishDateTime == null);
+            }
+            else if (filterBy == Constants.WorkoutFilters.COMPLETED)
+            {
+                query = query.Where(w => w.FinishDateTime != null);
+            }
+
+            // Fetch the workouts
+            workouts = await query.OrderByDescending(w => w.StartDateTime).ToListAsync();
 
             // Create the list asynchonously
             var workoutModels = new List<BaseModel>();

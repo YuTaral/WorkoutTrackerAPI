@@ -11,7 +11,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
         public Task<ServiceActionResult> UpdateWorkout(WorkoutModel data, string userId);
         public Task<ServiceActionResult> DeleteWorkout(long workoutId, string userId);
         public Task<ServiceActionResult> GetWorkout(long id, string userId);
-        public Task<ServiceActionResult> GetLatestWorkouts(string userId);
+        public Task<ServiceActionResult> GetLatestWorkouts(string filterBy, string userId);
         public Task<ServiceActionResult> GetLastWorkout(string userId);
         public Task<ServiceActionResult> GetWeightUnits();
     }
