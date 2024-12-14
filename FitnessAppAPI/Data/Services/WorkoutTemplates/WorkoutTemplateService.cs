@@ -89,7 +89,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         {
             // Fetch the templats asynchonously
             var templates = await DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "Y")
-                                            .OrderByDescending(w => w.StartDateTime)
+                                            .OrderByDescending(w => w.Id)
                                             .ToListAsync();
 
 
