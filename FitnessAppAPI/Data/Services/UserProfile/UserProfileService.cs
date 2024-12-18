@@ -1,5 +1,6 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services.User.Models;
 using FitnessAppAPI.Data.Services.UserProfile.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -124,7 +125,50 @@ namespace FitnessAppAPI.Data.Services.UserProfile
 
         }
 
-        
+        /// <summary>
+        ///     Create record in ExerciseDefaultValue with the default values for the user
+        /// </summary>
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
+        public async Task<ServiceActionResult> CreateUserProfile(string userId)
+        {
+            var profile = new Data.Models.UserProfile
+            {
+                FullName = "",
+                ProfileImage = [],
+                UserId = userId
+            };
+
+            await DBAccess.UserProfiles.AddAsync(profile);
+            await DBAccess.SaveChangesAsync();
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
+        }
+
+        /// <summary>
+        ///     Update user profile
+        /// </summary>
+        /// <param name="data">
+        ///     The user model
+        /// </param>
+        public async Task<ServiceActionResult> UpdateUserProfile(UserModel data)
+        {
+            var profile = await DBAccess.UserProfiles.Where(p => p.UserId == data.Id).FirstOrDefaultAsync();
+
+            if (profile == null)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_UPDATE_USER_PROFILE);
+            }
+
+            profile.FullName = data.FullName;
+            profile.ProfileImage = Utils.DecodeBase64ToByteArray(data.ProfileImage);
+
+            DBAccess.Entry(profile).State = EntityState.Modified;
+            await DBAccess.SaveChangesAsync();
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_PROFILE_UPDATED);
+        }
 
         /// <summary>
         ///     Return the user default values for this specific exercise. If there are 

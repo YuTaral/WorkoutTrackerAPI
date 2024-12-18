@@ -10,6 +10,7 @@ using System.Text;
 using FitnessAppAPI.Data.Services.UserProfile;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace FitnessAppAPI.Data
 {
     /// <summary>
@@ -71,6 +72,13 @@ namespace FitnessAppAPI.Data
                 return new ServiceActionResult(createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
             }
 
+            // Create the user profile
+            var createUserProfile = await userProfileService.CreateUserProfile(user.Id);
+            if (!createUserProfile.IsSuccess())
+            {
+                return new ServiceActionResult(createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
+            }
+
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_REGISTER_SUCCESS);
 
         }
@@ -119,7 +127,7 @@ namespace FitnessAppAPI.Data
                 serviceActionResult = new ServiceActionResult(Constants.ResponseCode.SUCCESS);
             }
 
-            return new TokenResponseModel(await CreateUserModel(user), token, serviceActionResult);
+            return new TokenResponseModel(await GetUserModel(email), token, serviceActionResult);
         }
 
         /// <summary>
@@ -226,6 +234,34 @@ namespace FitnessAppAPI.Data
         }
 
         /// <summary>
+        ///     Create UserModel object
+        /// </summary>
+        /// <param name="user">
+        ///     The user 
+        /// </param>
+        public async Task<UserModel> GetUserModel(string email)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                return ModelMapper.GetEmptyUserModel();
+            }
+
+            var defaultValues = await GetUserDefaultValues(0, user.Id);
+
+            if (defaultValues != null)
+            {
+                var weightUnit = await DBAccess.WeightUnits.Where(w => w.Id == defaultValues.WeightUnitId).FirstOrDefaultAsync();
+                var profile = await DBAccess.UserProfiles.Where(p => p.UserId == user.Id).FirstOrDefaultAsync();
+
+                return ModelMapper.MapToUserModel(user, defaultValues, weightUnit, profile);
+            }
+
+            return ModelMapper.GetEmptyUserModel();
+        }
+
+        /// <summary>
         ///     Generate JwtToken for the logged in user
         /// </summary>
         private string GenerateJwtToken(User user)
@@ -325,25 +361,6 @@ namespace FitnessAppAPI.Data
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
             return (IUserEmailStore<User>)userStore;
-        }
-
-        /// <summary>
-        ///     Create UserModel object
-        /// </summary>
-        /// <param name="user">
-        ///     The user 
-        /// </param>
-        private async Task<UserModel> CreateUserModel(User user)
-        {
-            var defaultValues = await GetUserDefaultValues(0, user.Id);
-
-            if (defaultValues != null)
-            {
-                var weightUnit = await DBAccess.WeightUnits.Where(w => w.Id == defaultValues.WeightUnitId).FirstOrDefaultAsync();
-                return ModelMapper.MapToUserModel(user, defaultValues, weightUnit);
-            }
-
-            return ModelMapper.GetEmptyUserModel();
         }
     }
 }

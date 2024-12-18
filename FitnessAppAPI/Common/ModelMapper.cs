@@ -6,6 +6,7 @@ using FitnessAppAPI.Data.Services.Workouts.Models;
 using FitnessAppAPI.Data.Services.User.Models;
 using FitnessAppAPI.Data.Services.UserProfile.Models;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FitnessAppAPI.Common
 {
@@ -128,12 +129,14 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///     Map the User and UserDefaultValue to UserModel
+        ///     Map the provided to to UserModel
         /// </summary>
-        public static UserModel MapToUserModel(User user, UserDefaultValue? defaultValues, WeightUnit? weightUnit)
+        public static UserModel MapToUserModel(User user, UserDefaultValue? defaultValues, WeightUnit? weightUnit, UserProfile? profile)
         {
             var defaultValuesModel = GetEmptyUserDefaultValuesModel();
             var weightUnitModel = GetEmptyWeightUnitModel();
+            var fullName = "";
+            var profileImage = "";
 
             if (weightUnit != null)
             {
@@ -150,10 +153,18 @@ namespace FitnessAppAPI.Common
                 defaultValuesModel.MGExerciseId = defaultValues.MGExeciseId;
             }
 
+            if (profile != null)
+            {
+                fullName = profile.FullName;
+                profileImage = Utils.EncodeByteArrayToBase64Image(profile.ProfileImage);
+            }
+
             return new UserModel
             {
                 Id = user.Id,
                 Email = user.Email,
+                FullName = fullName,
+                ProfileImage = profileImage,
                 DefaultValues = defaultValuesModel
             };
         }
@@ -227,6 +238,8 @@ namespace FitnessAppAPI.Common
             {
                 Id = "",
                 Email = "",
+                FullName = "",
+                ProfileImage = "",
                 DefaultValues = GetEmptyUserDefaultValuesModel(),
             };
         }

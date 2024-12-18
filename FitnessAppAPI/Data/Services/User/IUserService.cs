@@ -12,5 +12,6 @@ namespace FitnessAppAPI.Data.Services
         public Task<ServiceActionResult> Logout();
         public Task<ServiceActionResult> ChangePassword(string oldPassword, string password, string userId);
         public Task<TokenResponseModel> ValidateToken(string token, string userId);
+        public Task<UserModel> GetUserModel(string email);
     }
 }

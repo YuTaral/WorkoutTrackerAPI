@@ -1,4 +1,5 @@
 ﻿using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services.User.Models;
 using FitnessAppAPI.Data.Services.UserProfile.Models;
 
 namespace FitnessAppAPI.Data.Services.UserProfile
@@ -10,6 +11,8 @@ namespace FitnessAppAPI.Data.Services.UserProfile
     {
         public Task<ServiceActionResult> AddUserDefaultValues(string userId);
         public Task<ServiceActionResult> UpdateUserDefaultValues(UserDefaultValuesModel data, string userId);
+        public Task<ServiceActionResult> UpdateUserProfile(UserModel user);
         public Task<ServiceActionResult> GetExerciseOrUserDefaultValues(long mgExerciseId, string userId);
+        public Task<ServiceActionResult> CreateUserProfile(string userId);
     }
 }

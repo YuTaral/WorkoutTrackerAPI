@@ -121,5 +121,43 @@ namespace FitnessAppAPI.Common
                 Data
             });
         }
+
+        /// <summary>
+        ///     Decode base64 string into byte array
+        /// </summary>
+        /// <param name="base64String">
+        ///     The string
+        /// </param>
+        public static byte[] DecodeBase64ToByteArray(string base64String)
+        {
+            // Strip metadata prefix if it exists (e.g., "data:image/png;base64,")
+            if (base64String.Contains(","))
+            {
+                base64String = base64String.Substring(base64String.IndexOf(",") + 1);
+            }
+
+            // Convert Base64 to byte array
+            return Convert.FromBase64String(base64String);
+        }
+
+        /// <summary>
+        ///     Encode byte array into base64 string, return empty string if the array is empty
+        /// </summary>
+        /// <param name="imageBytes">
+        ///     The by array
+        /// </param>     
+        public static string EncodeByteArrayToBase64Image(byte[] imageBytes)
+        {
+            // Convert the byte array to a Base64 string
+            return Convert.ToBase64String(imageBytes);
+
+        //    if (base64String == "")
+        //    {
+        //        return "";
+        //    }
+
+        //    // Add the metadata prefix (e.g., "data:image/png;base64,")
+        //    return $"data:image/png;base64,{base64String}";
+        }
     }
 }

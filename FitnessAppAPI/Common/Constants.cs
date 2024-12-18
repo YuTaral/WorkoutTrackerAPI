@@ -65,6 +65,8 @@
         public const string MSG_TOKEN_VALIDATION_FAILED = "Authorization failed";
         public const string MSG_TOKEN_EXPIRED = "Session expired. Please login again";
         public const string MSG_WORKOUT_FINISHED = "Workout finished";
+        public const string MSG_FAILED_TO_UPDATE_USER_PROFILE = "Failed to update user profile";
+        public const string MSG_USER_PROFILE_UPDATED = "User profile updated";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -132,6 +134,7 @@
             public const string GET_MUSCLE_GROUPS_FOR_USER = $"{MUSCLE_GROUP}/get-by-user";
 
             public const string UPDATE_USER_DEFAULT_VALUES = $"{USER_PROFILE}/update-default-values";
+            public const string UPDATE_USER_PROFILE = $"{USER_PROFILE}/update-profile";
             public const string GET_USER_DEFAULT_VALUES = $"{USER_PROFILE}/get-default-values";
 
             public const string ADD_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATE}/add";
