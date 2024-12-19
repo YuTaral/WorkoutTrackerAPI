@@ -267,6 +267,23 @@ namespace FitnessAppAPI.Controllers
         }
 
         /// <summary>
+        //      GET request to fetch the muscle group exercise with the provided id
+        /// </summary>
+        [HttpGet(Constants.RequestEndPoints.GET_MG_EXERCISE)]
+        [Authorize]
+        public async Task<ActionResult> GetMGExercise([FromQuery] long mGExerciseId)
+        {
+            // Check if the neccessary data is provided
+            if (mGExerciseId < 1)
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            // Return the muscle group exercise
+            return CustomResponse(await service.GetMGExercise(mGExerciseId));
+        }
+
+        /// <summary>
         ///     Try to fetch workout with the provided id, and if success returns response, combining
         ///     result.ResponseCode, result.ResponseMessage and the workout. The combination is used in
         ///     order to display the message set in previousActionResult variable, which is the result of the 
@@ -279,7 +296,7 @@ namespace FitnessAppAPI.Controllers
         /// <param name="mainActionResult">
         ///     The result of the main action executed in the controller method
         /// </param>
-        
+
         private async Task<OkObjectResult> GetUpdatedWorkout(long id, ServiceActionResult previousActionResult) {
             var getWorkoutResult = await workoutService.GetWorkout(id, GetUserId());
             if (getWorkoutResult.IsSuccess())

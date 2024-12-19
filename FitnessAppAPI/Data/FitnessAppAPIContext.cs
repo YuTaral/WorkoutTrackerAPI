@@ -33,12 +33,23 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .OnDelete(DeleteBehavior.Cascade);
 
         // Exercise -> MuscleGroup relation via Exercise.MuscleGroupId
-        // Do not delete Exercise which is part of workout when MuscleGroupId is deleted,
-        // just set the foreign key to null, so the Exercise is not removed from the Workout
+        // Do not delete Exercise which is part of workout when MuscleGroup is deleted,
+        // Manually set the foreign key to null, so the Exercise is not removed from the Workout
+        // and SQL does not throw "multiple cascade paths for ON DELETE action"
         modelBuilder.Entity<Exercise>()
                .HasOne<MuscleGroup>()
                .WithMany()
                .HasForeignKey(e => e.MuscleGroupId)
+               .OnDelete(DeleteBehavior.NoAction);
+
+        // Exercise -> MGExercise relation via Exercise.MGExerciseId
+        // Do not delete Exercise which is part of workout when MGExercise is deleted,
+        // set the foreign key to null, so the Exercise is not removed from the Workout
+        // and SQL does not throw "multiple cascade paths for ON DELETE action"
+        modelBuilder.Entity<Exercise>()
+               .HasOne<MGExercise>()
+               .WithMany()
+               .HasForeignKey(e => e.MGExerciseId)
                .OnDelete(DeleteBehavior.NoAction);
 
         // Set -> Exercise relation via Set.ExerciseId

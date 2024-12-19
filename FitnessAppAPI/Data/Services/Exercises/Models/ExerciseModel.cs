@@ -16,5 +16,6 @@ namespace FitnessAppAPI.Data.Services.Exercises.Models
         public required string Name { get; set; }
         public required MuscleGroupModel MuscleGroup { get; set; }
         public List<SetModel>? Sets { get; set; }
+        public required long? MGExerciseId { get; set; }
     }
 }

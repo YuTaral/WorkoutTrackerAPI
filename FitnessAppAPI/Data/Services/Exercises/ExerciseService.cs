@@ -26,6 +26,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 Name = exerciseData.Name,
                 WorkoutId = workoutId,
                 MuscleGroupId = exerciseData.MuscleGroup.Id,
+                MGExerciseId = exerciseData.MGExerciseId
             };
 
             await DBAccess.Exercises.AddAsync(exercise);
@@ -82,7 +83,8 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 Id = 0,
                 Name = MGExerciseData.Name,
                 MuscleGroup = muscleGroup,
-                Sets = []
+                Sets = [],
+                MGExerciseId = MGExerciseData.Id
             };
 
             // Reuse add exercise to workout
@@ -297,12 +299,20 @@ namespace FitnessAppAPI.Data.Services.Exercises
             // Delete all records for default values for this muscle group exercise
             DBAccess.UserDefaultValues.RemoveRange(DBAccess.UserDefaultValues.Where(u => u.MGExeciseId == MGExerciseId && u.UserId == userId));
 
+            // Set all Exercise records for this MGExercise to have Exercise.MGExerciseId = null
+            var exercises = await DBAccess.Exercises.Where(e => e.MGExerciseId == MGExerciseId).ToListAsync();
+
+            foreach (var exercise in exercises)
+            {
+                exercise.MGExerciseId = null;
+                DBAccess.Entry(exercise).State = EntityState.Modified;
+            }
+
             await DBAccess.SaveChangesAsync();
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_DELETED,
                             [new BaseModel { Id = MGExercise.MuscleGroupId }]);
         }
-
 
         /// <summary>
         ///     Fetch the exercises for the muscle group
@@ -336,6 +346,20 @@ namespace FitnessAppAPI.Data.Services.Exercises
             }
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
+        }
+
+        /// <summary>
+        ///     Fetch the muscle group exercise with the provided id
+        /// </summary>
+        /// <param name="mGExerciseId">
+        ///     The muscle group exercise id
+        /// </param>
+        public async Task<ServiceActionResult> GetMGExercise(long mGExerciseId)
+        {
+            var mgExercise = await DBAccess.MGExercises.Where(mg => mg.Id == mGExerciseId).FirstOrDefaultAsync();
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, 
+                                            [ModelMapper.MapToMGExerciseModel(mgExercise)]);
         }
 
         /// <summary>

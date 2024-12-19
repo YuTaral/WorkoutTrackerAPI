@@ -16,5 +16,6 @@ namespace FitnessAppAPI.Data.Services.Exercises
         public Task<ServiceActionResult> DeleteExercise(long MGExerciseId, string userId);
         public Task<ServiceActionResult> GetExercisesForMG(long muscleGroupId, string userId, string onlyForUser);
         public Task<ServiceActionResult> AddExerciseToWorkout(MGExerciseModel MGExerciseData, long workoutId);
+        public Task<ServiceActionResult> GetMGExercise(long mGExerciseId);
     }
 }

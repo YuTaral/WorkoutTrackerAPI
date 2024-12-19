@@ -17,6 +17,9 @@ namespace FitnessAppAPI.Data.Models
         public required long WorkoutId { get; set; }
 
         [ForeignKey("MuscleGroup")]
-        public required long MuscleGroupId { get; set; }
+        public required long? MuscleGroupId { get; set; }
+
+        [ForeignKey("MGExercise")]
+        public required long? MGExerciseId { get; set; }
     }
 }

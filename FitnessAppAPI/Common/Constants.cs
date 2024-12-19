@@ -130,6 +130,7 @@
             public const string UPDATE_EXERCISE = $"{EXERCISE}/update";
             public const string DELETE_EXERCISE = $"{EXERCISE}/delete";
             public const string GET_EXERCISES_FOR_MG = $"{EXERCISE}/get-by-mg-id";
+            public const string GET_MG_EXERCISE = $"{EXERCISE}/get-mg-exercise";
 
             public const string GET_MUSCLE_GROUPS_FOR_USER = $"{MUSCLE_GROUP}/get-by-user";
 

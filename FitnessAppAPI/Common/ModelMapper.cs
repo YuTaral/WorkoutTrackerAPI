@@ -67,15 +67,15 @@ namespace FitnessAppAPI.Common
                 Id = exercise.Id,
                 Name = exercise.Name,
                 MuscleGroup = muscleGroup,
-                Sets = sets
+                Sets = sets,
+                MGExerciseId = exercise.MGExerciseId
             };
         }
-
 
         /// <summary>
         ///     Map the MGExercises to MGExerciseModel
         /// </summary>
-        public static MGExerciseModel MapToMGExerciseModel(MGExercise MGExercise)
+        public static MGExerciseModel MapToMGExerciseModel(MGExercise? MGExercise)
         {
             if (MGExercise == null)
             {
@@ -225,7 +225,8 @@ namespace FitnessAppAPI.Common
                 Id = 0,
                 Name = "Unknown",
                 MuscleGroup = GetEmptyMuscleGroupModel(),
-                Sets = { }
+                Sets = { },
+                MGExerciseId = 0,
             };
         }
 
