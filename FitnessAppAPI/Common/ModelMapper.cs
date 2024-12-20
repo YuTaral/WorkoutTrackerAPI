@@ -7,6 +7,7 @@ using FitnessAppAPI.Data.Services.User.Models;
 using FitnessAppAPI.Data.Services.UserProfile.Models;
 using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using FitnessAppAPI.Data.Services.Teams.Models;
 
 namespace FitnessAppAPI.Common
 {
@@ -246,6 +247,26 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
+        ///     Map the Team to TeamModel
+        /// </summary>
+        public static TeamModel MapToTeamModel(Team team)
+        {
+            if (team == null)
+            {
+                return GetEmptyTeamModel();
+            }
+
+            return new TeamModel
+            {
+                Id = team.Id,
+                Image = Utils.EncodeByteArrayToBase64Image(team.Image),
+                Name = team.Name,
+                Description = team.Description,
+                PrivateNote = team.PrivateNote,
+            };
+        }
+
+        /// <summary>
         ///    Return empty MuscleGroupModel
         /// </summary>
         private static MGExerciseModel GetEmptyMGExerciseModel()
@@ -314,6 +335,21 @@ namespace FitnessAppAPI.Common
                 Completed = false,
                 WeightUnit = GetEmptyWeightUnitModel(),
                 MGExerciseId = 0,
+            };
+        }
+
+        /// <summary>
+        ///    Return empty TeamModel
+        /// </summary>
+        private static TeamModel GetEmptyTeamModel()
+        {
+            return new TeamModel
+            {
+                Id = 0,
+                Image = "",
+                Name = "",
+                Description = "",
+                PrivateNote = "",
             };
         }
     } 

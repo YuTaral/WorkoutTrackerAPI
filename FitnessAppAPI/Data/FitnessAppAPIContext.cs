@@ -20,6 +20,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
     public required DbSet<UserDefaultValue> UserDefaultValues { get; init; }
     public required DbSet<WeightUnit> WeightUnits { get; init; }
     public required DbSet<UserProfile> UserProfiles { get; init; }
+    public required DbSet<Team> Teams { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -126,6 +127,13 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
         {
             entity.HasIndex(u => u.UserId).IsUnique();
         });
+
+        // Team -> User relation via Team.UserId
+        modelBuilder.Entity<Team>()
+               .HasOne<User>()
+               .WithMany()
+               .HasForeignKey(w => w.UserId)
+               .OnDelete(DeleteBehavior.Cascade);
 
         // Add the default Weight Units
         modelBuilder.Entity<WeightUnit>().HasData(

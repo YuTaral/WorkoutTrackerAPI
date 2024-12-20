@@ -67,6 +67,8 @@
         public const string MSG_WORKOUT_FINISHED = "Workout finished";
         public const string MSG_FAILED_TO_UPDATE_USER_PROFILE = "Failed to update user profile";
         public const string MSG_USER_PROFILE_UPDATED = "User profile updated";
+        public const string MSG_TEAM_FAIL_NO_DATA = "Add team failed. Data not provided";
+        public const string MSG_TEAM_ADDED = "Team added";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -109,6 +111,7 @@
             public const string MUSCLE_GROUP = $"{API}/muscle-group";
             public const string USER_PROFILE = $"{API}/user-profile";
             public const string WORKOUT_TEMPLATE = $"{API}/workout-template";
+            public const string TEAM = $"{API}/team";
 
             public const string REGISTER = $"{USER}/register";
             public const string LOGIN = $"{USER}/login";
@@ -141,6 +144,10 @@
             public const string ADD_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATE}/add";
             public const string DELETE_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATE}/delete";
             public const string GET_WORKOUT_TEMPLATES= $"{WORKOUT_TEMPLATE}/get-templates";
+
+            public const string ADD_TEAM= $"{TEAM}/add";
+            public const string GET_MY_TEAMS = $"{TEAM}/my-teams";
+
         }
 
         /// <summary>

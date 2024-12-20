@@ -1,5 +1,4 @@
 ﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services;
 using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services.Exercises.Models;
@@ -7,14 +6,12 @@ using FitnessAppAPI.Data.Services.Workouts;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace FitnessAppAPI.Controllers
 {
     /// <summary>
     ///     Workout Controller
-    /// </summary>
     /// </summary>
     [ApiController]
     [Route(Constants.RequestEndPoints.WORKOUT)]
