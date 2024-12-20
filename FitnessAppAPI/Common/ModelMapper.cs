@@ -224,7 +224,7 @@ namespace FitnessAppAPI.Common
             return new ExerciseModel
             {
                 Id = 0,
-                Name = "Unknown",
+                Name = "",
                 MuscleGroup = GetEmptyMuscleGroupModel(),
                 Sets = { },
                 MGExerciseId = 0,
@@ -274,8 +274,8 @@ namespace FitnessAppAPI.Common
             return new MGExerciseModel
             {
                 Id = 0,
-                Name = "Unknown",
-                Description = "Unknown",
+                Name = "",
+                Description = "",
                 MuscleGroupId = 0
             };
         }
@@ -288,7 +288,7 @@ namespace FitnessAppAPI.Common
             return new MuscleGroupModel
             {
                 Id = 0,
-                Name = "Unknown",
+                Name = "",
                 ImageName = ""
             };
         }
@@ -314,7 +314,7 @@ namespace FitnessAppAPI.Common
         {
             return new WorkoutModel {
                 Id = 0,
-                Name = "Unknown",
+                Name = "",
                 StartDateTime = DateTime.UtcNow,
                 Template = false,
                 Exercises = { }
