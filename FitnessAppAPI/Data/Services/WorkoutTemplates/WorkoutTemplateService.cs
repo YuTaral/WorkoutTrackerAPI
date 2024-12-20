@@ -16,15 +16,6 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
     {
         private readonly IExerciseService exerciseService = exService;
 
-        /// <summary>
-        ///     Add new workout template from the provided WorkoutModel data
-        /// </summary>
-        /// <param name="data">
-        ///     The template data
-        /// </param>
-        /// <param name="userId">
-        ///     The user who is adding the template
-        /// </param>
         public async Task<ServiceActionResult> AddWorkoutTemplate(WorkoutModel data, string userId) {
             // Create Workout record, with Template = "Y"
             var template = new Workout
@@ -59,12 +50,6 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_ADDED);
         }
 
-        /// <summary>
-        ///    Delete the template with the provided id
-        /// </summary>
-        /// <param name="templateId">
-        ///     The template id
-        /// </param>
         public async Task<ServiceActionResult> DeleteWorkoutTemplate(long templateId) {
             var template = await DBAccess.Workouts.Where(w => w.Id == templateId && w.Template == "Y").FirstOrDefaultAsync();
 
@@ -79,12 +64,6 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_DELETED);
         }
 
-        /// <summary>
-        ///     Return list of all workout templates created by the user with the provided id
-        /// </summary>
-        /// <param name="userId">
-        ///     The user who is fetching the templates
-        /// </param>
         public async Task<ServiceActionResult> GetWorkoutTemplates(string userId)
         {
             // Fetch the templats asynchonously

@@ -37,15 +37,6 @@ namespace FitnessAppAPI.Data
             userProfileService = userProfileS;
         }
 
-        /// <summary>
-        ///     Register the user
-        /// </summary>
-        /// <param name="email">
-        ///     The user email
-        /// </param>
-        /// <param name="password">
-        ///     The user password
-        /// </param>
         public async Task<ServiceActionResult> Register(string email, string password)
         {
             // Validate
@@ -83,15 +74,6 @@ namespace FitnessAppAPI.Data
 
         }
 
-        /// <summary>
-        ///     Login the user
-        /// </summary>
-        /// <param name="email">
-        ///     The user email
-        /// </param>
-        /// <param name="password">
-        ///     The user password
-        /// </param>
         public async Task<TokenResponseModel> Login(string email, string password)
         {
             var returnUserModel = ModelMapper.GetEmptyUserModel();
@@ -129,22 +111,12 @@ namespace FitnessAppAPI.Data
 
             return new TokenResponseModel(await GetUserModel(email), token, serviceActionResult);
         }
-
-        /// <summary>
-        ///     Log Out the User
-        /// </summary>
-        /// <param name="userId">
-        ///     The user id
-        /// </param>
         public async Task<ServiceActionResult> Logout()
         {
             await singInManager.SignOutAsync();
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
         }
 
-        /// <summary>
-        ///     Change user passowrd
-        /// </summary>
         public async Task<ServiceActionResult> ChangePassword(string oldPassword, string password, string userId)
         {
                 // Find the user by id
@@ -165,15 +137,6 @@ namespace FitnessAppAPI.Data
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_PASSWORD_CHANGED);
         }
 
-        /// <summary>
-        ///     Validate the token
-        /// </summary>
-        /// <param name="token">
-        ///     The token to validate
-        /// </param>
-        /// <param name="userId">
-        ///     The user id
-        /// </param>
         public async Task<TokenResponseModel> ValidateToken(string token, string userId)
         {
             var returnToken = "";
@@ -233,12 +196,6 @@ namespace FitnessAppAPI.Data
             return new TokenResponseModel(returnUserModel, returnToken, serviceActionResult);
         }
 
-        /// <summary>
-        ///     Create UserModel object
-        /// </summary>
-        /// <param name="user">
-        ///     The user 
-        /// </param>
         public async Task<UserModel> GetUserModel(string email)
         {
             var user = await userManager.FindByEmailAsync(email);

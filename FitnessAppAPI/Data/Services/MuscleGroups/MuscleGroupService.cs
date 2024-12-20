@@ -9,12 +9,6 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups
     /// </summary>
     public class MuscleGroupService(FitnessAppAPIContext DB) : BaseService(DB), IMuscleGroupService
     {
-        /// <summary>
-        ///     Fetch the default Muscle Groups and the user defined Muscle Groups
-        /// </summary>
-        /// <param name="userId">
-        ///     The user id
-        /// </param>
         public async Task<ServiceActionResult> GetMuscleGroups(String userId)
         {
             var returnData = await DBAccess.MuscleGroups.Where(m => m.UserId == userId || m.UserId == null)

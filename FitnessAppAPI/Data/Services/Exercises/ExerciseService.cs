@@ -10,15 +10,6 @@ namespace FitnessAppAPI.Data.Services.Exercises
     /// </summary>
     public class ExerciseService(FitnessAppAPIContext DB) : BaseService(DB), IExerciseService
     {
-        /// <summary>
-        ///     Add the exercise to the workout with the provided id
-        /// </summary>
-        /// <param name="exerciseData">
-        ///     The exercise
-        /// </param>
-        /// <param name="workoutId">
-        ///     The workout id
-        /// </param>
         public async Task<ServiceActionResult> AddExerciseToWorkout(ExerciseModel exerciseData, long workoutId)
         {
             var exercise = new Exercise
@@ -54,17 +45,6 @@ namespace FitnessAppAPI.Data.Services.Exercises
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED);
         }
 
-        /// <summary>
-        ///     Add the exercise to the workout with the provided id.
-        ///     Used when new muscle group exercise has been added and we
-        ///     need to auto add it to the current workout as exercise to workout
-        /// </summary>
-        /// <param name="exerciseData">
-        ///     The exercise
-        /// </param>
-        /// <param name="workoutId">
-        ///     The workout id
-        /// </param>
         public async Task<ServiceActionResult> AddExerciseToWorkout(MGExerciseModel MGExerciseData, long workoutId)
         {
             // Find the muscle group
@@ -91,15 +71,6 @@ namespace FitnessAppAPI.Data.Services.Exercises
             return await AddExerciseToWorkout(exerciseToAdd, workoutId);
         }
 
-        /// <summary>
-        ///     Update the provided exercise
-        /// </summary>
-        /// <param name="exercise">
-        ///     The exercise
-        /// </param>
-        /// <param name="workoutId">
-        ///     The workout id
-        /// </param>
         public async Task<ServiceActionResult> UpdateExerciseFromWorkout(ExerciseModel exerciseData, long workoutId)
         {
             // Fetch the exact exercise and it's sets
@@ -176,12 +147,6 @@ namespace FitnessAppAPI.Data.Services.Exercises
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_UPDATED);
         }
 
-        /// <summary>
-        ///     Delete the exercise with the provided id
-        /// </summary>
-        /// <param name="exerciseId">
-        ///     The exercise id
-        /// </param>
         public async Task<ServiceActionResult> DeleteExerciseFromWorkout(long exerciseId)
         {
             var exercise = await CheckExerciseExists(exerciseId);
@@ -197,19 +162,6 @@ namespace FitnessAppAPI.Data.Services.Exercises
                                                 [new BaseModel { Id = exercise.WorkoutId }]);
         }
 
-        /// <summary>
-        ///     Add the exercise to specific muscle group
-        /// </summary>
-        /// <param name="MGExerciseData">
-        ///     The exercise
-        /// </param>
-        /// <param name="userId">
-        ///     The user id who adding the exercise
-        /// </param>
-        /// <param name="checkExistingEx">
-        ///     "Y" if we need to check whether exercise with this name already exists,
-        ///     "N" to skip the check
-        /// </param>
         public async Task<ServiceActionResult> AddExercise(MGExerciseModel MGExerciseData, string userId, string checkExistingEx)
         {
             if (checkExistingEx == "Y")
@@ -249,12 +201,6 @@ namespace FitnessAppAPI.Data.Services.Exercises
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_ADDED, model);
         }
 
-        /// <summary>
-        ///     Add the exercise to specific muscle group
-        /// </summary>
-        /// <param name="exerciseData">
-        ///     The exercise
-        /// </param>
         public async Task<ServiceActionResult> UpdateExercise(MGExerciseModel exerciseData) {
             var mgExercise = await CheckMGExerciseExists(exerciseData.Id);
             if (mgExercise == null)
@@ -272,15 +218,6 @@ namespace FitnessAppAPI.Data.Services.Exercises
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_EX_UPDATED);
         }
 
-        /// <summary>
-        ///     Delete the muscle group exercise with the provided id
-        /// </summary>
-        /// <param name="MGExerciseId">
-        ///     The exercise id
-        /// </param>
-        /// <param name="userId">
-        ///     The user id who deleting the exercise
-        /// </param>
         public async Task<ServiceActionResult> DeleteExercise(long MGExerciseId, string userId)
         {
             var MGExercise = await CheckMGExerciseExists(MGExerciseId);
@@ -314,20 +251,6 @@ namespace FitnessAppAPI.Data.Services.Exercises
                             [new BaseModel { Id = MGExercise.MuscleGroupId }]);
         }
 
-        /// <summary>
-        ///     Fetch the exercises for the muscle group
-        /// </summary>
-        /// <param name="muscleGroupId">
-        ///     The muscle group id
-        /// </param>
-        /// <param name="userId">
-        ///     The the logged in user id
-        /// </param>
-        /// <param name="onlyForUser">
-        ///     If "Y" the method will return only the user defined exercises for this muscle group,
-        ///     which are considered editable and can be deleted / updated
-        ///     If "N" the method will return all default and user defined exercises for this muscle group
-        /// </param>
         public async Task<ServiceActionResult> GetExercisesForMG(long muscleGroupId, string userId, string onlyForUser) {
             var returnData = new List<BaseModel>();
 
@@ -348,12 +271,6 @@ namespace FitnessAppAPI.Data.Services.Exercises
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
         }
 
-        /// <summary>
-        ///     Fetch the muscle group exercise with the provided id
-        /// </summary>
-        /// <param name="mGExerciseId">
-        ///     The muscle group exercise id
-        /// </param>
         public async Task<ServiceActionResult> GetMGExercise(long mGExerciseId)
         {
             var mgExercise = await DBAccess.MGExercises.Where(mg => mg.Id == mGExerciseId).FirstOrDefaultAsync();

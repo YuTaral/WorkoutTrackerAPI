@@ -8,12 +8,6 @@ namespace FitnessAppAPI.Data.Services.UserProfile
 {
     public class UserProfileService(FitnessAppAPIContext DB): BaseService(DB), IUserProfileService
     {
-        /// <summary>
-        ///     Create record in ExerciseDefaultValue with the default values for the user
-        /// </summary>
-        /// <param name="userId">
-        ///     The user id
-        /// </param>
         public async Task<ServiceActionResult> AddUserDefaultValues(string userId)
         {
             var kg = await DBAccess.WeightUnits.Where(w => w.Text == Constants.DBConstants.KG).FirstOrDefaultAsync();
@@ -41,15 +35,6 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
         }
 
-        /// <summary>
-        ///     Change user default values
-        /// </summary>
-        /// <param name="data">
-        ///     The new default values
-        /// </param>
-        /// <param name="userId">
-        ///     The user id
-        /// </param>
         public async Task<ServiceActionResult> UpdateUserDefaultValues(UserDefaultValuesModel data, string userId)
         {
             var oldWeightUnit = 0L;
@@ -125,12 +110,6 @@ namespace FitnessAppAPI.Data.Services.UserProfile
 
         }
 
-        /// <summary>
-        ///     Create record in ExerciseDefaultValue with the default values for the user
-        /// </summary>
-        /// <param name="userId">
-        ///     The user id
-        /// </param>
         public async Task<ServiceActionResult> CreateUserProfile(string userId)
         {
             var profile = new Data.Models.UserProfile
@@ -146,12 +125,6 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
         }
 
-        /// <summary>
-        ///     Update user profile
-        /// </summary>
-        /// <param name="data">
-        ///     The user model
-        /// </param>
         public async Task<ServiceActionResult> UpdateUserProfile(UserModel data)
         {
             var profile = await DBAccess.UserProfiles.Where(p => p.UserId == data.Id).FirstOrDefaultAsync();
@@ -170,16 +143,6 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_PROFILE_UPDATED);
         }
 
-        /// <summary>
-        ///     Return the user default values for this specific exercise. If there are 
-        ///     no default values for the exercise, return the user default values
-        /// </summary>
-        /// <param name="mgExerciseId">
-        ///     The muscle group exercise id
-        /// </param>
-        /// <param name="userId">
-        ///     The user id
-        /// </param>
         public async Task<ServiceActionResult> GetExerciseOrUserDefaultValues(long mgExerciseId, string userId)
         {
             // Search for the exercise specific values, if they don't exist,
