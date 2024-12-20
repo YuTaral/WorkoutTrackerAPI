@@ -11,11 +11,14 @@ namespace FitnessAppAPI.Data.Services.Exercises.Models
     /// </summary>
     public class ExerciseModel: BaseModel
     {
-        [MinLength(Constants.DBConstants.MinLen1, ErrorMessage = Constants.ValidationErrors.NAME_REQUIRED)]
-        [MaxLength(Constants.DBConstants.MaxLen50, ErrorMessage = Constants.ValidationErrors.NAME_MAX_LEN_50)]
+        [MinLength(Constants.DBConstants.Len1, ErrorMessage = Constants.ValidationErrors.NAME_REQUIRED)]
+        [MaxLength(Constants.DBConstants.Len50, ErrorMessage = Constants.ValidationErrors.NAME_MAX_LEN_50)]
         public required string Name { get; set; }
+
         public required MuscleGroupModel MuscleGroup { get; set; }
+
         public List<SetModel>? Sets { get; set; }
+
         public required long? MGExerciseId { get; set; }
     }
 }

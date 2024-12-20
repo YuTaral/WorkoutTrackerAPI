@@ -10,10 +10,10 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups.Models
     /// </summary>
     public class MuscleGroupModel: BaseModel
     {
-        [MinLength(Constants.DBConstants.MinLen1, ErrorMessage = Constants.ValidationErrors.NAME_REQUIRED)]
-        [MaxLength(Constants.DBConstants.MaxLen50, ErrorMessage = Constants.ValidationErrors.NAME_MAX_LEN_50)]
+        [MinLength(Constants.DBConstants.Len1, ErrorMessage = Constants.ValidationErrors.NAME_REQUIRED)]
+        [MaxLength(Constants.DBConstants.Len50, ErrorMessage = Constants.ValidationErrors.NAME_MAX_LEN_50)]
         public required string Name { get; set; }
-        public required string ImageName { get; set; }
 
+        public required string ImageName { get; set; }
     }
 }

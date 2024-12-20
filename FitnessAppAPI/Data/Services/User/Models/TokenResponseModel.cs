@@ -7,7 +7,9 @@
     public class TokenResponseModel(UserModel u, string t, ServiceActionResult r)
     {
         public UserModel User { get; set; } = u;
+
         public string Token { get; set; } = t;
+
         public ServiceActionResult Result { get; set; } = r;
     }
 }

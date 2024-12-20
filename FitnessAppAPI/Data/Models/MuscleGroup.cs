@@ -12,8 +12,8 @@ namespace FitnessAppAPI.Data.Models
         [Key]
         public long Id { get; set; }
 
-        [MinLength(Constants.DBConstants.MinLen1, ErrorMessage = Constants.ValidationErrors.NAME_REQUIRED)]
-        [MaxLength(Constants.DBConstants.MaxLen50, ErrorMessage = Constants.ValidationErrors.NAME_MAX_LEN_50)]
+        [MinLength(Constants.DBConstants.Len1, ErrorMessage = Constants.ValidationErrors.NAME_REQUIRED)]
+        [MaxLength(Constants.DBConstants.Len50, ErrorMessage = Constants.ValidationErrors.NAME_MAX_LEN_50)]
         public required string Name { get; set; }
 
         [ForeignKey("AspNetUser")]
@@ -21,6 +21,7 @@ namespace FitnessAppAPI.Data.Models
 
         public required string ImageName { get; set; }
 
+        [MaxLength(Constants.DBConstants.Len1)]
         public required string Default { get; set; }
     }
 }

@@ -12,8 +12,8 @@ namespace FitnessAppAPI.Data.Models
         [Key]
         public long Id { get; set; }
 
-        [MinLength(Constants.DBConstants.MinLen1, ErrorMessage = Constants.ValidationErrors.NAME_REQUIRED)]
-        [MaxLength(Constants.DBConstants.MaxLen100, ErrorMessage = Constants.ValidationErrors.NAME_MAX_LEN_100)]
+        [MinLength(Constants.DBConstants.Len1, ErrorMessage = Constants.ValidationErrors.NAME_REQUIRED)]
+        [MaxLength(Constants.DBConstants.Len100, ErrorMessage = Constants.ValidationErrors.NAME_MAX_LEN_100)]
         public required string FullName { get; set; }
         
         public required byte[] ProfileImage { get; set; }

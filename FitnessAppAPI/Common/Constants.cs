@@ -75,10 +75,11 @@
         /// </summary>
         public static class DBConstants
         {
-            public const int MinLen1 = 1;
-            public const int MaxLen50 = 50;
-            public const int MaxLen100 = 100;
-            public const int MaxLen4000 = 4000;
+            public const int Len1 = 1;
+            public const int Len50 = 50;
+            public const int Len100 = 100;
+            public const int Len2000 = 2000;
+            public const int Len4000 = 4000;
             public const string KG = "Kg";
             public const string LB = "Lb";
         }
@@ -93,6 +94,7 @@
             public const string NAME_MAX_LEN_100 = "Name maximum length is 100";
             public const string DESCRIPTION_REQUIRED = "Description is required";
             public const string DESCRIPTION_MAX_LEN_4000 = "Description maximum length is 4000";
+            public const string PRIVATE_NOTE_MAX_LEN_2000 = "Private note maximum length is 2000";
             public const string SETS_MUST_BE_POSITIVE = "Sets must be positive number";
             public const string REPS_MUST_BE_POSITIVE = "Reps must be positive number";
             public const string WEIGHT_MUST_BE_POSITIVE = "Weight must be positive number";
