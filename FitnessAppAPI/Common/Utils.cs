@@ -1,6 +1,7 @@
 ﻿using FitnessAppAPI.Data;
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services;
+using FitnessAppAPI.Data.Services.User.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
@@ -103,6 +104,26 @@ namespace FitnessAppAPI.Common
                     ValidateObjectRecursive(value, results);
                 }
             }
+        }
+
+        /// <summary>
+        ///     Validates whether the provided user model and its nested objects are valid. Returns empty string if 
+        ///     the user model is valid, otherwise comma-separated list of errors
+        /// </summary>
+        /// <param name="model">
+        ///     The model to validate.
+        /// </param>
+        public static string ValidateModel(UserModel model)
+        {
+            var validationResults = new List<ValidationResult>();
+            ValidateObjectRecursive(model, validationResults);
+
+            if (validationResults.Count == 0)
+            {
+                return "";
+            }
+
+            return string.Join(", ", validationResults.Select(vr => vr.ErrorMessage));
         }
 
         /// <summary>

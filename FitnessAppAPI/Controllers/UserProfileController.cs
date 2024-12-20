@@ -71,6 +71,12 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "UserModel"));
             }
 
+            var validationErrors = Utils.ValidateModel(data);
+            if (!string.IsNullOrEmpty(validationErrors))
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
+            }
+
             var result = await service.UpdateUserProfile(data);
 
             if (!result.IsSuccess())
