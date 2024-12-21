@@ -263,6 +263,7 @@ namespace FitnessAppAPI.Common
                 Name = team.Name,
                 Description = team.Description,
                 PrivateNote = team.PrivateNote,
+                SelectedInPanel = false
             };
         }
 
@@ -350,6 +351,7 @@ namespace FitnessAppAPI.Common
                 Name = "",
                 Description = "",
                 PrivateNote = "",
+                SelectedInPanel = false
             };
         }
     } 

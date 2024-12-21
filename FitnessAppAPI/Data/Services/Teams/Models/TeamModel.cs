@@ -21,5 +21,7 @@ namespace FitnessAppAPI.Data.Services.Teams.Models
 
         [MaxLength(Constants.DBConstants.Len2000, ErrorMessage = Constants.ValidationErrors.PRIVATE_NOTE_MAX_LEN_2000)]
         public required string PrivateNote { get; set; }
+
+        public required bool SelectedInPanel { get; set; }
     }
 }
