@@ -1,10 +1,6 @@
 ﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Services.Exercises.Models;
-using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services;
 using FitnessAppAPI.Data.Services.Teams;
-using FitnessAppAPI.Data.Services.Workouts;
-using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -52,22 +48,7 @@ namespace FitnessAppAPI.Controllers
 
             var userId = GetUserId();
 
-            ServiceActionResult result = await service.AddTeam(teamData, userId);
-
-            // Success check
-            if (!result.IsSuccess())
-            {
-                return CustomResponse(result);
-            }
-
-            // Featch all teams to update the list
-            var getMyTeamsResult = await service.GetMyTeams(userId);
-
-            if (!getMyTeamsResult.IsSuccess()) { 
-                return CustomResponse(getMyTeamsResult);
-            }
-
-            return CustomResponse(result.Code, result.Message, getMyTeamsResult.Data);
+            return CustomResponse(await service.AddTeam(teamData, userId));
         }
 
         /// <summary>
