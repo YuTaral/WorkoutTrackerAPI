@@ -262,8 +262,7 @@ namespace FitnessAppAPI.Common
                 Image = Utils.EncodeByteArrayToBase64Image(team.Image),
                 Name = team.Name,
                 Description = team.Description,
-                PrivateNote = team.PrivateNote,
-                SelectedInPanel = false
+                PrivateNote = team.PrivateNote
             };
         }
 
@@ -350,8 +349,7 @@ namespace FitnessAppAPI.Common
                 Image = "",
                 Name = "",
                 Description = "",
-                PrivateNote = "",
-                SelectedInPanel = false
+                PrivateNote = ""
             };
         }
     } 
