@@ -69,6 +69,10 @@
         public const string MSG_USER_PROFILE_UPDATED = "User profile updated";
         public const string MSG_TEAM_FAIL_NO_DATA = "Add team failed. Data not provided";
         public const string MSG_TEAM_ADDED = "Team added";
+        public const string MSG_TEAM_DOES_NOT_EXIST = "Team does not exist";
+        public const string MSG_TEAM_DELETED = "Team deleted";
+        public const string MSG_TEAM_UPDATED = "Team updated";
+        public const string MSG_UPDATE_TEAM_FAIL_NO_DATA = "Update team failed. No data provided";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -98,7 +102,7 @@
             public const string SETS_MUST_BE_POSITIVE = "Sets must be positive number";
             public const string REPS_MUST_BE_POSITIVE = "Reps must be positive number";
             public const string WEIGHT_MUST_BE_POSITIVE = "Weight must be positive number";
-
+            public const string MSG_UPDATE_TEAM_FAIL_NO_DATA = "Update team failed. Data not provided";
         }
 
         /// <summary>
@@ -150,8 +154,9 @@
             public const string GET_WORKOUT_TEMPLATES= $"{WORKOUT_TEMPLATE}/get-templates";
 
             public const string ADD_TEAM= $"{TEAM}/add";
+            public const string UPDATE_TEAM = $"{TEAM}/update";
+            public const string DELETE_TEAM = $"{TEAM}/delete";
             public const string GET_MY_TEAMS = $"{TEAM}/my-teams";
-
         }
 
         /// <summary>

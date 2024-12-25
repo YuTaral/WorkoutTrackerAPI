@@ -1,10 +1,6 @@
-﻿using FitnessAppAPI.Data;
-using FitnessAppAPI.Data.Models;
-using FitnessAppAPI.Data.Services;
+﻿using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.User.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mail;
 using static FitnessAppAPI.Common.Constants;
@@ -171,14 +167,6 @@ namespace FitnessAppAPI.Common
         {
             // Convert the byte array to a Base64 string
             return Convert.ToBase64String(imageBytes);
-
-        //    if (base64String == "")
-        //    {
-        //        return "";
-        //    }
-
-        //    // Add the metadata prefix (e.g., "data:image/png;base64,")
-        //    return $"data:image/png;base64,{base64String}";
         }
     }
 }

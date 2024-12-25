@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using FitnessAppAPI.Data.Services.Teams.Models;
+using FitnessAppAPI.Data.Services.Workouts.Models;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -49,6 +50,50 @@ namespace FitnessAppAPI.Controllers
             var userId = GetUserId();
 
             return CustomResponse(await service.AddTeam(teamData, userId));
+        }
+
+        /// <summary>
+        //      POST request to edit a team
+        /// </summary>
+        [HttpPost(Constants.RequestEndPoints.UPDATE_TEAM)]
+        [Authorize]
+        public async Task<ActionResult> Update([FromBody] Dictionary<string, string> requestData)
+        {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("team", out string? serializedTeam))
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_UPDATE_TEAM_FAIL_NO_DATA);
+            }
+
+            TeamModel? teamData = JsonConvert.DeserializeObject<TeamModel>(serializedTeam);
+            if (teamData == null)
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "TeamModel"));
+            }
+
+            string validationErrors = Utils.ValidateModel(teamData);
+            if (!string.IsNullOrEmpty(validationErrors))
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
+            }
+
+            return CustomResponse(await service.UpdateTeam(teamData));
+        }
+
+        /// <summary>
+        //      POST request to delete the team with the provided id
+        /// </summary>
+        [HttpPost(Constants.RequestEndPoints.DELETE_TEAM)]
+        [Authorize]
+        public async Task<ActionResult> Delete([FromQuery] string teamId)
+        {
+            // Check if the neccessary data is provided
+            if (string.IsNullOrEmpty(teamId))
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            return CustomResponse(await service.DeleteTeam(long.Parse(teamId), GetUserId()));
         }
 
         /// <summary>
