@@ -8,6 +8,7 @@ using FitnessAppAPI.Data.Services.UserProfile.Models;
 using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using FitnessAppAPI.Data.Services.Teams.Models;
+using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Common
 {
@@ -263,6 +264,20 @@ namespace FitnessAppAPI.Common
                 Name = team.Name,
                 Description = team.Description,
                 PrivateNote = team.PrivateNote
+            };
+        }
+
+        /// <summary>
+        ///     Map the user to TeamMemberModel
+        /// </summary>
+        public static TeamMemberModel MapToTeamMemberModel(UserProfile user, string teamState)
+        {
+            return new TeamMemberModel { 
+                Id = 0,
+                UserId = user.UserId,
+                FullName = user.FullName,
+                Image = Utils.EncodeByteArrayToBase64Image(user.ProfileImage),
+                TeamState = teamState,
             };
         }
 

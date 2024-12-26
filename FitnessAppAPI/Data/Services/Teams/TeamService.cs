@@ -68,5 +68,19 @@ namespace FitnessAppAPI.Data.Services.Teams
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, teams);
         }
+
+        public async Task<ServiceActionResult> GetUsersToInvite(string name, long teamId, string userId)
+        {
+            // Trim and convert to lower
+            name = name.Trim().ToLower();
+
+            var members = await DBAccess.UserProfiles
+                                .Where(u => u.UserId != userId && u.FullName.ToLower().Contains(name) && 
+                                        !DBAccess.TeamMembers.Any(tm => tm.TeamId == teamId && tm.UserId == userId))
+                                .Select(u => (BaseModel) ModelMapper.MapToTeamMemberModel(u, Constants.MemberTeamState.NOT_INVITED))
+                                .ToListAsync();
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, members);
+        }
     }
 }

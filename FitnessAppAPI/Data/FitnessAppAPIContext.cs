@@ -21,6 +21,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
     public required DbSet<WeightUnit> WeightUnits { get; init; }
     public required DbSet<UserProfile> UserProfiles { get; init; }
     public required DbSet<Team> Teams { get; init; }
+    public required DbSet<TeamMember> TeamMembers { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -133,6 +134,22 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .HasOne<User>()
                .WithMany()
                .HasForeignKey(w => w.UserId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+        // TeamMember -> User relation via TeamMember.UserId
+        // Manually delete TeamMember when User is deleted to avoid
+        // "multiple cascade paths" on delete
+        modelBuilder.Entity<TeamMember>()
+               .HasOne<User>()
+               .WithMany()
+               .HasForeignKey(w => w.UserId)
+               .OnDelete(DeleteBehavior.NoAction);
+
+        // TeamMember -> Team relation via TeamMember.TeamId
+        modelBuilder.Entity<TeamMember>()
+               .HasOne<Team>()
+               .WithMany()
+               .HasForeignKey(w => w.TeamId)
                .OnDelete(DeleteBehavior.Cascade);
 
         // Add the default Weight Units

@@ -44,5 +44,19 @@ namespace FitnessAppAPI.Data.Services.Teams
         ///     The user owner of the team
         /// </param>
         public Task<ServiceActionResult> GetMyTeams(string userId);
+
+        /// <summary>
+        ///     Return filtered users by the specified name which are valid for team invitation
+        /// </summary>
+        /// <param name="name">
+        ///     The name to search for
+        /// </param>
+        /// <param name="teamId">
+        ///     The team id
+        /// </param>
+        /// <param name="userId">
+        ///     The logged in user
+        /// </param>
+        public Task<ServiceActionResult> GetUsersToInvite(string name, long teamId, string userId);
     }
 }

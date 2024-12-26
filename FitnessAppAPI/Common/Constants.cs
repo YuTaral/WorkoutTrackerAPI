@@ -73,6 +73,7 @@
         public const string MSG_TEAM_DELETED = "Team deleted";
         public const string MSG_TEAM_UPDATED = "Team updated";
         public const string MSG_UPDATE_TEAM_FAIL_NO_DATA = "Update team failed. No data provided";
+        public const string MSG_SEARCH_NAME_NOT_PROVIDED = "Search name not provided";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -157,6 +158,7 @@
             public const string UPDATE_TEAM = $"{TEAM}/update";
             public const string DELETE_TEAM = $"{TEAM}/delete";
             public const string GET_MY_TEAMS = $"{TEAM}/my-teams";
+            public const string GET_USERS_TO_INVITE = $"{TEAM}/get-users-to-invite";
         }
 
         /// <summary>
@@ -168,6 +170,15 @@
             public const string IN_PROGRESS = "IN_PROGRESS";
             public const string COMPLETED = "COMPLETED";
 
+        }
+
+        /// <summary>
+        ///     User -> Team state - whether the user has been invited, removed and etc.
+        /// </summary>
+        public static class MemberTeamState
+        {
+            public const string NOT_INVITED = "NOT_INVITED";
+            public const string ACCEPTED = "ACCEPTED";
         }
     }
 }
