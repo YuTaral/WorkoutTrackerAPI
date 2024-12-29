@@ -102,7 +102,7 @@ namespace FitnessAppAPI.Controllers
         public async Task<ActionResult> InviteMember([FromQuery] string userId, [FromQuery] long teamId)
         {
             // Check if the neccessary data is provided
-            if (teamId == 0 && string.IsNullOrEmpty(userId))
+            if (teamId == 0 || string.IsNullOrEmpty(userId))
             {
                 return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
             }
