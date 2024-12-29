@@ -38,6 +38,25 @@ namespace FitnessAppAPI.Data.Services.Teams
         public Task<ServiceActionResult> DeleteTeam(long teamId, string userId);
 
         /// <summary>
+        ///     Invite member to the team
+        /// </summary>
+        ///  /// <param name="teamId">
+        ///     The team id
+        /// </param>
+        /// <param name="userId">
+        ///     The user (member) id
+        /// </param>
+        public Task<ServiceActionResult> InviteMember(long teamId, string userId);
+
+        /// <summary>
+        ///     Remove member from the team
+        /// </summary>
+        ///  /// <param name="recordId">
+        ///     The record id to remove
+        /// </param>
+        public Task<ServiceActionResult> RemoveMember(long recordId);
+
+        /// <summary>
         ///     Return all teams created by the user
         /// </summary>
         /// <param name="userId">
@@ -58,5 +77,13 @@ namespace FitnessAppAPI.Data.Services.Teams
         ///     The logged in user
         /// </param>
         public Task<ServiceActionResult> GetUsersToInvite(string name, long teamId, string userId);
+
+        /// <summary>
+        ///     Get team members
+        /// </summary>
+        /// <param name="teamId">
+        ///     The team id
+        /// </param>
+        public Task<ServiceActionResult> GetTeamMembers(long teamId);
     }
 }

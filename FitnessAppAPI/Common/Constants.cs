@@ -74,6 +74,9 @@
         public const string MSG_TEAM_UPDATED = "Team updated";
         public const string MSG_UPDATE_TEAM_FAIL_NO_DATA = "Update team failed. No data provided";
         public const string MSG_SEARCH_NAME_NOT_PROVIDED = "Search name not provided";
+        public const string MSG_MEMBER_INVITE = "Member invited";
+        public const string MSG_MEMBER_REMOVED = "Member removed";
+        public const string MSG_MEMBER_IS_NOT_IN_TEAM = "The member is not in the team";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -157,8 +160,11 @@
             public const string ADD_TEAM= $"{TEAM}/add";
             public const string UPDATE_TEAM = $"{TEAM}/update";
             public const string DELETE_TEAM = $"{TEAM}/delete";
-            public const string GET_MY_TEAMS = $"{TEAM}/my-teams";
+            public const string INVITE_MEMBER = $"{TEAM}/invite-member";
+            public const string REMOVE_MEMBER = $"{TEAM}/remove-member";
             public const string GET_USERS_TO_INVITE = $"{TEAM}/get-users-to-invite";
+            public const string GET_MY_TEAMS = $"{TEAM}/my-teams";
+            public const string GET_TEAM_MEMBERS= $"{TEAM}/get-team-members";
         }
 
         /// <summary>
@@ -178,6 +184,7 @@
         public static class MemberTeamState
         {
             public const string NOT_INVITED = "NOT_INVITED";
+            public const string INVITED = "INVITED";
             public const string ACCEPTED = "ACCEPTED";
         }
     }

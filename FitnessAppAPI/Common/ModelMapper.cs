@@ -6,9 +6,7 @@ using FitnessAppAPI.Data.Services.Workouts.Models;
 using FitnessAppAPI.Data.Services.User.Models;
 using FitnessAppAPI.Data.Services.UserProfile.Models;
 using Microsoft.EntityFrameworkCore;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using FitnessAppAPI.Data.Services.Teams.Models;
-using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Common
 {
@@ -268,16 +266,23 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
-        ///     Map the user to TeamMemberModel
+        ///     Map the team member record to TeamMemberModel
         /// </summary>
-        public static TeamMemberModel MapToTeamMemberModel(UserProfile user, string teamState)
+        public static async Task<TeamMemberModel> MapToTeamMemberModel(TeamMember teamMember, FitnessAppAPIContext DBAccess)
         {
+            var userProfile = await DBAccess.UserProfiles.Where(p => p.UserId == teamMember.UserId).FirstOrDefaultAsync();
+
+            if (userProfile == null)
+            {
+                return GetEmptyTeamMemberModel();
+            }
+
             return new TeamMemberModel { 
-                Id = 0,
-                UserId = user.UserId,
-                FullName = user.FullName,
-                Image = Utils.EncodeByteArrayToBase64Image(user.ProfileImage),
-                TeamState = teamState,
+                Id = teamMember.Id,
+                UserId = teamMember.UserId,
+                FullName = userProfile.FullName,
+                Image = Utils.EncodeByteArrayToBase64Image(userProfile.ProfileImage),
+                TeamState = teamMember.State,
             };
         }
 
@@ -365,6 +370,21 @@ namespace FitnessAppAPI.Common
                 Name = "",
                 Description = "",
                 PrivateNote = ""
+            };
+        }
+
+        /// <summary>
+        ///    Return empty GetEmptyTeamMemberModel
+        /// </summary>
+        private static TeamMemberModel GetEmptyTeamMemberModel()
+        {
+            return new TeamMemberModel
+            {
+                Id = 0,
+                UserId = "",
+                FullName = "",
+                Image = "",
+                TeamState = ""
             };
         }
     } 

@@ -83,15 +83,62 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.DELETE_TEAM)]
         [Authorize]
-        public async Task<ActionResult> Delete([FromQuery] string teamId)
+        public async Task<ActionResult> Delete([FromQuery] long teamId)
         {
             // Check if the neccessary data is provided
-            if (string.IsNullOrEmpty(teamId))
+            if (teamId == 0)
             {
                 return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
             }
 
-            return CustomResponse(await service.DeleteTeam(long.Parse(teamId), GetUserId()));
+            return CustomResponse(await service.DeleteTeam(teamId, GetUserId()));
+        }
+
+        /// <summary>
+        //      POST request to invite the member to the team
+        /// </summary>
+        [HttpPost(Constants.RequestEndPoints.INVITE_MEMBER)]
+        [Authorize]
+        public async Task<ActionResult> InviteMember([FromQuery] string userId, [FromQuery] long teamId)
+        {
+            // Check if the neccessary data is provided
+            if (teamId == 0 && string.IsNullOrEmpty(userId))
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            var result = await service.InviteMember(teamId, userId);
+            if (!result.IsSuccess())
+            {
+                return CustomResponse(result);
+            }
+
+            // Get the updated list of team members
+            return CustomResponse(await service.GetTeamMembers(teamId));
+        }
+
+        /// <summary>
+        //      POST request to remove the member from the team
+        /// </summary>
+        [HttpPost(Constants.RequestEndPoints.REMOVE_MEMBER)]
+        [Authorize]
+        public async Task<ActionResult> RemoveMember([FromQuery] long recordId)
+        {
+            // Check if the neccessary data is provided
+            if (recordId == 0)
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            var result = await service.RemoveMember(recordId);
+            if (!result.IsSuccess())
+            {
+                return CustomResponse(result);
+            }
+
+            // Get the updated list of team members, the remove member action must
+            // return team id on success
+            return CustomResponse(await service.GetTeamMembers(result.Data[0].Id));
         }
 
         /// <summary>
@@ -118,6 +165,22 @@ namespace FitnessAppAPI.Controllers
             }
 
             return CustomResponse(await service.GetUsersToInvite(name, teamId, GetUserId()));
+        }
+
+        /// <summary>
+        //      Get team members 
+        /// </summary>
+        [HttpGet(Constants.RequestEndPoints.GET_TEAM_MEMBERS)]
+        [Authorize]
+        public async Task<ActionResult> GetTeamMembers([FromQuery] long teamId)
+        {
+            // Check if the neccessary data is provided
+            if (teamId == 0)
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_SEARCH_NAME_NOT_PROVIDED);
+            }
+
+            return CustomResponse(await service.GetTeamMembers(teamId));
         }
     }
 }

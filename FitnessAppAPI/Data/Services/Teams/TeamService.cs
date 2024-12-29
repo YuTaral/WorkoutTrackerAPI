@@ -61,6 +61,37 @@ namespace FitnessAppAPI.Data.Services.Teams
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEAM_DELETED);
         }
 
+        public async Task<ServiceActionResult> InviteMember(long teamId, string userId)
+        {
+            var teamMember = new TeamMember
+            {
+                State = Constants.MemberTeamState.INVITED,
+                UserId = userId,
+                TeamId = teamId
+            };
+
+            DBAccess.TeamMembers.Add(teamMember);
+            await DBAccess.SaveChangesAsync();
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_MEMBER_INVITE);
+        }
+
+        public async Task<ServiceActionResult> RemoveMember(long recordId)
+        {
+            var record = await DBAccess.TeamMembers.Where(tm => tm.Id == recordId).FirstOrDefaultAsync();
+
+            if (record == null)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_MEMBER_IS_NOT_IN_TEAM);
+            }
+
+            DBAccess.TeamMembers.Remove(record);
+            await DBAccess.SaveChangesAsync();
+
+            // Return the team id on success
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_MEMBER_REMOVED, [new BaseModel { Id = record.TeamId }]);
+        }
+
         public async Task<ServiceActionResult> GetMyTeams(string userId)
         {
             var teams = await DBAccess.Teams.Where(t => t.UserId == userId)
@@ -74,13 +105,44 @@ namespace FitnessAppAPI.Data.Services.Teams
             // Trim and convert to lower
             name = name.Trim().ToLower();
 
-            var members = await DBAccess.UserProfiles
-                                .Where(u => u.UserId != userId && u.FullName.ToLower().Contains(name) && 
-                                        !DBAccess.TeamMembers.Any(tm => tm.TeamId == teamId && tm.UserId == userId))
-                                .Select(u => (BaseModel) ModelMapper.MapToTeamMemberModel(u, Constants.MemberTeamState.NOT_INVITED))
-                                .ToListAsync();
+            var members = new List<BaseModel>();
+
+            // Fetch users with this name
+            var users = await DBAccess.UserProfiles.Where(u => u.UserId != userId && u.FullName.ToLower().Contains(name) &&
+                                                        !DBAccess.TeamMembers.Any(tm => tm.TeamId == teamId && tm.UserId == u.UserId))
+                                                    .ToListAsync();
+
+            if (users.Count > 0) {
+
+                foreach (var user in users) {
+
+                    // Create member record and map it to model
+                    var member = new TeamMember
+                    {
+                        Id = 0,
+                        UserId = user.UserId,
+                        TeamId = teamId,
+                        State = Constants.MemberTeamState.NOT_INVITED
+                    };
+
+                    members.Add(await ModelMapper.MapToTeamMemberModel(member, DBAccess));
+                }
+            }
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, members);
+        }
+
+        public async Task<ServiceActionResult> GetTeamMembers(long teamId)
+        {
+            var memberModels = new List<BaseModel>();
+            var members = await DBAccess.TeamMembers.Where(tm => tm.TeamId == teamId).OrderBy(tm => tm.State).ToListAsync();
+
+            foreach (var member in members) 
+            {
+                memberModels.Add(await ModelMapper.MapToTeamMemberModel(member, DBAccess));
+            }
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, memberModels);
         }
     }
 }
