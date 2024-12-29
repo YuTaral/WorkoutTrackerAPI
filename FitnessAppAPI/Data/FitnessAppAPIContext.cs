@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using FitnessAppAPI.Common;
+using System.Reflection.Emit;
 
 namespace FitnessAppAPI.Data;
 
@@ -27,6 +28,18 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
     {
         base.OnModelCreating(modelBuilder);
 
+        AddConstraints(modelBuilder);
+
+        AddUniqueIndeces(modelBuilder); 
+
+        AddInitialData(modelBuilder);
+    }
+
+    /// <summary>
+    ///     Add the constraints (foreign keys and delete behavior)
+    /// </summary>
+    private static void AddConstraints(ModelBuilder modelBuilder)
+    {
         // Exercise -> Workout relation via Exercise.WorkoutId
         modelBuilder.Entity<Exercise>()
                .HasOne<Workout>()
@@ -56,7 +69,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
 
         // Set -> Exercise relation via Set.ExerciseId
         modelBuilder.Entity<Set>()
-               .HasOne<Exercise>()  
+               .HasOne<Exercise>()
                .WithMany()
                .HasForeignKey(s => s.ExerciseId)
                .OnDelete(DeleteBehavior.Cascade);
@@ -123,12 +136,6 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .HasForeignKey(e => e.UserId)
                .OnDelete(DeleteBehavior.Cascade);
 
-        // Create a unique index on UserId
-        modelBuilder.Entity<UserProfile>(entity =>
-        {
-            entity.HasIndex(u => u.UserId).IsUnique();
-        });
-
         // Team -> User relation via Team.UserId
         modelBuilder.Entity<Team>()
                .HasOne<User>()
@@ -151,7 +158,13 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .WithMany()
                .HasForeignKey(w => w.TeamId)
                .OnDelete(DeleteBehavior.Cascade);
+    }
 
+    /// <summary>
+    ///     Add initial data when the DB is being created
+    /// </summary>
+    private static void AddInitialData(ModelBuilder modelBuilder)
+    {
         // Add the default Weight Units
         modelBuilder.Entity<WeightUnit>().HasData(
             new WeightUnit { Id = 1, Text = Common.Constants.DBConstants.KG },
@@ -219,5 +232,17 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
            new MGExercise { Id = 21, Name = "Triceps pushdown", Description = "Set Up the Exercise\r\nStand facing the cable machine with a rope, bar, or V-bar attachment at the high pulley. Grip the attachment with both hands, palms facing down (pronated grip). Step back slightly so there's tension in the cable, and stand with your feet shoulder-width apart, keeping your elbows at your sides and your upper arms stationary.\r\nPush the Attachment Down\r\nPush the rope or bar down by extending your elbows, fully contracting your triceps at the bottom of the movement. Keep your forearms parallel to the floor, and your elbows should stay close to your torso throughout the movement.\r\nReturn Slowly\r\nSlowly allow the attachment to return to the starting position by bending your elbows, controlling the weight on the way up. Repeat for your desired number of reps.\r\nTip\r\nAvoid using momentum or leaning forward to help push the weight down. Keep your core engaged and focus on squeezing your triceps at the bottom of the movement.", MuscleGroupId = 11 },
            new MGExercise { Id = 22, Name = "EZ bar skull crusher", Description = "Set Up the Exercise\r\nLie on a flat bench with an EZ bar in your hands, gripping it with an overhand (pronated) grip. Your hands should be about shoulder-width apart, and the bar should be directly over your chest with your arms fully extended. Keep your feet flat on the floor, and your core engaged to stabilize your body.\r\nLower the Bar\r\nSlowly lower the EZ bar toward your forehead by bending your elbows, keeping your upper arms stationary. Keep your elbows pointed forward, and lower the bar until your forearms are parallel to the ground or slightly beyond, feeling a stretch in your triceps.\r\nPush the Bar Back Up\r\nPress the EZ bar back up by extending your elbows, fully contracting your triceps at the top of the movement. Be sure to keep control of the weight and avoid letting your elbows flare out. Repeat for your desired number of reps.\r\nTip\r\nTo avoid stress on your elbows or shoulders, keep your movements slow and controlled. Focus on using your triceps to lift the weight, and avoid arching your back.", MuscleGroupId = 11 }
         );
+    }
+
+    /// <summary>
+    ///     Add indices to table to improve performance and ensure unique ids
+    /// </summary>
+    private static void AddUniqueIndeces(ModelBuilder modelBuilder)
+    {
+        // Create a unique index on UserProfile.UserId
+        modelBuilder.Entity<UserProfile>(entity =>
+        {
+            entity.HasIndex(u => u.UserId).IsUnique();
+        });
     }
 }
