@@ -1,6 +1,4 @@
-﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Models;
-using System;
+﻿using FitnessAppAPI.Data.Models;
 
 namespace FitnessAppAPI.Data.Services.SystemLogs
 {
@@ -16,6 +14,13 @@ namespace FitnessAppAPI.Data.Services.SystemLogs
             if (exception.StackTrace != null) { 
                 stackTrace = exception.StackTrace;
             }
+
+            // Sometimes the stack trace is too long to be stored in the db
+            if (stackTrace.Length > 4000)
+            {
+                stackTrace = stackTrace[..4000];
+            }
+
 
             var systemLog = new SystemLog
             {

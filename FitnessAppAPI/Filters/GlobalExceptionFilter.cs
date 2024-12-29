@@ -1,5 +1,4 @@
 ﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.SystemLogs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -8,9 +7,9 @@ using System.Security.Claims;
 /// <summary>
 /// Class to implement IExceptionFilter to store the unexpected exceptions in the System Logs table
 /// </summary>
-public class GlobalExceptionFilter(ISystemLogService systemLogService) : IExceptionFilter
+public class GlobalExceptionFilter(IServiceProvider s) : IExceptionFilter
 {
-    private readonly ISystemLogService service = systemLogService;
+    private readonly IServiceProvider serviceProvider = s;
 
     public void OnException(ExceptionContext context)
     {
@@ -26,27 +25,25 @@ public class GlobalExceptionFilter(ISystemLogService systemLogService) : IExcept
             userId = "";
         }
 
-        _ = LogExceptionAsync(context.Exception, userId);
+
+        // User fire and forget technique, getting th service form the service provider. If we inject
+        // the systemLogService through the constructor, in some cases it is already disposed when 
+        // OnException is reached and adding the record to system logs is impossible
+        _ = Task.Run(async () =>
+        {
+            var systemLogService = serviceProvider.CreateScope().ServiceProvider.GetRequiredService<ISystemLogService>();
+
+            try
+            {
+                await systemLogService.Add(context.Exception, userId);
+            }
+            catch (Exception){}
+        });
 
         // Show unexpected error message to the user
         context.Result = new JsonResult(Utils.CreateResponseObject(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []))
         {
             StatusCode = StatusCodes.Status200OK,
         };
-    }
-
-    /// <summary>
-    ///     Fire and forget technique to store the exception, as OnException cannot be async
-    /// </summary>
-    /// <param name="exception">
-    ///     The exception
-    /// </param>
-    /// <param name="userId">
-    ///     The logged in user id, may be empty
-    /// </param>
-    /// <returns></returns>
-    private async Task LogExceptionAsync(Exception exception, string userId)
-    {
-        await service.Add(exception, userId);  // Log exception asynchronously
     }
 }

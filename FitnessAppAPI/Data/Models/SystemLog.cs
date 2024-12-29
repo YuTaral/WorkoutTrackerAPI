@@ -11,10 +11,8 @@ namespace FitnessAppAPI.Data.Models
         [Key]
         public long Id { get; set; }
 
-        [MaxLength(Constants.DBConstants.Len2000)]
         public required string ExceptionDescription { get; set; }
 
-        [MaxLength(Constants.DBConstants.Len2000)]
         public required string ExceptionStackTrace { get; set; }
 
         public DateTime Date { get; set; }
