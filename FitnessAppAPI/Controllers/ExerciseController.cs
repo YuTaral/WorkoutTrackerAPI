@@ -23,7 +23,7 @@ namespace FitnessAppAPI.Controllers
         private readonly IExerciseService service = s;
 
         /// <summary>
-        /// WorkoutService instance
+        ///     WorkoutService instance
         /// </summary>
         private readonly IWorkoutService workoutService = ws;
 

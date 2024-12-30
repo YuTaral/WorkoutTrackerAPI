@@ -128,14 +128,16 @@ namespace FitnessAppAPI.Common
         ///         - Code
         ///         - Message
         ///         - Data
+        ///         - Notification
         /// </summary>
-        public static Object CreateResponseObject(ResponseCode Code, string Message, List<string> Data)
+        public static Object CreateResponseObject(ResponseCode Code, string Message, List<string> Data, bool Notification = false)
         {
             return (new
             {
                 Code,
                 Message,
-                Data
+                Data,
+                Notification
             });
         }
 

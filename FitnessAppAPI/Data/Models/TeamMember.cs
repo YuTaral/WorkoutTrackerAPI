@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FitnessAppAPI.Common;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitnessAppAPI.Data.Models
@@ -17,6 +18,8 @@ namespace FitnessAppAPI.Data.Models
         [ForeignKey("AspNetUser")]
         public required string UserId { get; set; }
 
+        [MaxLength(Constants.DBConstants.Len50)]
+        [EnumDataType(typeof(Constants.MemberTeamState))]
         public required string State { get; set; }
     }
 }

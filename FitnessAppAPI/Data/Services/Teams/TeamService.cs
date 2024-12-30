@@ -65,7 +65,7 @@ namespace FitnessAppAPI.Data.Services.Teams
         {
             var teamMember = new TeamMember
             {
-                State = Constants.MemberTeamState.INVITED,
+                State = Constants.MemberTeamState.INVITED.ToString(),
                 UserId = userId,
                 TeamId = teamId
             };
@@ -122,7 +122,7 @@ namespace FitnessAppAPI.Data.Services.Teams
                         Id = 0,
                         UserId = user.UserId,
                         TeamId = teamId,
-                        State = Constants.MemberTeamState.NOT_INVITED
+                        State = Constants.MemberTeamState.NOT_INVITED.ToString()
                     };
 
                     members.Add(await ModelMapper.MapToTeamMemberModel(member, DBAccess));

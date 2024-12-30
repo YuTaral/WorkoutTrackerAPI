@@ -9,6 +9,7 @@ using FitnessAppAPI.Data.Services.SystemLogs;
 using Microsoft.AspNetCore.Identity;
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Teams;
+using FitnessAppAPI.Data.Services.Notifications;
 
 namespace FitnessAppAPI.Extensions
 {
@@ -32,6 +33,7 @@ namespace FitnessAppAPI.Extensions
             services.AddScoped<IUserProfileService, UserProfileService>();
             services.AddScoped<ISystemLogService, SystemLogService>();
             services.AddScoped<ITeamService, TeamService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             return services;
         }

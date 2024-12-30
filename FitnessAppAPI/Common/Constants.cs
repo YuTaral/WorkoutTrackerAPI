@@ -77,6 +77,7 @@
         public const string MSG_MEMBER_INVITE = "Member invited";
         public const string MSG_MEMBER_REMOVED = "Member removed";
         public const string MSG_MEMBER_IS_NOT_IN_TEAM = "The member is not in the team";
+        public const string MSG_FAILED_TO_SEND_NOTIFICATION = "Failed to send notification";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -86,10 +87,12 @@
             public const int Len1 = 1;
             public const int Len50 = 50;
             public const int Len100 = 100;
+            public const int Len200 = 200;
             public const int Len2000 = 2000;
             public const int Len4000 = 4000;
             public const string KG = "Kg";
             public const string LB = "Lb";
+            public const string InviteNotification = "You have received invitation to join team \"{0}\"";
         }
 
         /// <summary>
@@ -124,6 +127,7 @@
             public const string USER_PROFILE = $"{API}/user-profile";
             public const string WORKOUT_TEMPLATE = $"{API}/workout-template";
             public const string TEAM = $"{API}/team";
+            public const string NOTIFICATION = $"{API}/notification";
 
             public const string REGISTER = $"{USER}/register";
             public const string LOGIN = $"{USER}/login";
@@ -165,6 +169,8 @@
             public const string GET_USERS_TO_INVITE = $"{TEAM}/get-users-to-invite";
             public const string GET_MY_TEAMS = $"{TEAM}/my-teams";
             public const string GET_TEAM_MEMBERS= $"{TEAM}/get-team-members";
+
+            public const string GET_NOTIFICATIONS = $"{NOTIFICATION}/get-notifications";
         }
 
         /// <summary>
@@ -175,17 +181,26 @@
             public const string ALL = "ALL";
             public const string IN_PROGRESS = "IN_PROGRESS";
             public const string COMPLETED = "COMPLETED";
-
         }
 
         /// <summary>
-        ///     User -> Team state - whether the user has been invited, removed and etc.
+        ///     User -> Team state - whether the user has been not invited, invited or accepted to join team
         /// </summary>
-        public static class MemberTeamState
+        public enum MemberTeamState
         {
-            public const string NOT_INVITED = "NOT_INVITED";
-            public const string INVITED = "INVITED";
-            public const string ACCEPTED = "ACCEPTED";
+            NOT_INVITED,
+            INVITED,
+            ACCEPTED
+        }
+
+        /// <summary>
+        ///     Notification Types
+        /// </summary>
+        public enum NotificationType
+        {
+            INVITED_TO_TEAM,
+            JOINED_TEAM,
+            REMOVED_FROM_TEAM
         }
     }
 }

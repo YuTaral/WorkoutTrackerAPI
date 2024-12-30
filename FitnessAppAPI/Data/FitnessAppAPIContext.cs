@@ -23,6 +23,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
     public required DbSet<UserProfile> UserProfiles { get; init; }
     public required DbSet<Team> Teams { get; init; }
     public required DbSet<TeamMember> TeamMembers { get; init; }
+    public required DbSet<Notification> Notifications { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -158,6 +159,24 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .WithMany()
                .HasForeignKey(w => w.TeamId)
                .OnDelete(DeleteBehavior.Cascade);
+
+        // Notification -> User relation via TeamMember.SenderUserId
+        // Manually delete Notification when User is deleted to avoid
+        // "multiple cascade paths" on delete
+        modelBuilder.Entity<Notification>()
+               .HasOne<User>()
+               .WithMany()
+               .HasForeignKey(w => w.SenderUserId)
+               .OnDelete(DeleteBehavior.NoAction);
+
+        // Notification -> ReceiverUserId relation via Notification.ReceiverUserId
+        // Manually delete Notification when User is deleted to avoid
+        // "multiple cascade paths" on delete
+        modelBuilder.Entity<Notification>()
+               .HasOne<User>()
+               .WithMany()
+               .HasForeignKey(w => w.ReceiverUserId)
+               .OnDelete(DeleteBehavior.NoAction);
     }
 
     /// <summary>

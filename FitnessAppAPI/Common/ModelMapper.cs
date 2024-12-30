@@ -7,6 +7,7 @@ using FitnessAppAPI.Data.Services.User.Models;
 using FitnessAppAPI.Data.Services.UserProfile.Models;
 using Microsoft.EntityFrameworkCore;
 using FitnessAppAPI.Data.Services.Teams.Models;
+using FitnessAppAPI.Data.Services.Notifications.Models;
 
 namespace FitnessAppAPI.Common
 {
@@ -283,6 +284,20 @@ namespace FitnessAppAPI.Common
                 FullName = userProfile.FullName,
                 Image = Utils.EncodeByteArrayToBase64Image(userProfile.ProfileImage),
                 TeamState = teamMember.State,
+            };
+        }
+
+        /// <summary>
+        ///     Map the team notification record to NotificationModel
+        /// </summary>
+        public static NotificationModel MapToNotificationModel(Notification notification)
+        {
+            return new NotificationModel
+            {
+                Id = notification.Id,
+                NotificationText = notification.NotificationText,
+                DateTime = notification.DateTime,
+                IsActive = notification.IsActive,
             };
         }
 

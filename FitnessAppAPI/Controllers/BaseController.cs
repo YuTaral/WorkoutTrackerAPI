@@ -4,14 +4,16 @@ using FitnessAppAPI.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol;
 using System.Security.Claims;
+using FitnessAppAPI.Data.Services.Notifications;
 
 namespace FitnessAppAPI.Controllers
 {
     /// <summary>
     ///     Base Controller class. Holds the logic common logic for all Controllers.
     /// </summary>
-    public class BaseController : ControllerBase
+    public class BaseController: ControllerBase
     {
+
         /// <summary>
         ///     Return status 200OK Response with the provided data
         ///     Returned fields must correspond with client-side CustomResponse class:
@@ -21,7 +23,16 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         private OkObjectResult SendCustomResponse(Constants.ResponseCode Code, string Message, List<string> Data)
         {
-            return Ok(Utils.CreateResponseObject(Code, Message, Data));
+            var hasNotification = false;
+
+            var notificationService = HttpContext.RequestServices.GetService<INotificationService>();
+
+            if (notificationService != null)
+            {
+               hasNotification = notificationService.HasNotification(GetUserId()).Result;
+            }
+
+            return Ok(Utils.CreateResponseObject(Code, Message, Data, hasNotification));
         }
 
         public OkObjectResult CustomResponse(Constants.ResponseCode Code, string Message, List<string> Data)

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using FitnessAppAPI.Data.Services.Teams.Models;
+using FitnessAppAPI.Data.Services.Notifications;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -12,12 +13,17 @@ namespace FitnessAppAPI.Controllers
     /// </summary>
     [ApiController]
     [Route(Constants.RequestEndPoints.TEAM)]
-    public class TeamController(ITeamService s) : BaseController
+    public class TeamController(ITeamService s, INotificationService notificationS) : BaseController
     {   
         /// <summary>
         //      TeamService instance
         /// </summary>
         private readonly ITeamService service = s;
+
+        /// <summary>
+        //      INotificationService instance
+        /// </summary>
+        private readonly INotificationService notificationService = notificationS;
 
         /// <summary>
         //      POST request to create a new team
@@ -112,6 +118,12 @@ namespace FitnessAppAPI.Controllers
             {
                 return CustomResponse(result);
             }
+
+            var createNotification = await notificationService.AddTeamInviteNotification(userId, GetUserId(), teamId);
+            if (!createNotification.IsSuccess()) {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_SEND_NOTIFICATION);
+            }
+
 
             // Get the updated list of team members
             return CustomResponse(await service.GetTeamMembers(teamId));
