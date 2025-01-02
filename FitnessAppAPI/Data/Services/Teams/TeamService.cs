@@ -92,6 +92,38 @@ namespace FitnessAppAPI.Data.Services.Teams
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_MEMBER_REMOVED, [new BaseModel { Id = record.TeamId }]);
         }
 
+        public async Task<ServiceActionResult> AcceptInvite(string userId, long teamId)
+        {
+            var model = new BaseModel
+            {
+                Id = 0
+            };
+
+            var record = await DBAccess.TeamMembers.Where(tm => tm.UserId == userId && tm.TeamId == teamId).FirstOrDefaultAsync();
+
+            if (record == null) {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_JOIN_TEAM);
+            }
+
+            // Update the team members record
+            record.State = Constants.MemberTeamState.ACCEPTED.ToString();
+
+            DBAccess.Entry(record).State = EntityState.Modified;
+            await DBAccess.SaveChangesAsync();
+
+            // Return the notification id
+            var notification = await DBAccess.Notifications.Where(n => n.ReceiverUserId == userId &&
+                                                                 n.TeamId == teamId &&
+                                                                 n.NotificationType == Constants.NotificationType.INVITED_TO_TEAM.ToString())
+                                                            .FirstOrDefaultAsync();
+            if (notification != null)
+            {
+                model.Id = notification.Id;
+            }
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_JOINED_TEAM, [model]);
+        }
+
         public async Task<ServiceActionResult> GetMyTeams(string userId)
         {
             var teams = await DBAccess.Teams.Where(t => t.UserId == userId)

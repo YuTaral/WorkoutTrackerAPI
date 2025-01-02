@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mail;
 using static FitnessAppAPI.Common.Constants;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FitnessAppAPI.Common
 {
@@ -130,7 +131,7 @@ namespace FitnessAppAPI.Common
         ///         - Data
         ///         - Notification
         /// </summary>
-        public static Object CreateResponseObject(ResponseCode Code, string Message, List<string> Data, bool Notification = false)
+        public static System.Object CreateResponseObject(ResponseCode Code, string Message, List<string> Data, bool Notification = false)
         {
             return (new
             {
@@ -169,6 +170,16 @@ namespace FitnessAppAPI.Common
         {
             // Convert the byte array to a Base64 string
             return Convert.ToBase64String(imageBytes);
+        }
+
+        /// <summary>
+        ///     Format the date object to the default date time format for the app
+        /// </summary>
+        /// <param name="dateTime">
+        ///     The date time
+        /// </param>
+        public static string FormatDefaultDateTime(DateTime dateTime) {
+            return dateTime.ToString("dd MMM yyyy, HH:mm");
         }
     }
 }

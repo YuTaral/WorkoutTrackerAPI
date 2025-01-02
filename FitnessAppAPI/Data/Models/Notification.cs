@@ -28,5 +28,8 @@ namespace FitnessAppAPI.Data.Models
         public required DateTime DateTime { get; set; }
 
         public required bool IsActive { get; set; }
+
+        [ForeignKey("Team")]
+        public required long? TeamId { get; set; }
     }
 }

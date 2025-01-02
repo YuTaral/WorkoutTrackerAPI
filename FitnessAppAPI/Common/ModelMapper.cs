@@ -278,7 +278,7 @@ namespace FitnessAppAPI.Common
                 return GetEmptyTeamMemberModel();
             }
 
-            return new TeamMemberModel { 
+            return new TeamMemberModel {
                 Id = teamMember.Id,
                 UserId = teamMember.UserId,
                 FullName = userProfile.FullName,
@@ -290,14 +290,47 @@ namespace FitnessAppAPI.Common
         /// <summary>
         ///     Map the team notification record to NotificationModel
         /// </summary>
-        public static NotificationModel MapToNotificationModel(Notification notification)
+        public static async Task<NotificationModel> MapToNotificationModel(Notification notification, FitnessAppAPIContext DBAccess)
         {
+            var img = "";
+
+            if (notification.NotificationType == Constants.NotificationType.INVITED_TO_TEAM.ToString() ||
+                notification.NotificationType == Constants.NotificationType.JOINED_TEAM.ToString())
+            {
+                // Show user sender image in case of invited to team / joined in team notification
+                var user = await DBAccess.UserProfiles.Where(p => p.UserId == notification.SenderUserId).FirstOrDefaultAsync();
+
+                if (user != null)
+                {
+                    img = Utils.EncodeByteArrayToBase64Image(user.ProfileImage);
+                }
+
+            } 
+
             return new NotificationModel
             {
                 Id = notification.Id,
                 NotificationText = notification.NotificationText,
                 DateTime = notification.DateTime,
                 IsActive = notification.IsActive,
+                Type = notification.NotificationType,
+                Image = img,
+                TeamId = notification.TeamId
+            };
+        }
+
+        /// <summary>
+        ///    Return empty TeamModel
+        /// </summary>
+        public static TeamModel GetEmptyTeamModel()
+        {
+            return new TeamModel
+            {
+                Id = 0,
+                Image = "",
+                Name = "",
+                Description = "",
+                PrivateNote = ""
             };
         }
 
@@ -370,21 +403,6 @@ namespace FitnessAppAPI.Common
                 Completed = false,
                 WeightUnit = GetEmptyWeightUnitModel(),
                 MGExerciseId = 0,
-            };
-        }
-
-        /// <summary>
-        ///    Return empty TeamModel
-        /// </summary>
-        private static TeamModel GetEmptyTeamModel()
-        {
-            return new TeamModel
-            {
-                Id = 0,
-                Image = "",
-                Name = "",
-                Description = "",
-                PrivateNote = ""
             };
         }
 

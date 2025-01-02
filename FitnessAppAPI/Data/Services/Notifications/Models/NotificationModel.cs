@@ -13,5 +13,11 @@ namespace FitnessAppAPI.Data.Services.Notifications.Models
         public required DateTime DateTime { get; set; }
 
         public required bool IsActive { get; set; }
+
+        public required string Type { get; set; }
+
+        public required string Image { get; set; }
+
+        public long? TeamId { get; set; }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Services.Notifications;
-using FitnessAppAPI.Data.Services.User.Models;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -24,6 +23,21 @@ namespace FitnessAppAPI.Controllers
         public async Task<ActionResult> GetNotifications()
         {
             return CustomResponse(await service.GetNotifications(GetUserId()));
+        }
+
+        /// <summary>
+        //      Get request to get join team notification details
+        /// </summary>
+        [HttpGet(Constants.RequestEndPoints.GET_JOIN_TEAM_NOTIFICATION_DETAILS)]
+        public async Task<ActionResult> GetJoinTeamNotificationDetails([FromQuery] long id)
+        {
+            // Check if the neccessary data is provided
+            if (id < 1)
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_GET_NOTIFICATION_DETAILS);
+            }
+
+            return CustomResponse(await service.GetJoinTeamNotificationDetails(id));
         }
     }
 }

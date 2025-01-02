@@ -1,7 +1,4 @@
-﻿using FitnessAppAPI.Data.Models;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-
-namespace FitnessAppAPI.Data.Services.Notifications
+﻿namespace FitnessAppAPI.Data.Services.Notifications
 {
     /// <summary>
     ///     Notification service interface to define the logic for notifications CRUD operations.
@@ -24,6 +21,29 @@ namespace FitnessAppAPI.Data.Services.Notifications
         public Task<ServiceActionResult> AddTeamInviteNotification(string receiverUserId, string senderUserId, long teamId);
 
         /// <summary>
+        ///     Add the team accept invitation notification to the notifications table
+        /// </summary>
+        /// <param name="senderUserId">
+        ///     The user who should be notified
+        /// </param>
+        /// <param name="teamId">
+        ///     The team id
+        /// </param>
+        /// 
+        public Task<ServiceActionResult> AddTeamInvitationAcceptNotification(string senderUserId, long teamId);
+
+        /// <summary>
+        ///     Change the notification state
+        /// </summary>
+        /// <param name="id">
+        ///     The notification id
+        /// </param>
+        /// <param name="isActive">
+        ///     True if the notification must be set to active, false otherwise
+        /// </param>
+        public Task<ServiceActionResult> UpdateNotification(long id, bool isActive);
+
+        /// <summary>
         ///     Return the notifications for the user
         /// </summary>
         /// <param name="userId">
@@ -38,5 +58,13 @@ namespace FitnessAppAPI.Data.Services.Notifications
         ///     The user id - owner of the notification
         /// </param>
         public Task<bool> HasNotification(string userId);
+
+        /// <summary>
+        ///     Return the join team notification details
+        /// </summary>
+        /// <param name="id">
+        ///     The notification id
+        /// </param>
+        public Task<ServiceActionResult> GetJoinTeamNotificationDetails(long id);
     }
 }

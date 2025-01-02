@@ -78,6 +78,10 @@
         public const string MSG_MEMBER_REMOVED = "Member removed";
         public const string MSG_MEMBER_IS_NOT_IN_TEAM = "The member is not in the team";
         public const string MSG_FAILED_TO_SEND_NOTIFICATION = "Failed to send notification";
+        public const string MSG_FAILED_TO_GET_NOTIFICATION_DETAILS = "Failed to fetch notification details";
+        public const string MSG_FAILED_TO_JOIN_TEAM = "Unexpected error occurred, failed to join team.";
+        public const string MSG_JOINED_TEAM = "Joined the team successfully";
+        public const string MSG_FAILED_TO_TEAM_OWNER = "Failed to fetch team owner";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -92,7 +96,18 @@
             public const int Len4000 = 4000;
             public const string KG = "Kg";
             public const string LB = "Lb";
-            public const string InviteNotification = "You have received invitation to join team \"{0}\"";
+            public const string InviteToTeamNotification = "You have received invitation to join team \"{0}\"";
+            public const string AcceptTeamInvitationNotification = "{0} joined team {1}";
+        }
+
+        /// <summary>
+        ///     Class containing the notification texts to display when dealin with notifications
+        ///     (e.g accept team invitatoin)
+        /// </summary>
+        public static class NotificationText
+        {
+            public const string AskTeamInviteAccept = "{0} invited you to join the team on {1}.\nDo you accept?";
+            public const string AskTeamInviteAcceptNoSender = "You have received invitation to join the team on {0}.\nDo you accept?";
         }
 
         /// <summary>
@@ -166,11 +181,13 @@
             public const string DELETE_TEAM = $"{TEAM}/delete";
             public const string INVITE_MEMBER = $"{TEAM}/invite-member";
             public const string REMOVE_MEMBER = $"{TEAM}/remove-member";
+            public const string ACCEPT_TEAM_INVITE = $"{TEAM}/accept-invite";
             public const string GET_USERS_TO_INVITE = $"{TEAM}/get-users-to-invite";
             public const string GET_MY_TEAMS = $"{TEAM}/my-teams";
             public const string GET_TEAM_MEMBERS= $"{TEAM}/get-team-members";
 
             public const string GET_NOTIFICATIONS = $"{NOTIFICATION}/get-notifications";
+            public const string GET_JOIN_TEAM_NOTIFICATION_DETAILS = $"{NOTIFICATION}/get-join-team-notification-details";
         }
 
         /// <summary>

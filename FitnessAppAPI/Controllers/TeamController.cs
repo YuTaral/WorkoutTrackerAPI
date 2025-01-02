@@ -154,6 +154,38 @@ namespace FitnessAppAPI.Controllers
         }
 
         /// <summary>
+        //      POST request to accept team invitation
+        /// </summary>
+        [HttpPost(Constants.RequestEndPoints.ACCEPT_TEAM_INVITE)]
+        [Authorize]
+        public async Task<ActionResult> AcceptInvite([FromQuery] string userId, long teamId)
+        {
+            // Check if the neccessary data is provided
+            if (string.IsNullOrEmpty(userId) || teamId == 0)
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            var result = await service.AcceptInvite(userId, teamId);
+            if (!result.IsSuccess())
+            {
+                return CustomResponse(result);
+            }
+
+            if (result.Data.Count > 0 && result.Data[0].Id > 0) {
+                // The result contains notification id, mark it as inactive
+                var updateNotificationResult = await notificationService.UpdateNotification(result.Data[0].Id, false);
+
+                if (updateNotificationResult.IsSuccess()) {
+                    await notificationService.AddTeamInvitationAcceptNotification(userId, teamId);
+                }
+            }
+
+            // Get the updated list of notifications
+            return CustomResponse(await notificationService.GetNotifications(userId));
+        }
+
+        /// <summary>
         //      Get request to return my teams
         /// </summary>
         [HttpGet(Constants.RequestEndPoints.GET_MY_TEAMS)]
