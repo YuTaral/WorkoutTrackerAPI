@@ -1,12 +1,12 @@
 ﻿namespace FitnessAppAPI.Common
 {
     /// <summary>
-    ///     Constant class to hold all constant used on the server-side.
+    ///     Constant class with all constants used on the server-side.
     /// </summary>
     public static class Constants
     {
         /// <summary>
-        ///     Enum to hold all custom defined response codes. Must correspond with client-side ResponseCode enum
+        ///     Enum with all custom defined response codes. Must correspond with client-side ResponseCode enum
         /// </summary>
         public enum ResponseCode
         {

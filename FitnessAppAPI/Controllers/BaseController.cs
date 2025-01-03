@@ -9,7 +9,7 @@ using FitnessAppAPI.Data.Services.Notifications;
 namespace FitnessAppAPI.Controllers
 {
     /// <summary>
-    ///     Base Controller class. Holds the logic common logic for all Controllers.
+    ///     Base Controller class. Implement the logic common logic for all Controllers.
     /// </summary>
     public class BaseController: ControllerBase
     {

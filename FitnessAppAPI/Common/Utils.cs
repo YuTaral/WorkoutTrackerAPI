@@ -4,12 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mail;
 using static FitnessAppAPI.Common.Constants;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FitnessAppAPI.Common
 {
     /// <summary>
-    ///     Class to hold frequently used functions
+    ///     Helper class with frequently used functions
     /// </summary>
     public static class Utils
     {

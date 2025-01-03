@@ -12,7 +12,7 @@ using FitnessAppAPI.Data.Services.Notifications.Models;
 namespace FitnessAppAPI.Common
 {
     /// <summary>
-    ///     Class to hold the models mappings
+    ///     Class to implement the models mappings
     /// </summary>
     public static class ModelMapper
     {
