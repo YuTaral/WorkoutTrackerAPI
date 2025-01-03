@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Services.Notifications;
-using FitnessAppAPI.Data.Services.Exercises.Models;
 using Newtonsoft.Json;
 using FitnessAppAPI.Data.Services.Notifications.Models;
 

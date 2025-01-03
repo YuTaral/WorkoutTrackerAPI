@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using FitnessAppAPI.Common;
 using System.Reflection.Emit;
+using Constants = FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Data;
 
@@ -31,7 +32,9 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
 
         AddConstraints(modelBuilder);
 
-        AddUniqueIndeces(modelBuilder); 
+        AddUniqueIndeces(modelBuilder);
+
+        AddDataValidations(modelBuilder);
 
         AddInitialData(modelBuilder);
     }
@@ -262,6 +265,32 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
         modelBuilder.Entity<UserProfile>(entity =>
         {
             entity.HasIndex(u => u.UserId).IsUnique();
+        });
+    }
+
+    /// <summary>
+    ///     Add data validatoins for the values
+    /// </summary>
+    private static void AddDataValidations(ModelBuilder modelBuilder) {
+
+        modelBuilder.Entity<TeamMember>(entity =>
+        {
+            var validStates = string.Join(", ",Enum.GetNames<Constants.MemberTeamState>().Select(state => $"'{state}'"));
+
+            entity.ToTable(tb =>
+                tb.HasCheckConstraint("CK_TeamMember_State",
+                $"State IN ({validStates})")
+            );
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            var validNotifications = string.Join(", ", Enum.GetNames<Constants.NotificationType>().Select(type => $"'{type}'"));
+
+            entity.ToTable(tb =>
+                tb.HasCheckConstraint("CK_Notification_NotificationType",
+                $"NotificationType IN ({validNotifications})")
+            );
         });
     }
 }
