@@ -196,6 +196,8 @@
             public const string DELETE_NOTIFICATION = $"{NOTIFICATION}/delete";
             public const string GET_NOTIFICATIONS = $"{NOTIFICATION}/get-notifications";
             public const string GET_JOIN_TEAM_NOTIFICATION_DETAILS = $"{NOTIFICATION}/get-join-team-notification-details";
+            public const string REFRESH_NOTIFICATIONS = $"{NOTIFICATION}/refresh-notifications";
+
         }
 
         /// <summary>

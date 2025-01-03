@@ -86,5 +86,15 @@ namespace FitnessAppAPI.Controllers
 
             return CustomResponse(await service.GetJoinTeamNotificationDetails(id));
         }
+
+        /// <summary>
+        //      Get request to refresh notifications
+        /// </summary>
+        [HttpGet(Constants.RequestEndPoints.REFRESH_NOTIFICATIONS)]
+        public ActionResult RefreshNotifications()
+        {
+            // Just return custom response, it will automatically refresh the notification
+            return CustomResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+        }
     }
 }
