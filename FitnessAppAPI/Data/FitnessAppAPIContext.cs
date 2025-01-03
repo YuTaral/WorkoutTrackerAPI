@@ -1,9 +1,6 @@
 ﻿using FitnessAppAPI.Data.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
-using FitnessAppAPI.Common;
-using System.Reflection.Emit;
 using Constants = FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Data;
@@ -32,7 +29,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
 
         AddConstraints(modelBuilder);
 
-        AddUniqueIndeces(modelBuilder);
+        AddAdditionalIndices(modelBuilder);
 
         AddDataValidations(modelBuilder);
 
@@ -259,12 +256,64 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
     /// <summary>
     ///     Add indices to table to improve performance and ensure unique ids
     /// </summary>
-    private static void AddUniqueIndeces(ModelBuilder modelBuilder)
+    private static void AddAdditionalIndices(ModelBuilder modelBuilder)
     {
-        // Create a unique index on UserProfile.UserId
+        // Unique indices (to make sure only one record exists and to improve performance)
         modelBuilder.Entity<UserProfile>(entity =>
         {
             entity.HasIndex(u => u.UserId).IsUnique();
+        });
+
+        // Not unique indices (used to improve performace)
+        modelBuilder.Entity<Exercise>(entity =>
+        {
+            entity.HasIndex(e => e.WorkoutId);
+            entity.HasIndex(e => e.MGExerciseId);
+        });
+
+        modelBuilder.Entity<Workout>(entity =>
+        {
+            entity.HasIndex(w => w.UserId);
+        });
+
+        modelBuilder.Entity<MGExercise>(entity =>
+        {
+            entity.HasIndex(e => e.MuscleGroupId);
+        });
+
+        modelBuilder.Entity<MuscleGroup>(entity =>
+        {
+            entity.HasIndex(mg => mg.UserId);
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasIndex(n => n.TeamId);
+            entity.HasIndex(n => n.ReceiverUserId);
+            entity.HasIndex(n => n.SenderUserId);
+            entity.HasIndex(n => n.NotificationType);
+        });
+
+        modelBuilder.Entity<Set>(entity =>
+        {
+            entity.HasIndex(s => s.ExerciseId);
+        });
+
+        modelBuilder.Entity<Team>(entity =>
+        {
+            entity.HasIndex(t => t.UserId);
+        });
+
+        modelBuilder.Entity<TeamMember>(entity =>
+        {
+            entity.HasIndex(t => t.UserId);
+            entity.HasIndex(t => t.TeamId);
+        });
+
+        modelBuilder.Entity<UserDefaultValue>(entity =>
+        {
+            entity.HasIndex(t => t.UserId);
+            entity.HasIndex(t => t.MGExeciseId);
         });
     }
 
@@ -273,6 +322,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
     /// </summary>
     private static void AddDataValidations(ModelBuilder modelBuilder) {
 
+        // Add constraint for TeamMember.State value
         modelBuilder.Entity<TeamMember>(entity =>
         {
             var validStates = string.Join(", ",Enum.GetNames<Constants.MemberTeamState>().Select(state => $"'{state}'"));
@@ -283,6 +333,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
             );
         });
 
+        // Add constraint for Notification.NotificationType value
         modelBuilder.Entity<Notification>(entity =>
         {
             var validNotifications = string.Join(", ", Enum.GetNames<Constants.NotificationType>().Select(type => $"'{type}'"));
