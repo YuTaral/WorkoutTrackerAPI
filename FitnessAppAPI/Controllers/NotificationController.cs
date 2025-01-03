@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Services.Notifications;
+using FitnessAppAPI.Data.Services.Exercises.Models;
+using Newtonsoft.Json;
+using FitnessAppAPI.Data.Services.Notifications.Models;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -29,6 +32,36 @@ namespace FitnessAppAPI.Controllers
             }
 
             return CustomResponse(await service.UpdateNotification(id, false));
+        }
+
+        /// <summary>
+        //      Post request to delete the notification
+        /// </summary>
+        [HttpPost(Constants.RequestEndPoints.DELETE_NOTIFICATION)]
+        public async Task<ActionResult> DeleteNotification([FromBody] Dictionary<string, string> requestData)
+        {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("notification", out string? serializednotification))
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_DELETE_NOTIFICATION_FAILED);
+            }
+
+            NotificationModel? notification = JsonConvert.DeserializeObject<NotificationModel>(serializednotification);
+            if (notification == null)
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "NotificationModel"));
+            }
+
+            var userId = GetUserId();
+
+            var result = await service.DeleteNotification(notification, userId);
+            if (!result.IsSuccess())
+            {
+                return CustomResponse(result);
+            }
+
+            // Return the notifications on success
+            return CustomResponse(await service.GetNotifications(userId));
         }
 
         /// <summary>

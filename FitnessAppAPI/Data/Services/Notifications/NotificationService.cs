@@ -86,6 +86,37 @@ namespace FitnessAppAPI.Data.Services.Notifications
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
         }
 
+        public async Task<ServiceActionResult> DeleteNotification(NotificationModel data, string userId)
+        {
+            var notification = await DBAccess.Notifications.Where(n => n.Id == data.Id).FirstOrDefaultAsync();
+            if (notification == null)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_DELETE_NOTIFICATION_FAILED);
+            }
+
+            if (notification.IsActive && notification.NotificationType == Constants.NotificationType.INVITED_TO_TEAM.ToString())
+            { 
+                // If the user is deleting INVITED_TO_TEAM notification, remove the recrod from TeamMembers
+                var record = await DBAccess.TeamMembers.Where(tm => tm.UserId == userId && 
+                                                              tm.TeamId == data.TeamId && 
+                                                              tm.State == Constants.MemberTeamState.INVITED.ToString())
+                                                        .FirstOrDefaultAsync();
+
+                if (record != null)
+                {
+                    // Remove the record and send notification to the team owner
+                    DBAccess.TeamMembers.Remove(record);
+                    await AddAcceptedDeclinedNotification(userId, record.TeamId, Constants.NotificationType.DECLINED_TEAM_INVITATION.ToString());
+                }
+            }
+
+            // Delete the notification
+            DBAccess.Notifications.Remove(notification);
+            await DBAccess.SaveChangesAsync();
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_NOTIFICATION_DELETED);
+        }
+
         public async Task<ServiceActionResult> GetNotifications(string userId)
         {
             var notifcationModels = new List<BaseModel>();

@@ -83,6 +83,8 @@
         public const string MSG_JOINED_TEAM = "Joined the team successfully";
         public const string MSG_FAILED_TO_TEAM_OWNER = "Failed to fetch team owner";
         public const string MSG_TEAM_INVITATION_DECLINED = "Team invitation declined";
+        public const string MSG_DELETE_NOTIFICATION_FAILED = "Delete notification failed. Data not provided";
+        public const string MSG_NOTIFICATION_DELETED = "Notification deleted";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -127,7 +129,6 @@
             public const string SETS_MUST_BE_POSITIVE = "Sets must be positive number";
             public const string REPS_MUST_BE_POSITIVE = "Reps must be positive number";
             public const string WEIGHT_MUST_BE_POSITIVE = "Weight must be positive number";
-            public const string MSG_UPDATE_TEAM_FAIL_NO_DATA = "Update team failed. Data not provided";
         }
 
         /// <summary>
@@ -191,6 +192,7 @@
             public const string GET_TEAM_MEMBERS= $"{TEAM}/get-team-members";
 
             public const string NOTIFICATION_REVIEWED = $"{NOTIFICATION}/reviewed";
+            public const string DELETE_NOTIFICATION = $"{NOTIFICATION}/delete";
             public const string GET_NOTIFICATIONS = $"{NOTIFICATION}/get-notifications";
             public const string GET_JOIN_TEAM_NOTIFICATION_DETAILS = $"{NOTIFICATION}/get-join-team-notification-details";
         }

@@ -1,4 +1,6 @@
-﻿namespace FitnessAppAPI.Data.Services.Notifications
+﻿using FitnessAppAPI.Data.Services.Notifications.Models;
+
+namespace FitnessAppAPI.Data.Services.Notifications
 {
     /// <summary>
     ///     Notification service interface to define the logic for notifications CRUD operations.
@@ -45,6 +47,17 @@
         ///     True if the notification must be set to active, false otherwise
         /// </param>
         public Task<ServiceActionResult> UpdateNotification(long id, bool isActive);
+
+        /// <summary>
+        ///     Delete the notification
+        /// </summary>
+        /// <param name="data">
+        ///     The notification to delete
+        /// </param>
+        /// <param name="userId">
+        ///     The user id - owner of the notifications
+        /// </param>
+        public Task<ServiceActionResult> DeleteNotification(NotificationModel data, string userId);
 
         /// <summary>
         ///     Return the notifications for the user
