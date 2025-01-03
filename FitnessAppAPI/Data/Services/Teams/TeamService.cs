@@ -92,26 +92,41 @@ namespace FitnessAppAPI.Data.Services.Teams
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_MEMBER_REMOVED, [new BaseModel { Id = record.TeamId }]);
         }
 
-        public async Task<ServiceActionResult> AcceptInvite(string userId, long teamId)
+        public async Task<ServiceActionResult> AcceptDeclineInvite(string userId, long teamId, string newState)
         {
             var model = new BaseModel
             {
                 Id = 0
             };
 
-            var record = await DBAccess.TeamMembers.Where(tm => tm.UserId == userId && tm.TeamId == teamId).FirstOrDefaultAsync();
+            var returnMessage = "";
 
-            if (record == null) {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_JOIN_TEAM);
+            var record = await DBAccess.TeamMembers.Where(tm => tm.UserId == userId && tm.TeamId == teamId).FirstOrDefaultAsync();
+            if (record == null)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_JOIN_DECLINE_TEAM);
             }
 
-            // Update the team members record
-            record.State = Constants.MemberTeamState.ACCEPTED.ToString();
+            if (newState == Constants.MemberTeamState.ACCEPTED.ToString())
+            {
+                // User accepted invitation, set the return message and mark the recrod state as ACCEPTED
+                returnMessage = Constants.MSG_JOINED_TEAM;
 
-            DBAccess.Entry(record).State = EntityState.Modified;
+                // Update the team members record
+                record.State = newState;
+                DBAccess.Entry(record).State = EntityState.Modified;
+            }
+            else
+            {
+                // User declined the invitation, set the return message and delete the record
+                returnMessage = Constants.MSG_TEAM_INVITATION_DECLINED;
+
+                DBAccess.TeamMembers.Remove(record);
+            }
+
             await DBAccess.SaveChangesAsync();
 
-            // Return the notification id
+            // Return the notification id so it could be marked as inactive
             var notification = await DBAccess.Notifications.Where(n => n.ReceiverUserId == userId &&
                                                                  n.TeamId == teamId &&
                                                                  n.NotificationType == Constants.NotificationType.INVITED_TO_TEAM.ToString())
@@ -121,7 +136,7 @@ namespace FitnessAppAPI.Data.Services.Teams
                 model.Id = notification.Id;
             }
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_JOINED_TEAM, [model]);
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, returnMessage, [model]);
         }
 
         public async Task<ServiceActionResult> GetMyTeams(string userId)
@@ -175,6 +190,6 @@ namespace FitnessAppAPI.Data.Services.Teams
             }
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, memberModels);
-        }
+        }       
     }
 }

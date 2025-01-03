@@ -160,29 +160,17 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> AcceptInvite([FromQuery] string userId, long teamId)
         {
-            // Check if the neccessary data is provided
-            if (string.IsNullOrEmpty(userId) || teamId == 0)
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
-            }
+            return await ProcessAcceptDeclineInvitationRequest(userId, teamId, Constants.MemberTeamState.ACCEPTED.ToString());
+        }
 
-            var result = await service.AcceptInvite(userId, teamId);
-            if (!result.IsSuccess())
-            {
-                return CustomResponse(result);
-            }
-
-            if (result.Data.Count > 0 && result.Data[0].Id > 0) {
-                // The result contains notification id, mark it as inactive
-                var updateNotificationResult = await notificationService.UpdateNotification(result.Data[0].Id, false);
-
-                if (updateNotificationResult.IsSuccess()) {
-                    await notificationService.AddTeamInvitationAcceptNotification(userId, teamId);
-                }
-            }
-
-            // Get the updated list of notifications
-            return CustomResponse(await notificationService.GetNotifications(userId));
+        /// <summary>
+        //      POST request to decline team invitation
+        /// </summary>
+        [HttpPost(Constants.RequestEndPoints.DECLINE_TEAM_INVITE)]
+        [Authorize]
+        public async Task<ActionResult> DeclineInvite([FromQuery] string userId, long teamId)
+        {
+            return await ProcessAcceptDeclineInvitationRequest(userId, teamId, Constants.MemberTeamState.DECLINED.ToString());
         }
 
         /// <summary>
@@ -225,6 +213,58 @@ namespace FitnessAppAPI.Controllers
             }
 
             return CustomResponse(await service.GetTeamMembers(teamId));
+        }
+
+        /// <summary>
+        ///     Call the service method to accept / decline team invitation 
+        /// </summary>
+        /// <param name="userId">
+        ///     The user id who accepts/declines the invitation
+        /// </param>
+        /// <param name="teamId">
+        ///     The team id
+        /// </param>
+        /// <param name="newState">
+        ///     "ACCEPTED" to accept the invitation, "DECLINE" to decline the invitation
+        /// </param>
+        private async Task<ActionResult> ProcessAcceptDeclineInvitationRequest(string userId, long teamId, string newState)
+        {
+            // Check if the neccessary data is provided
+            if (string.IsNullOrEmpty(userId) || teamId == 0)
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            var result = await service.AcceptDeclineInvite(userId, teamId, newState);
+            if (!result.IsSuccess())
+            {
+                return CustomResponse(result);
+            }
+
+            if (result.Data.Count > 0 && result.Data[0].Id > 0)
+            {
+                // The result contains notification id, mark it as inactive for the logged in user
+                var updateNotificationResult = await notificationService.UpdateNotification(result.Data[0].Id, false);
+
+                if (updateNotificationResult.IsSuccess())
+                {
+                    // Add notification for the team owner
+                    if (newState == Constants.MemberTeamState.ACCEPTED.ToString())
+                    {
+                        await notificationService.AddAcceptedDeclinedNotification(userId, teamId, Constants.NotificationType.JOINED_TEAM.ToString());
+                    }
+                    else
+                    {
+                        await notificationService.AddAcceptedDeclinedNotification(userId, teamId, Constants.NotificationType.DECLINED_TEAM_INVITATION.ToString());
+                    }
+                }
+            }
+
+            // Get the updated list of notifications
+            var updatedNotificationsResult = await notificationService.GetNotifications(userId);
+
+            // Return response, showing the message from AcceptDeclineInvite action and the data returned from GetNotifications
+            return CustomResponse(result.Code, result.Message, updatedNotificationsResult.Data);
         }
     }
 }

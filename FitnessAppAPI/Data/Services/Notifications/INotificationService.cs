@@ -29,8 +29,11 @@
         /// <param name="teamId">
         ///     The team id
         /// </param>
+        /// <param name="notificationType">
+        ///     The notification type - "JOINED" or "DECLINED"
+        /// </param>
         /// 
-        public Task<ServiceActionResult> AddTeamInvitationAcceptNotification(string senderUserId, long teamId);
+        public Task<ServiceActionResult> AddAcceptedDeclinedNotification(string senderUserId, long teamId, string notificationType);
 
         /// <summary>
         ///     Change the notification state

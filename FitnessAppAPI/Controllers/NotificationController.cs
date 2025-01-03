@@ -17,6 +17,21 @@ namespace FitnessAppAPI.Controllers
         private readonly INotificationService service = s;
 
         /// <summary>
+        //      Post request to mark the notification as reviewed
+        /// </summary>
+        [HttpPost(Constants.RequestEndPoints.NOTIFICATION_REVIEWED)]
+        public async Task<ActionResult> NotificationReviewed([FromQuery] long id)
+        {
+            // Check if the neccessary data is provided
+            if (id < 1)
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_GET_NOTIFICATION_DETAILS);
+            }
+
+            return CustomResponse(await service.UpdateNotification(id, false));
+        }
+
+        /// <summary>
         //      Get request to get user notifications
         /// </summary>
         [HttpGet(Constants.RequestEndPoints.GET_NOTIFICATIONS)]

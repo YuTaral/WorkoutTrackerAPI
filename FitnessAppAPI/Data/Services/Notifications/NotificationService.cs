@@ -33,8 +33,9 @@ namespace FitnessAppAPI.Data.Services.Notifications
             return await AddNotification(notification);
         }
 
-        public async Task<ServiceActionResult> AddTeamInvitationAcceptNotification(string senderUserId, long teamId)
+        public async Task<ServiceActionResult> AddAcceptedDeclinedNotification(string senderUserId, long teamId, string notificationType)
         {
+            var notificationText = "";
             var senderName = await DBAccess.UserProfiles.Where(u => u.UserId == senderUserId).Select(t => t.FullName).FirstOrDefaultAsync();
 
             // Must not happen
@@ -47,12 +48,21 @@ namespace FitnessAppAPI.Data.Services.Notifications
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_TEAM_OWNER);
             }
 
+            if (notificationType == Constants.NotificationType.JOINED_TEAM.ToString()) 
+            {
+                notificationText = string.Format(Constants.DBConstants.AcceptTeamInvitationNotification, senderName, team.Name);
+            } 
+            else
+            {
+                notificationText = string.Format(Constants.DBConstants.DeclineTeamInvitationNotification, senderName, team.Name);
+            }
+
             var notification = new Notification
             {
-                NotificationType = Constants.NotificationType.JOINED_TEAM.ToString(),
+                NotificationType = notificationType,
                 ReceiverUserId = team.UserId,
                 SenderUserId = senderUserId,
-                NotificationText = string.Format(Constants.DBConstants.AcceptTeamInvitationNotification, senderName, team.Name),
+                NotificationText = notificationText,
                 DateTime = DateTime.Now,
                 IsActive = true,
                 TeamId = teamId

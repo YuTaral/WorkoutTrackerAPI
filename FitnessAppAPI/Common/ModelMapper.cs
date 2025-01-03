@@ -315,7 +315,8 @@ namespace FitnessAppAPI.Common
                 IsActive = notification.IsActive,
                 Type = notification.NotificationType,
                 Image = img,
-                TeamId = notification.TeamId
+                TeamId = notification.TeamId,
+                ClickDisabled = NotificationNotClickable(notification.IsActive, notification.NotificationType)
             };
         }
 
@@ -419,6 +420,22 @@ namespace FitnessAppAPI.Common
                 Image = "",
                 TeamState = ""
             };
+        }
+
+        /// <summary>
+        ///     Return true if the notification is not clickable on the client side, false otherwise
+        /// </summary>
+        /// <param name="isActive">
+        ///     True if the notification is active, false otherwise
+        /// </param>
+        /// <param name="type">
+        ///     The notification type - Constants.NotificationType
+        /// </param>
+        private static bool NotificationNotClickable(bool isActive, string type)
+        {
+            // Notification is not clickable (won't execute action on click on the clinet) when
+            // it's inactive and is of type INVITED_TO_TEAM
+            return (!isActive && type == Constants.NotificationType.INVITED_TO_TEAM.ToString());
         }
     } 
 }

@@ -57,15 +57,18 @@ namespace FitnessAppAPI.Data.Services.Teams
         public Task<ServiceActionResult> RemoveMember(long recordId);
 
         /// <summary>
-        ///     Accept team invitaton
+        ///     Change team member record state to accepted or declined
         /// </summary>
         /// <param name="userId">
-        ///     The user who accepted the invite
+        ///     The user id 
         /// </param>
         /// <param name="teamId">
         ///     The team id
         /// </param>
-        public Task<ServiceActionResult> AcceptInvite(string userId, long teamId);
+        /// <param name="newState">
+        ///     The new state
+        /// </param>
+        public Task<ServiceActionResult> AcceptDeclineInvite(string userId, long teamId, string newState);
 
         /// <summary>
         ///     Return all teams created by the user

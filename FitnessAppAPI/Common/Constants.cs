@@ -79,9 +79,10 @@
         public const string MSG_MEMBER_IS_NOT_IN_TEAM = "The member is not in the team";
         public const string MSG_FAILED_TO_SEND_NOTIFICATION = "Failed to send notification";
         public const string MSG_FAILED_TO_GET_NOTIFICATION_DETAILS = "Failed to fetch notification details";
-        public const string MSG_FAILED_TO_JOIN_TEAM = "Unexpected error occurred, failed to join team.";
+        public const string MSG_FAILED_TO_JOIN_DECLINE_TEAM = "Unexpected error occurred, invalid user or team id provided.";
         public const string MSG_JOINED_TEAM = "Joined the team successfully";
         public const string MSG_FAILED_TO_TEAM_OWNER = "Failed to fetch team owner";
+        public const string MSG_TEAM_INVITATION_DECLINED = "Team invitation declined";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -98,6 +99,8 @@
             public const string LB = "Lb";
             public const string InviteToTeamNotification = "You have received invitation to join team \"{0}\"";
             public const string AcceptTeamInvitationNotification = "{0} joined team {1}";
+            public const string DeclineTeamInvitationNotification = "{0} declined your request to join team {1}";
+
         }
 
         /// <summary>
@@ -182,10 +185,12 @@
             public const string INVITE_MEMBER = $"{TEAM}/invite-member";
             public const string REMOVE_MEMBER = $"{TEAM}/remove-member";
             public const string ACCEPT_TEAM_INVITE = $"{TEAM}/accept-invite";
+            public const string DECLINE_TEAM_INVITE = $"{TEAM}/decline-invite";
             public const string GET_USERS_TO_INVITE = $"{TEAM}/get-users-to-invite";
             public const string GET_MY_TEAMS = $"{TEAM}/my-teams";
             public const string GET_TEAM_MEMBERS= $"{TEAM}/get-team-members";
 
+            public const string NOTIFICATION_REVIEWED = $"{NOTIFICATION}/reviewed";
             public const string GET_NOTIFICATIONS = $"{NOTIFICATION}/get-notifications";
             public const string GET_JOIN_TEAM_NOTIFICATION_DETAILS = $"{NOTIFICATION}/get-join-team-notification-details";
         }
@@ -207,7 +212,8 @@
         {
             NOT_INVITED,
             INVITED,
-            ACCEPTED
+            ACCEPTED,
+            DECLINED
         }
 
         /// <summary>
@@ -217,7 +223,8 @@
         {
             INVITED_TO_TEAM,
             JOINED_TEAM,
-            REMOVED_FROM_TEAM
+            REMOVED_FROM_TEAM,
+            DECLINED_TEAM_INVITATION
         }
     }
 }
