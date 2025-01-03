@@ -85,6 +85,7 @@
         public const string MSG_TEAM_INVITATION_DECLINED = "Team invitation declined";
         public const string MSG_DELETE_NOTIFICATION_FAILED = "Delete notification failed. Data not provided";
         public const string MSG_NOTIFICATION_DELETED = "Notification deleted";
+        public const string MSG_REMOVE_MEMBER_FAILED = "Remove member failed. Data not provided";
 
         /// <summary>
         ///     Class containing the DB constants

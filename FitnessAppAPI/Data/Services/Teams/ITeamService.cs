@@ -51,10 +51,10 @@ namespace FitnessAppAPI.Data.Services.Teams
         /// <summary>
         ///     Remove member from the team
         /// </summary>
-        ///  /// <param name="recordId">
-        ///     The record id to remove
+        ///  /// <param name="data">
+        ///     The team member model to remove (contains the record id)
         /// </param>
-        public Task<ServiceActionResult> RemoveMember(long recordId);
+        public Task<ServiceActionResult> RemoveMember(TeamMemberModel data);
 
         /// <summary>
         ///     Change team member record state to accepted or declined

@@ -1,6 +1,7 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Notifications.Models;
+using FitnessAppAPI.Data.Services.Teams.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitnessAppAPI.Data.Services.Notifications
@@ -115,6 +116,21 @@ namespace FitnessAppAPI.Data.Services.Notifications
             await DBAccess.SaveChangesAsync();
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_NOTIFICATION_DELETED);
+        }
+
+        public async Task<ServiceActionResult> DeleteNotifications(TeamMemberModel data, long teamId)
+        {
+            // Find all notifications related to the deleted TeamMember record
+            var notifications = await DBAccess.Notifications.Where(n => n.TeamId == teamId && 
+                                                                  (n.SenderUserId == data.UserId || n.ReceiverUserId == data.UserId))
+                                                            .ToListAsync();
+
+            if (notifications.Count > 0) {
+                DBAccess.RemoveRange(notifications);
+                await DBAccess.SaveChangesAsync();
+            }
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS);  
         }
 
         public async Task<ServiceActionResult> GetNotifications(string userId)

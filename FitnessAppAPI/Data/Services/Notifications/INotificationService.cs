@@ -1,4 +1,5 @@
 ﻿using FitnessAppAPI.Data.Services.Notifications.Models;
+using FitnessAppAPI.Data.Services.Teams.Models;
 
 namespace FitnessAppAPI.Data.Services.Notifications
 {
@@ -58,6 +59,17 @@ namespace FitnessAppAPI.Data.Services.Notifications
         ///     The user id - owner of the notifications
         /// </param>
         public Task<ServiceActionResult> DeleteNotification(NotificationModel data, string userId);
+
+        /// <summary>
+        ///     Delete notifications after TeamMember record has been deleted
+        /// </summary>
+        /// <param name="data">
+        ///     The TeamMember record
+        /// </param>
+        /// <param name="teamId">
+        ///     The team id
+        /// </param>
+        public Task<ServiceActionResult> DeleteNotifications(TeamMemberModel data, long teamId);
 
         /// <summary>
         ///     Return the notifications for the user

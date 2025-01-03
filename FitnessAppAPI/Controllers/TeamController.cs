@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using FitnessAppAPI.Data.Services.Teams.Models;
 using FitnessAppAPI.Data.Services.Notifications;
+using FitnessAppAPI.Data.Models;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -134,23 +135,34 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.REMOVE_MEMBER)]
         [Authorize]
-        public async Task<ActionResult> RemoveMember([FromQuery] long recordId)
+        public async Task<ActionResult> RemoveMember(Dictionary<string, string> requestData)
         {
             // Check if the neccessary data is provided
-            if (recordId == 0)
+            if (!requestData.TryGetValue("member", out string? serializedMember))
             {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_NOTIFICATION_DELETED);
             }
 
-            var result = await service.RemoveMember(recordId);
+            TeamMemberModel? data = JsonConvert.DeserializeObject<TeamMemberModel>(serializedMember);
+            if (data == null)
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "TeamMemberModel"));
+            }
+
+            var result = await service.RemoveMember(data);
             if (!result.IsSuccess())
             {
                 return CustomResponse(result);
             }
 
-            // Get the updated list of team members, the remove member action must
-            // return team id on success
-            return CustomResponse(await service.GetTeamMembers(result.Data[0].Id));
+            // Remove member action must return team id on success
+            var teamId = result.Data[0].Id;
+
+            // Remove all notifications related to TeamMember record
+            await notificationService.DeleteNotifications(data, teamId);
+
+            // Get the updated list of team members, 
+            return CustomResponse(await service.GetTeamMembers(teamId));
         }
 
         /// <summary>

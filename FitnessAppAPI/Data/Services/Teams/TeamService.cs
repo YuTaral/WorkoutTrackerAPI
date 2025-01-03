@@ -76,9 +76,9 @@ namespace FitnessAppAPI.Data.Services.Teams
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_MEMBER_INVITE);
         }
 
-        public async Task<ServiceActionResult> RemoveMember(long recordId)
+        public async Task<ServiceActionResult> RemoveMember(TeamMemberModel data)
         {
-            var record = await DBAccess.TeamMembers.Where(tm => tm.Id == recordId).FirstOrDefaultAsync();
+            var record = await DBAccess.TeamMembers.Where(tm => tm.Id == data.Id).FirstOrDefaultAsync();
 
             if (record == null)
             {
