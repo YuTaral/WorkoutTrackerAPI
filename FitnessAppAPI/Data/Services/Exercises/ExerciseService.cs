@@ -2,6 +2,7 @@
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Exercises.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace FitnessAppAPI.Data.Services.Exercises
 {
@@ -117,6 +118,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
                         {
                             set.Completed = s.Completed;
                             set.Reps = s.Reps;
+                            set.Rest = s.Rest;
                             set.Weight = s.Weight;
                         }
                     }
