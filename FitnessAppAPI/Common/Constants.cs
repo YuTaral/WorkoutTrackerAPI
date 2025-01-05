@@ -86,6 +86,7 @@
         public const string MSG_DELETE_NOTIFICATION_FAILED = "Delete notification failed. Data not provided";
         public const string MSG_NOTIFICATION_DELETED = "Notification deleted";
         public const string MSG_REMOVE_MEMBER_FAILED = "Remove member failed. Data not provided";
+        public const string MSG_SET_DOES_NOT_EXIST = "Set does not exist";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -168,6 +169,7 @@
             public const string ADD_EXERCISE = $"{EXERCISE}/add";
             public const string UPDATE_EXERCISE = $"{EXERCISE}/update";
             public const string DELETE_EXERCISE = $"{EXERCISE}/delete";
+            public const string COMPLETE_SET = $"{EXERCISE}/complete-set";
             public const string GET_EXERCISES_FOR_MG = $"{EXERCISE}/get-by-mg-id";
             public const string GET_MG_EXERCISE = $"{EXERCISE}/get-mg-exercise";
 

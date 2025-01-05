@@ -86,6 +86,14 @@ namespace FitnessAppAPI.Data.Services.Exercises
         public Task<ServiceActionResult> DeleteExercise(long MGExerciseId, string userId);
 
         /// <summary>
+        ///     Mark the set as completed
+        /// </summary>
+        /// <param name="id">
+        ///     The set id
+        /// </param>
+        public Task<ServiceActionResult> CompleteSet(long id);
+
+        /// <summary>
         ///     Fetch the exercises for the muscle group
         /// </summary>
         /// <param name="muscleGroupId">

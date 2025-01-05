@@ -250,6 +250,30 @@ namespace FitnessAppAPI.Controllers
         }
 
         /// <summary>
+        //      POST request to mark the set as completed
+        /// </summary>
+        [HttpPost(Constants.RequestEndPoints.COMPLETE_SET)]
+        [Authorize]
+        public async Task<ActionResult> CompleteSet([FromQuery] long id, long workoutId)
+        {
+            // Check if the neccessary data is provided
+            if (id < 1 || workoutId < 1)
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            // Complete the set
+            var result = await service.CompleteSet(id);
+            if (!result.IsSuccess())
+            {
+                return CustomResponse(result);
+            }
+
+            // Return the updated workout where the set is completed
+            return CustomResponse(await workoutService.GetWorkout(workoutId, GetUserId()));
+        }
+
+        /// <summary>
         //      GET request to fetch the exercise for muscle groups with the provided id
         /// </summary>
         [HttpGet(Constants.RequestEndPoints.GET_EXERCISES_FOR_MG)]

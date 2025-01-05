@@ -255,6 +255,21 @@ namespace FitnessAppAPI.Data.Services.Exercises
                             [new BaseModel { Id = MGExercise.MuscleGroupId }]);
         }
 
+        public async Task<ServiceActionResult> CompleteSet(long id)
+        {
+            var set = await DBAccess.Sets.Where(s => s.Id == id).FirstOrDefaultAsync();
+
+            if (set == null) {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_SET_DOES_NOT_EXIST);
+            }
+
+            set.Completed = true;
+            DBAccess.Entry(set).State = EntityState.Modified;
+            await DBAccess.SaveChangesAsync();
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
+        }
+
         public async Task<ServiceActionResult> GetExercisesForMG(long muscleGroupId, string userId, string onlyForUser) {
             var returnData = new List<BaseModel>();
 
