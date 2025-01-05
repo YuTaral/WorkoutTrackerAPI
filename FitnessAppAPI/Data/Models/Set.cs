@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitnessAppAPI.Data.Models
@@ -15,6 +14,8 @@ namespace FitnessAppAPI.Data.Models
         public int Reps { get; set; }
 
         public double Weight { get; set; }
+
+        public required int Rest { get; set; }
 
         public required bool Completed { get; set; }
 

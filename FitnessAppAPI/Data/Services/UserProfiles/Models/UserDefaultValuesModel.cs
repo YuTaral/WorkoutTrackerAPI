@@ -21,6 +21,8 @@ namespace FitnessAppAPI.Data.Services.UserProfile.Models
         [Range(0, double.MaxValue, ErrorMessage = Constants.ValidationErrors.WEIGHT_MUST_BE_POSITIVE)]
         public required double Weight { get; set; }
 
+        public required double Rest { get; set; }
+
         public required bool Completed { get; set; }
 
         public required WeightUnitModel WeightUnit { get; set; }

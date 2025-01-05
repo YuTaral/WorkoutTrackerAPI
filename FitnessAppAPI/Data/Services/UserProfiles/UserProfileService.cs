@@ -23,6 +23,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
                 Sets = 0,
                 Reps = 0,
                 Weight = 0,
+                Rest = 0,
                 WeightUnitId = kg.Id,
                 Completed = false,
                 UserId = userId,
@@ -83,6 +84,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             existing.Sets = data.Sets;
             existing.Reps = data.Reps;
             existing.Weight = data.Weight;
+            existing.Rest = data.Rest;
             existing.Completed = data.Completed;
             existing.WeightUnitId = unitId;
 
@@ -177,6 +179,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
                 Sets = data.Sets,
                 Reps = data.Reps,
                 Weight = data.Weight,
+                Rest = data.Rest,
                 WeightUnitId = data.WeightUnit.Id,
                 Completed = data.Completed,
                 UserId = userId,

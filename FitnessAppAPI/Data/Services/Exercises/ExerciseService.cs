@@ -33,6 +33,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
                         Reps = s.Reps,
                         Weight = s.Weight,
                         Completed = s.Completed,
+                        Rest = s.Rest,
                         ExerciseId = exercise.Id
                     };
 
@@ -101,6 +102,7 @@ namespace FitnessAppAPI.Data.Services.Exercises
                             Reps = s.Reps,
                             Weight = s.Weight,
                             Completed = s.Completed,
+                            Rest = s.Rest,
                             ExerciseId = exerciseData.Id
                         };
 

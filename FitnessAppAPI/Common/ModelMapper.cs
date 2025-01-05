@@ -125,6 +125,7 @@ namespace FitnessAppAPI.Common
                 Id = set.Id,
                 Reps = set.Reps,
                 Weight = set.Weight,
+                Rest = set.Rest,
                 Completed = set.Completed
             };
         }
@@ -194,6 +195,7 @@ namespace FitnessAppAPI.Common
                 Sets = defaultValues.Sets,
                 Reps = defaultValues.Reps,
                 Weight = defaultValues.Weight,
+                Rest = defaultValues.Rest,
                 Completed = defaultValues.Completed,
                 WeightUnit = unitModel,
                 MGExerciseId = defaultValues.MGExeciseId
@@ -372,6 +374,7 @@ namespace FitnessAppAPI.Common
                 Id = 0,
                 Reps = 0,
                 Weight = 0,
+                Rest = 0,
                 Completed = false
             };
         }
@@ -401,6 +404,7 @@ namespace FitnessAppAPI.Common
                 Sets = 0,
                 Reps = 0,
                 Weight = 0,
+                Rest = 0,
                 Completed = false,
                 WeightUnit = GetEmptyWeightUnitModel(),
                 MGExerciseId = 0,
