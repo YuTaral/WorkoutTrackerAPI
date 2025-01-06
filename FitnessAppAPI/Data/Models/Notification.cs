@@ -30,6 +30,6 @@ namespace FitnessAppAPI.Data.Models
         public required bool IsActive { get; set; }
 
         [ForeignKey("Team")]
-        public required long? TeamId { get; set; }
+        public long? TeamId { get; set; }
     }
 }

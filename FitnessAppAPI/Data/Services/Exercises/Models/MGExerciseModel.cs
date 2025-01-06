@@ -15,7 +15,7 @@ namespace FitnessAppAPI.Data.Services.Exercises.Models
         public required string Name { get; set; }
 
         [MaxLength(Constants.DBConstants.Len4000, ErrorMessage = Constants.ValidationErrors.DESCRIPTION_MAX_LEN_4000)]
-        public string? Description { get; set; }
+        public required string Description { get; set; }
 
         public required long MuscleGroupId { get; set; }
     }

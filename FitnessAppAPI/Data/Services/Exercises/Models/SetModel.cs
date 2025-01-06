@@ -11,13 +11,13 @@ namespace FitnessAppAPI.Data.Services.Exercises.Models
     public class SetModel: BaseModel
     {
         [Range(0, int.MaxValue, ErrorMessage = Constants.ValidationErrors.REPS_MUST_BE_POSITIVE)]
-        public int Reps { get; set; }
+        public required int Reps { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = Constants.ValidationErrors.WEIGHT_MUST_BE_POSITIVE)]
-        public double Weight { get; set; }
+        public required double Weight { get; set; }
 
-        public int Rest { get; set; }
+        public required int Rest { get; set; }
 
-        public bool Completed { get; set; }
+        public required bool Completed { get; set; }
     }
 }

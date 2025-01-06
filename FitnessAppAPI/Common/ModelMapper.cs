@@ -230,7 +230,7 @@ namespace FitnessAppAPI.Common
                 Id = 0,
                 Name = "",
                 MuscleGroup = GetEmptyMuscleGroupModel(),
-                Sets = { },
+                Sets = [],
                 MGExerciseId = 0,
                 Notes = ""
             };
@@ -390,6 +390,7 @@ namespace FitnessAppAPI.Common
             return new WorkoutModel {
                 Id = 0,
                 Name = "",
+                DurationSeconds = 0,
                 StartDateTime = DateTime.UtcNow,
                 Template = false,
                 Exercises = { },

@@ -11,11 +11,11 @@ namespace FitnessAppAPI.Data.Models
         [Key]
         public long Id { get; set; }
 
-        public int Sets { get; set; }
+        public required int Sets { get; set; }
 
-        public int Reps { get; set; }
+        public required int Reps { get; set; }
 
-        public double Weight { get; set; }
+        public required double Weight { get; set; }
 
         public required double Rest { get; set; }
 
