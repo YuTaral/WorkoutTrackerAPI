@@ -18,7 +18,8 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 Name = exerciseData.Name,
                 WorkoutId = workoutId,
                 MuscleGroupId = exerciseData.MuscleGroup.Id,
-                MGExerciseId = exerciseData.MGExerciseId
+                MGExerciseId = exerciseData.MGExerciseId,
+                Notes = exerciseData.Notes
             };
 
             await DBAccess.Exercises.AddAsync(exercise);
@@ -66,7 +67,8 @@ namespace FitnessAppAPI.Data.Services.Exercises
                 Name = MGExerciseData.Name,
                 MuscleGroup = muscleGroup,
                 Sets = [],
-                MGExerciseId = MGExerciseData.Id
+                MGExerciseId = MGExerciseData.Id,
+                Notes = ""
             };
 
             // Reuse add exercise to workout
@@ -88,6 +90,12 @@ namespace FitnessAppAPI.Data.Services.Exercises
             {
                 // Update the exercise name if it has been changed
                 exercise.Name = exerciseData.Name;
+            }
+
+            if (!exercise.Notes.Equals(exerciseData.Notes))
+            {
+                // Update the exercise Notes if it has been changed
+                exercise.Notes = exerciseData.Notes;
             }
 
             if (exerciseData.Sets != null && exerciseData.Sets.Count > 0)

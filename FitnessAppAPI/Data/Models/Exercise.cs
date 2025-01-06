@@ -24,5 +24,8 @@ namespace FitnessAppAPI.Data.Models
 
         [ForeignKey("MGExercise")]
         public required long? MGExerciseId { get; set; }
+
+        [MaxLength(Constants.DBConstants.Len4000, ErrorMessage = Constants.ValidationErrors.DESCRIPTION_MAX_LEN_4000)]
+        public string? Notes { get; set; }
     }
 }

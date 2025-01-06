@@ -70,7 +70,8 @@ namespace FitnessAppAPI.Common
                 Name = exercise.Name,
                 MuscleGroup = muscleGroup,
                 Sets = sets,
-                MGExerciseId = exercise.MGExerciseId
+                MGExerciseId = exercise.MGExerciseId,
+                Notes = exercise.Notes
             };
         }
 
@@ -231,6 +232,7 @@ namespace FitnessAppAPI.Common
                 MuscleGroup = GetEmptyMuscleGroupModel(),
                 Sets = { },
                 MGExerciseId = 0,
+                Notes = ""
             };
         }
 
