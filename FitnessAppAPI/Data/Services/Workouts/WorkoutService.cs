@@ -21,6 +21,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 FinishDateTime = null,
                 Template = "N",
                 DurationSeconds = 0,
+                Notes = data.Notes
             };
 
             await DBAccess.Workouts.AddAsync(workout);
@@ -42,6 +43,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
             workout.Name = data.Name;
             workout.FinishDateTime = data.FinishDateTime;
             workout.DurationSeconds = data.DurationSeconds;
+            workout.Notes = data.Notes;
 
             DBAccess.Entry(workout).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();

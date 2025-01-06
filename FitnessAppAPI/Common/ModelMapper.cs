@@ -37,7 +37,8 @@ namespace FitnessAppAPI.Common
                 Exercises = await DBAccess.Exercises.Where(e => e.WorkoutId == workout.Id)
                                               .Select(e => MapToExerciseModel(e, DBAccess))
                                               .ToListAsync(),
-                DurationSeconds = workout.DurationSeconds
+                DurationSeconds = workout.DurationSeconds,
+                Notes = workout.Notes
             };
         }
 
@@ -389,7 +390,8 @@ namespace FitnessAppAPI.Common
                 Name = "",
                 StartDateTime = DateTime.UtcNow,
                 Template = false,
-                Exercises = { }
+                Exercises = { },
+                Notes = ""
             };
         }
 

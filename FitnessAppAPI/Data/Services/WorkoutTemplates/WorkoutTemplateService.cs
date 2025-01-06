@@ -26,6 +26,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
                 FinishDateTime = null,
                 Template = "Y",
                 DurationSeconds = null,
+                Notes = data.Notes
             };
 
             await DBAccess.Workouts.AddAsync(template);

@@ -27,5 +27,8 @@ namespace FitnessAppAPI.Data.Models
         public required string Template { get; set; }
 
         public int? DurationSeconds { get; set; }
+
+        [MaxLength(Constants.DBConstants.Len4000, ErrorMessage = Constants.ValidationErrors.DESCRIPTION_MAX_LEN_4000)]
+        public string? Notes { get; set; }
     }
 }
