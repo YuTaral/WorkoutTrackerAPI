@@ -3,7 +3,6 @@ The only purpose of the project is to manage the data and proccess requests/resp
 
 The application consists of several controllers, services, JWT token for authentication, middleware for token validation and models.
 
-
 To test the API locally:
 1. Donwload the Repo and open with Visual Studio
 2. In the root folder, run the commands (replace <secret_key> with 32 chars string):
@@ -13,4 +12,8 @@ To test the API locally:
    replacing "192.168.0.0" with your localhost address and "1111" with a valid port number
 4. Go to https://github.com/YuTaral/FitnessApp to setup the client side application
 
-Application still in development.
+License
+This project is licensed under the MIT License.
+
+Contact
+For any inquiries or feedback, please contact me via LinkedId - https://www.linkedin.com/in/yusuf-taral-1a0922229/. Both the frontend and backend applications are currently under development. Contributions are welcome!
