@@ -54,13 +54,13 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <summary>
         ///     Fetch the latest workout for the user and returns WorkoutModel list
         /// </summary>
-        /// <param name="filterBy">
-        ///     The filter value - ALL / IN_PROGRESS / COMPLETED
+        /// <param name="startDate">
+        ///     The workotus start date
         /// </param>
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public Task<ServiceActionResult> GetLatestWorkouts(string filterBy, string userId);
+        public Task<ServiceActionResult> GetLatestWorkouts(DateTime startDate, string userId);
 
         /// <summary>
         ///     Fetch the weight units

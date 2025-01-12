@@ -203,16 +203,6 @@
         }
 
         /// <summary>
-        ///     Filter values when fetching workouts
-        /// </summary>
-        public static class WorkoutFilters
-        {
-            public const string ALL = "ALL";
-            public const string IN_PROGRESS = "IN_PROGRESS";
-            public const string COMPLETED = "COMPLETED";
-        }
-
-        /// <summary>
         ///     User -> Team state - whether the user has been not invited, invited or accepted to join team
         /// </summary>
         public enum MemberTeamState

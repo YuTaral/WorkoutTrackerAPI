@@ -114,15 +114,15 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(Constants.RequestEndPoints.DELETE_WORKOUT)]
         [Authorize]
-        public async Task<ActionResult> Delete([FromQuery] string workoutId)
+        public async Task<ActionResult> Delete([FromQuery] long workoutId)
         {
             // Check if the neccessary data is provided
-            if (string.IsNullOrEmpty(workoutId))
+            if (workoutId == 0)
             {
                 return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
             }
 
-            return CustomResponse(await service.DeleteWorkout(long.Parse(workoutId), GetUserId()));
+            return CustomResponse(await service.DeleteWorkout(workoutId, GetUserId()));
         }
 
         /// <summary>
@@ -130,15 +130,17 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpGet(Constants.RequestEndPoints.GET_WORKOUTS)]
         [Authorize]
-        public async Task<ActionResult> GetLatestWorkouts([FromQuery] string filterBy)
+        public async Task<ActionResult> GetLatestWorkouts([FromQuery] string startDate)
         {
-            if (string.IsNullOrEmpty(filterBy))
+            // Default to -1 month
+            var date = DateTime.UtcNow.AddMonths(-1);
+
+            if (!string.IsNullOrEmpty(startDate))
             {
-                // Default to ALL
-                filterBy = Constants.WorkoutFilters.ALL;
+                date = DateTime.Parse(startDate);
             }
 
-            return CustomResponse(await service.GetLatestWorkouts(filterBy, GetUserId()));
+            return CustomResponse(await service.GetLatestWorkouts(date, GetUserId()));
         }
 
         /// <summary>
