@@ -1,6 +1,7 @@
-This is .NET 8.0 (MC Architecture) Web API which is used for the server-side logic for Kotlin applicatoin, where you can save your workouts. 
-The only purpose of the project is to manage the data and proccess requests/respones from/to the Kotlin app.
+This is .NET 8.0 (MC Architecture) Web API which is used for the server-side logic for Kotlin application, where you can save your workouts. 
+The only purpose of the project is to manage the data and proccess requests/respones from/to the Kotlin app. 
 
+The application consists of several controllers, services, JWT token for authentication, middleware for token validation and models.
 
 To test the API locally:
 1. Donwload the Repo and open with Visual Studio
@@ -11,4 +12,8 @@ To test the API locally:
    replacing "192.168.0.0" with your localhost address and "1111" with a valid port number
 4. Go to https://github.com/YuTaral/FitnessApp to setup the client side application
 
-Both applications still in development.
+License
+This project is licensed under the MIT License.
+
+Contact
+For any inquiries or feedback, please contact me via LinkedId - https://www.linkedin.com/in/yusuf-taral-1a0922229/. Both the frontend and backend applications are currently under development. Contributions are welcome!
