@@ -139,10 +139,25 @@ namespace FitnessAppAPI.Data.Services.Teams
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, returnMessage, [model]);
         }
 
-        public async Task<ServiceActionResult> GetMyTeams(string userId)
+        public async Task<ServiceActionResult> GetMyTeams(Constants.ViewTeamAs type, string userId)
         {
-            var teams = await DBAccess.Teams.Where(t => t.UserId == userId)
-                                .Select(t => (BaseModel) ModelMapper.MapToTeamModel(t)).ToListAsync();
+            List<BaseModel> teams = [];
+
+            if (type == Constants.ViewTeamAs.COACH)
+            {
+                // Fetch teams where user is coach
+                teams = await DBAccess.Teams.Where(t => t.UserId == userId)
+                                            .Select(t => (BaseModel)ModelMapper.MapToTeamModel(t, type.ToString()))
+                                            .ToListAsync();
+            } 
+            else
+            {
+                // Fetch teams where user is member
+                teams = await DBAccess.Teams.Where(t => DBAccess.TeamMembers.Any(tm => tm.TeamId == t.Id && tm.UserId == userId && 
+                                                                                 tm.State == Constants.MemberTeamState.ACCEPTED.ToString()))
+                                              .Select(t => (BaseModel)ModelMapper.MapToTeamModel(t, type.ToString()))
+                                              .ToListAsync();
+            }
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, teams);
         }
@@ -179,17 +194,50 @@ namespace FitnessAppAPI.Data.Services.Teams
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, members);
         }
 
-        public async Task<ServiceActionResult> GetTeamMembers(long teamId)
+        public async Task<ServiceActionResult> GetMyTeamMembers(long teamId)
         {
-            var memberModels = new List<BaseModel>();
+            var returnData = new List<BaseModel>();
+
             var members = await DBAccess.TeamMembers.Where(tm => tm.TeamId == teamId).OrderBy(tm => tm.State).ToListAsync();
 
+            // Add the members
             foreach (var member in members) 
             {
-                memberModels.Add(await ModelMapper.MapToTeamMemberModel(member, DBAccess));
+                returnData.Add(await ModelMapper.MapToTeamMemberModel(member, DBAccess));
             }
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, memberModels);
-        }       
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
+        }
+
+        public async Task<ServiceActionResult> GetJoinedTeamMembers(long teamId, string userId)
+        {
+            var returnData = new List<BaseModel>();
+
+            // Add the coach
+            var coach = await DBAccess.Teams.Where(t => t.Id == teamId)
+                                            .Select(t => DBAccess.UserProfiles.Where(p => p.UserId == t.UserId)
+                                                                                .Select(p => ModelMapper.MapToTeamCoachModel(p))
+                                                                                .FirstOrDefault())
+                                            .FirstOrDefaultAsync();
+            if (coach == null)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_FAILED_TO_TEAM_OWNER);
+            }
+
+            returnData.Add((BaseModel)coach);
+
+            var members = await DBAccess.TeamMembers.Where(tm => tm.TeamId == teamId && tm.UserId != userId &&
+                                                           tm.State == Constants.MemberTeamState.ACCEPTED.ToString())
+                                                    .OrderBy(tm => tm.State)
+                                                    .ToListAsync();
+
+            // Add the members
+            foreach (var member in members)
+            {
+                returnData.Add(await ModelMapper.MapToTeamMemberModel(member, DBAccess));
+            }
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
+        }
     }
 }

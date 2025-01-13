@@ -81,12 +81,14 @@
         public const string MSG_FAILED_TO_GET_NOTIFICATION_DETAILS = "Failed to fetch notification details";
         public const string MSG_FAILED_TO_JOIN_DECLINE_TEAM = "Unexpected error occurred, invalid user or team id provided.";
         public const string MSG_JOINED_TEAM = "Joined the team successfully";
-        public const string MSG_FAILED_TO_TEAM_OWNER = "Failed to fetch team owner";
+        public const string MSG_FAILED_TO_TEAM_OWNER = "Failed to fetch team coach";
         public const string MSG_TEAM_INVITATION_DECLINED = "Team invitation declined";
         public const string MSG_DELETE_NOTIFICATION_FAILED = "Delete notification failed. Data not provided";
         public const string MSG_NOTIFICATION_DELETED = "Notification deleted";
         public const string MSG_REMOVE_MEMBER_FAILED = "Remove member failed. Data not provided";
         public const string MSG_SET_DOES_NOT_EXIST = "Set does not exist";
+        public const string MSG_INVALID_TEAM_TYPE = "Invalid team type value provided";
+        public const string MSG_FAILED_TO_TEAM_MEMBERS = "Failed to fetch team members";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -192,7 +194,8 @@
             public const string DECLINE_TEAM_INVITE = $"{TEAM}/decline-invite";
             public const string GET_USERS_TO_INVITE = $"{TEAM}/get-users-to-invite";
             public const string GET_MY_TEAMS = $"{TEAM}/my-teams";
-            public const string GET_TEAM_MEMBERS= $"{TEAM}/get-team-members";
+            public const string GET_MY_TEAM_MEMBERS= $"{TEAM}/get-my-team-members";
+            public const string GET_JOINED_TEAM_MEMBERS = $"{TEAM}/get-joined-team-members";
 
             public const string NOTIFICATION_REVIEWED = $"{NOTIFICATION}/reviewed";
             public const string DELETE_NOTIFICATION = $"{NOTIFICATION}/delete";
@@ -222,6 +225,15 @@
             JOINED_TEAM,
             REMOVED_FROM_TEAM,
             DECLINED_TEAM_INVITATION
+        }
+
+        /// <summary>
+        ///     Enum with team types when fetching teams
+        /// </summary>
+        public enum ViewTeamAs
+        {
+            COACH,
+            MEMBER
         }
     }
 }

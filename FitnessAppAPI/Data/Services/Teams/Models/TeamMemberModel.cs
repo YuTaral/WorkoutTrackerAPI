@@ -1,5 +1,4 @@
-﻿
-using FitnessAppAPI.Data.Models;
+﻿using FitnessAppAPI.Data.Models;
 
 namespace FitnessAppAPI.Data.Services.Teams.Models
 {

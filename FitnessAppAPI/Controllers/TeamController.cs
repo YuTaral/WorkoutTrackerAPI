@@ -127,7 +127,7 @@ namespace FitnessAppAPI.Controllers
 
 
             // Get the updated list of team members
-            return CustomResponse(await service.GetTeamMembers(teamId));
+            return CustomResponse(await service.GetMyTeamMembers(teamId));
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace FitnessAppAPI.Controllers
             await notificationService.DeleteNotifications(data, teamId);
 
             // Get the updated list of team members, 
-            return CustomResponse(await service.GetTeamMembers(teamId));
+            return CustomResponse(await service.GetMyTeamMembers(teamId));
         }
 
         /// <summary>
@@ -190,9 +190,32 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpGet(Constants.RequestEndPoints.GET_MY_TEAMS)]
         [Authorize]
-        public async Task<ActionResult> GetMyTeams()
+        public async Task<ActionResult> GetMyTeams([FromQuery] string teamType)
         {
-            return CustomResponse(await service.GetMyTeams(GetUserId()));
+            // Check if the neccessary data is provided
+            if (string.IsNullOrEmpty(teamType))
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_INVALID_TEAM_TYPE);
+            }
+
+            Constants.ViewTeamAs type;
+
+            if (teamType == Constants.ViewTeamAs.COACH.ToString())
+            {
+                type = Constants.ViewTeamAs.COACH;
+            } 
+            else if (teamType == Constants.ViewTeamAs.MEMBER.ToString())
+            {
+                type = Constants.ViewTeamAs.MEMBER;
+            }
+            else
+            {
+                // Invalid value
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_INVALID_TEAM_TYPE);
+            }
+
+
+            return CustomResponse(await service.GetMyTeams(type, GetUserId()));
         }
 
         /// <summary>
@@ -212,19 +235,35 @@ namespace FitnessAppAPI.Controllers
         }
 
         /// <summary>
-        //      Get team members 
+        //      Get team members when logged in user is coach
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.GET_TEAM_MEMBERS)]
+        [HttpGet(Constants.RequestEndPoints.GET_MY_TEAM_MEMBERS)]
         [Authorize]
         public async Task<ActionResult> GetTeamMembers([FromQuery] long teamId)
         {
             // Check if the neccessary data is provided
             if (teamId == 0)
             {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_SEARCH_NAME_NOT_PROVIDED);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_TEAM_MEMBERS);
             }
 
-            return CustomResponse(await service.GetTeamMembers(teamId));
+            return CustomResponse(await service.GetMyTeamMembers(teamId));
+        }
+
+        /// <summary>
+        //      Get team members when logged in user is member of the team
+        /// </summary>
+        [HttpGet(Constants.RequestEndPoints.GET_JOINED_TEAM_MEMBERS)]
+        [Authorize]
+        public async Task<ActionResult> GetJoinedTeamMembers([FromQuery] long teamId)
+        {
+            // Check if the neccessary data is provided
+            if (teamId == 0)
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_TEAM_MEMBERS);
+            }
+
+            return CustomResponse(await service.GetJoinedTeamMembers(teamId, GetUserId()));
         }
 
         /// <summary>

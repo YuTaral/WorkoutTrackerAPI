@@ -1,4 +1,5 @@
-﻿using FitnessAppAPI.Data.Services.Teams.Models;
+﻿using FitnessAppAPI.Common;
+using FitnessAppAPI.Data.Services.Teams.Models;
 
 namespace FitnessAppAPI.Data.Services.Teams
 {
@@ -73,10 +74,13 @@ namespace FitnessAppAPI.Data.Services.Teams
         /// <summary>
         ///     Return all teams created by the user
         /// </summary>
+        /// <param name="type">
+        ///     The team type
+        /// </param>
         /// <param name="userId">
         ///     The user owner of the team
         /// </param>
-        public Task<ServiceActionResult> GetMyTeams(string userId);
+        public Task<ServiceActionResult> GetMyTeams(Constants.ViewTeamAs type, string userId);
 
         /// <summary>
         ///     Return filtered users by the specified name which are valid for team invitation
@@ -93,11 +97,24 @@ namespace FitnessAppAPI.Data.Services.Teams
         public Task<ServiceActionResult> GetUsersToInvite(string name, long teamId, string userId);
 
         /// <summary>
-        ///     Get team members
+        ///     Get team members when logged in user is coach
         /// </summary>
         /// <param name="teamId">
         ///     The team id
         /// </param>
-        public Task<ServiceActionResult> GetTeamMembers(long teamId);
+
+        public Task<ServiceActionResult> GetMyTeamMembers(long teamId);
+
+        /// <summary>
+        ///     Get team members when logged in user is member
+        /// </summary>
+        /// <param name="teamId">
+        ///     The team id
+        /// </param>
+        /// <param name="userId">
+        ///     Logged in user id
+        /// </param>
+
+        public Task<ServiceActionResult> GetJoinedTeamMembers(long teamId, string userId);
     }
 }

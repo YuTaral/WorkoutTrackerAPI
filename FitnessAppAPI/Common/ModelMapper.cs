@@ -213,6 +213,18 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
+        ///     Map the user profile to to TeamCoachModel
+        /// </summary>
+        public static TeamCoachModel MapToTeamCoachModel(UserProfile profile)
+        { 
+            return new TeamCoachModel { 
+                Id = 0,
+                FullName = profile.FullName,
+                Image = Utils.EncodeByteArrayToBase64Image(profile.ProfileImage)
+            };
+        }
+
+        /// <summary>
         ///    Return empty WeightUnitModel
         /// </summary>
         public static WeightUnitModel GetEmptyWeightUnitModel()
@@ -254,7 +266,7 @@ namespace FitnessAppAPI.Common
         /// <summary>
         ///     Map the Team to TeamModel
         /// </summary>
-        public static TeamModel MapToTeamModel(Team team)
+        public static TeamModel MapToTeamModel(Team team, string viewTeamAs)
         {
             if (team == null)
             {
@@ -267,7 +279,8 @@ namespace FitnessAppAPI.Common
                 Image = Utils.EncodeByteArrayToBase64Image(team.Image),
                 Name = team.Name,
                 Description = team.Description,
-                PrivateNote = team.PrivateNote
+                PrivateNote = team.PrivateNote,
+                ViewTeamAs = viewTeamAs
             };
         }
 
@@ -288,7 +301,7 @@ namespace FitnessAppAPI.Common
                 UserId = teamMember.UserId,
                 FullName = userProfile.FullName,
                 Image = Utils.EncodeByteArrayToBase64Image(userProfile.ProfileImage),
-                TeamState = teamMember.State,
+                TeamState = teamMember.State
             };
         }
 
@@ -336,7 +349,8 @@ namespace FitnessAppAPI.Common
                 Image = "",
                 Name = "",
                 Description = "",
-                PrivateNote = ""
+                PrivateNote = "",
+                ViewTeamAs = ""
             };
         }
 
