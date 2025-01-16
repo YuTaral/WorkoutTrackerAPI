@@ -227,7 +227,6 @@
         {
             INVITED_TO_TEAM,
             JOINED_TEAM,
-            REMOVED_FROM_TEAM,
             DECLINED_TEAM_INVITATION
         }
 
