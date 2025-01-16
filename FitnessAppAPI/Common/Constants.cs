@@ -70,8 +70,12 @@
         public const string MSG_TEAM_FAIL_NO_DATA = "Add team failed. Data not provided";
         public const string MSG_TEAM_ADDED = "Team added";
         public const string MSG_TEAM_DOES_NOT_EXIST = "Team does not exist";
+        public const string MSG_EDIT_TEAM_NOT_ALLOWED = "You are not allowed to edit this team";
+        public const string MSG_DELETE_TEAM_NOT_ALLOWED = "You are not allowed to delete this team";
+        public const string MSG_LEAVE_TEAM_NOT_ALLOWED = "You are not allowed to leave this team";
         public const string MSG_TEAM_DELETED = "Team deleted";
         public const string MSG_TEAM_UPDATED = "Team updated";
+        public const string MSG_LEFT_TEAM = "You left the team";
         public const string MSG_UPDATE_TEAM_FAIL_NO_DATA = "Update team failed. No data provided";
         public const string MSG_SEARCH_NAME_NOT_PROVIDED = "Search name not provided";
         public const string MSG_MEMBER_INVITE = "Member invited";
@@ -188,6 +192,7 @@
             public const string ADD_TEAM= $"{TEAM}/add";
             public const string UPDATE_TEAM = $"{TEAM}/update";
             public const string DELETE_TEAM = $"{TEAM}/delete";
+            public const string LEAVE_TEAM = $"{TEAM}/leave";
             public const string INVITE_MEMBER = $"{TEAM}/invite-member";
             public const string REMOVE_MEMBER = $"{TEAM}/remove-member";
             public const string ACCEPT_TEAM_INVITE = $"{TEAM}/accept-invite";

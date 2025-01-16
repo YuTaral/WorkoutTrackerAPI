@@ -82,7 +82,7 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
             }
 
-            return CustomResponse(await service.UpdateTeam(teamData));
+            return CustomResponse(await service.UpdateTeam(teamData, GetUserId()));
         }
 
         /// <summary>
@@ -99,6 +99,22 @@ namespace FitnessAppAPI.Controllers
             }
 
             return CustomResponse(await service.DeleteTeam(teamId, GetUserId()));
+        }
+
+        /// <summary>
+        //      POST request to leave the team with the provided id
+        /// </summary>
+        [HttpPost(Constants.RequestEndPoints.LEAVE_TEAM)]
+        [Authorize]
+        public async Task<ActionResult> Leave([FromQuery] long teamId)
+        {
+            // Check if the neccessary data is provided
+            if (teamId == 0)
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            return CustomResponse(await service.LeaveTeam(teamId, GetUserId()));
         }
 
         /// <summary>
@@ -292,6 +308,8 @@ namespace FitnessAppAPI.Controllers
                 return CustomResponse(result);
             }
 
+            var returnData = new List<BaseModel>();
+
             if (result.Data.Count > 0 && result.Data[0].Id > 0)
             {
                 // The result contains notification id, mark it as inactive for the logged in user
@@ -307,15 +325,17 @@ namespace FitnessAppAPI.Controllers
                     else
                     {
                         await notificationService.AddAcceptedDeclinedNotification(userId, teamId, Constants.NotificationType.DECLINED_TEAM_INVITATION.ToString());
+
+                        // Get the updated list of notifications
+                        var updatedNotificationsResult = await notificationService.GetNotifications(userId);
+                        returnData = updatedNotificationsResult.Data;
+
                     }
                 }
             }
 
-            // Get the updated list of notifications
-            var updatedNotificationsResult = await notificationService.GetNotifications(userId);
-
             // Return response, showing the message from AcceptDeclineInvite action and the data returned from GetNotifications
-            return CustomResponse(result.Code, result.Message, updatedNotificationsResult.Data);
+            return CustomResponse(result.Code, result.Message, returnData);
         }
     }
 }

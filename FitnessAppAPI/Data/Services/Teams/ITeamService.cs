@@ -25,7 +25,10 @@ namespace FitnessAppAPI.Data.Services.Teams
         /// <param name="data">
         ///     The team data
         /// </param>
-        public Task<ServiceActionResult> UpdateTeam(TeamModel data);
+        /// <param name="userId">
+        ///     The logged in user id
+        /// </param>
+        public Task<ServiceActionResult> UpdateTeam(TeamModel data, string userId);
 
         /// <summary>
         ///     Delete the team with the provided id
@@ -37,6 +40,17 @@ namespace FitnessAppAPI.Data.Services.Teams
         ///     The user who is deleting the team
         /// </param>
         public Task<ServiceActionResult> DeleteTeam(long teamId, string userId);
+
+        /// <summary>
+        ///     Leave the team with the provided id
+        /// </summary>
+        /// <param name="teamId">
+        ///     The team id
+        /// </param>
+        /// <param name="userId">s
+        ///     The user who is leaving the team
+        /// </param>
+        public Task<ServiceActionResult> LeaveTeam(long teamId, string userId);
 
         /// <summary>
         ///     Invite member to the team

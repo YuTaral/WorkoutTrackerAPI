@@ -27,12 +27,17 @@ namespace FitnessAppAPI.Data.Services.Teams
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEAM_ADDED);
         }
 
-        public async Task<ServiceActionResult> UpdateTeam(TeamModel data)
+        public async Task<ServiceActionResult> UpdateTeam(TeamModel data, string userId)
         {
+            // Validate this is the team owner
             var team = await DBAccess.Teams.Where(t => t.Id == data.Id).FirstOrDefaultAsync();
             if (team == null)
             {
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TEAM_DOES_NOT_EXIST);
+            }
+            else if (team.UserId != userId)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_EDIT_TEAM_NOT_ALLOWED);
             }
 
             team.Image = Utils.DecodeBase64ToByteArray(data.Image);
@@ -48,17 +53,57 @@ namespace FitnessAppAPI.Data.Services.Teams
 
         public async Task<ServiceActionResult> DeleteTeam(long teamId, string userId)
         {
+            // Validate this is the team owner
             var team = await DBAccess.Teams.Where(t => t.Id == teamId).FirstOrDefaultAsync();
             if (team == null)
             {
                 return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TEAM_DOES_NOT_EXIST);
+            } 
+            else if (team.UserId != userId)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_DELETE_TEAM_NOT_ALLOWED);
             }
 
             // Delete the team
             DBAccess.Teams.Remove(team);
+
+            // Delete all notifications related to this team
+            DBAccess.Notifications.RemoveRange(DBAccess.Notifications.Where(n => n.TeamId == teamId));
+
             await DBAccess.SaveChangesAsync();
 
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEAM_DELETED);
+        }
+
+        public async Task<ServiceActionResult> LeaveTeam(long teamId, string userId)
+        {
+            // Validate this is not team owner
+            var team = await DBAccess.Teams.Where(t => t.Id == teamId).FirstOrDefaultAsync();
+            if (team == null)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TEAM_DOES_NOT_EXIST);
+            } 
+            else if (team.UserId == userId)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LEAVE_TEAM_NOT_ALLOWED);
+            }
+
+            var teamMember = await DBAccess.TeamMembers.Where(tm => tm.TeamId == teamId && tm.UserId == userId).FirstOrDefaultAsync();
+            if (teamMember == null)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TEAM_DOES_NOT_EXIST);
+            }
+
+            DBAccess.TeamMembers.Remove(teamMember);
+
+            // Delete all notifications related to this team and user
+            DBAccess.Notifications.RemoveRange(DBAccess.Notifications
+                                                .Where(n => n.TeamId == teamId && 
+                                                      (n.SenderUserId == userId || n.ReceiverUserId == userId)));
+
+            await DBAccess.SaveChangesAsync();
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_LEFT_TEAM);
         }
 
         public async Task<ServiceActionResult> InviteMember(long teamId, string userId)
