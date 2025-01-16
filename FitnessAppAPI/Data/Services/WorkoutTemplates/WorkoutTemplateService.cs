@@ -81,11 +81,6 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
                 templateModels.Add(workoutModel);
             }
 
-            if (templates.Count == 0)
-            {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_NO_TEMPLATES);
-            }
-
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, templateModels);
         }
     }

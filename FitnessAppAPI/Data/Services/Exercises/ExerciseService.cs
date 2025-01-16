@@ -86,12 +86,6 @@ namespace FitnessAppAPI.Data.Services.Exercises
 
             var sets = await DBAccess.Sets.Where(s => s.ExerciseId == exerciseData.Id).ToListAsync();
 
-            if (!exercise.Name.Equals(exerciseData.Name))
-            {
-                // Update the exercise name if it has been changed
-                exercise.Name = exerciseData.Name;
-            }
-
             if (!exercise.Notes.Equals(exerciseData.Notes))
             {
                 // Update the exercise Notes if it has been changed
