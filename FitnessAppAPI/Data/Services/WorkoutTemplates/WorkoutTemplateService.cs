@@ -51,6 +51,31 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
             return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_ADDED);
         }
 
+        public async Task<ServiceActionResult> UpdateWorkoutTemplate(WorkoutModel data, string userId)
+        {
+            var template = await DBAccess.Workouts.Where(w => w.Id == data.Id && w.Template == "Y").FirstOrDefaultAsync();
+
+            if (template == null)
+            {
+                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TEMPLATE_DOES_NOT_EXIST);
+            }
+
+            if (template.Name != data.Name)
+            {
+                template.Name = data.Name;
+            }
+
+            if (template.Notes != data.Notes) 
+            {
+                template.Notes = data.Notes;
+            }
+
+            DBAccess.Entry(template).State = EntityState.Modified;
+            await DBAccess.SaveChangesAsync();
+
+            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEMPLATE_UPDATED);
+        }
+
         public async Task<ServiceActionResult> DeleteWorkoutTemplate(long templateId) {
             var template = await DBAccess.Workouts.Where(w => w.Id == templateId && w.Template == "Y").FirstOrDefaultAsync();
 

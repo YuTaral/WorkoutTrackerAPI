@@ -20,6 +20,17 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         public Task<ServiceActionResult> AddWorkoutTemplate(WorkoutModel data, string userId);
 
         /// <summary>
+        ///    Update workout template
+        /// </summary>
+        /// <param name="data">
+        ///     The template data
+        /// </param>
+        /// <param name="userId">
+        ///     The user who is adding the template
+        /// </param>
+        public Task<ServiceActionResult> UpdateWorkoutTemplate(WorkoutModel data, string userId);
+
+        /// <summary>
         ///    Delete the template with the provided id
         /// </summary>
         /// <param name="templateId">

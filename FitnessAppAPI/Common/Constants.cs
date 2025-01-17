@@ -27,7 +27,7 @@
         public const string MSG_LOGIN_FAIL = "Login failed. Email or password not provided";
         public const string MSG_REG_FAIL_EMAIL = "Registration failed. Invalid email";
         public const string MSG_LOGIN_FAILED = "Invalid email or password.";
-        public const string MSG_WORKOUT_ADD_FAIL_NO_DATA = "Add workout failed. Name or user not provided";
+        public const string MSG_WORKOUT_ADD_FAIL_NO_DATA = "Add workout failed. Workout data not provided";
         public const string MSG_EXERCISE_ADD_FAIL_NO_DATA = "Add exercise failed. Workout id or exercise data not provided";
         public const string MSG_EXERCISE_UPDATE_FAIL_NO_DATA = "Update exercise failed. Workout id or exercise data not provided";
         public const string MSG_EXERCISE_DELETE_FAIL_NO_ID = "Delete exercise failed. Exercise id not provided";
@@ -45,6 +45,7 @@
         public const string MSG_EX_UPDATED = "Exercise updated";
         public const string MSG_TEMPLATE_ADDED = "Workout template added";
         public const string MSG_TEMPLATE_DELETED = "Workout template deleted";
+        public const string MSG_TEMPLATE_UPDATED = "Workout template updated";
         public const string MSG_GET_EXERCISES_FOR_MG_FAILED = "Fetching exercises for muscle group failed. No muscle group id provided";
         public const string MSG_CANNOT_DELETE_DEFAULT_ERROR = "Cannot delete non user defined exercise";
         public const string MSG_USER_DOES_NOT_EXISTS = "User does not exist";
@@ -52,7 +53,7 @@
         public const string MSG_USER_HAS_NO_WORKOUT = "You don\'t have any workouts";
         public const string MSG_EXERCISE_NOT_FOUND = "Exercise does not exist";
         public const string MSG_NO_MUSCLE_GROUPS_FOUND = "No muscle groups found";
-        public const string MSG_TEMPLATE_DOES_NOT_EXIST = "Tempalte does not exist";
+        public const string MSG_TEMPLATE_DOES_NOT_EXIST = "Template does not exist";
         public const string MSG_EX_ALREADY_EXISTS = "Exercise with the same name already exists";
         public const string MSG_CHANGE_PASS_FAIL = "Password not provided";
         public const string MSG_PASSWORD_CHANGED = "Password changed successfully";
@@ -92,6 +93,9 @@
         public const string MSG_SET_DOES_NOT_EXIST = "Set does not exist";
         public const string MSG_INVALID_TEAM_TYPE = "Invalid team type value provided";
         public const string MSG_FAILED_TO_TEAM_MEMBERS = "Failed to fetch team members";
+        public const string MSG_TEMPLATE_ADD_FAIL_NO_DATA = "Add template failed. Template data not provided";
+        public const string MSG_TEMPLATE_UPDATE_FAIL_NO_DATA = "Update template failed. Template data not provided";
+
 
         /// <summary>
         ///     Class containing the DB constants
@@ -185,6 +189,7 @@
             public const string GET_USER_DEFAULT_VALUES = $"{USER_PROFILE}/get-default-values";
 
             public const string ADD_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATE}/add";
+            public const string UPDATE_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATE}/update";
             public const string DELETE_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATE}/delete";
             public const string GET_WORKOUT_TEMPLATES= $"{WORKOUT_TEMPLATE}/get-templates";
 

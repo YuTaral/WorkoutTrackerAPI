@@ -30,7 +30,7 @@ namespace FitnessAppAPI.Controllers
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("workout", out string? serializedWorkout))
             {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_WORKOUT_ADD_FAIL_NO_DATA);
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_TEMPLATE_ADD_FAIL_NO_DATA);
             }
 
             WorkoutModel? workoutData = JsonConvert.DeserializeObject<WorkoutModel>(serializedWorkout);
@@ -46,6 +46,34 @@ namespace FitnessAppAPI.Controllers
             }
 
             return CustomResponse(await service.AddWorkoutTemplate(workoutData, GetUserId()));
+        }
+
+        /// <summary>
+        //      POST request to update the workout template
+        /// </summary>
+        [HttpPost(Constants.RequestEndPoints.UPDATE_WORKOUT_TEMPLATE)]
+        [Authorize]
+        public async Task<ActionResult> Update([FromBody] Dictionary<string, string> requestData)
+        {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("workout", out string? serializedWorkout))
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_TEMPLATE_UPDATE_FAIL_NO_DATA);
+            }
+
+            WorkoutModel? workoutData = JsonConvert.DeserializeObject<WorkoutModel>(serializedWorkout);
+            if (workoutData == null)
+            {
+                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "WorkoutModel"));
+            }
+
+            string validationErrors = Utils.ValidateModel(workoutData);
+            if (!string.IsNullOrEmpty(validationErrors))
+            {
+                return CustomResponse(Constants.ResponseCode.UNEXPECTED_ERROR, validationErrors);
+            }
+
+            return CustomResponse(await service.UpdateWorkoutTemplate(workoutData, GetUserId()));
         }
 
         /// <summary>
