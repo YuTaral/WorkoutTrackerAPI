@@ -17,7 +17,6 @@ namespace FitnessAppAPI.Data.Services.Teams
                 Image = Utils.DecodeBase64ToByteArray(data.Image),
                 Name = data.Name,
                 Description = data.Description,
-                PrivateNote = data.PrivateNote,
                 UserId = userId
             };
 
@@ -43,7 +42,6 @@ namespace FitnessAppAPI.Data.Services.Teams
             team.Image = Utils.DecodeBase64ToByteArray(data.Image);
             team.Name = data.Name;
             team.Description = data.Description;
-            team.PrivateNote = data.PrivateNote;
 
             DBAccess.Entry(team).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();
