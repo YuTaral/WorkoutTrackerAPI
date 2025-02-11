@@ -235,6 +235,16 @@ namespace FitnessAppAPI.Controllers
         }
 
         /// <summary>
+        //      Get request to return my teams with members
+        /// </summary>
+        [HttpGet(Constants.RequestEndPoints.GET_MY_TEAMS_WITH_MEMBERS)]
+        [Authorize]
+        public async Task<ActionResult> GetMyTeamsWithMembers()
+        {
+            return CustomResponse(await service.GetMyTeamsWithMembers(GetUserId()));
+        }
+
+        /// <summary>
         //      Get request to return users by the specified name which are valid for team invitation
         /// </summary>
         [HttpGet(Constants.RequestEndPoints.GET_USERS_TO_INVITE)]

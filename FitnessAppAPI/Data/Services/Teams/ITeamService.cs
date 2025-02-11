@@ -97,6 +97,14 @@ namespace FitnessAppAPI.Data.Services.Teams
         public Task<ServiceActionResult> GetMyTeams(Constants.ViewTeamAs type, string userId);
 
         /// <summary>
+        ///     Return all teams created by the user, in which there are at least 1 member
+        /// </summary>
+        /// <param name="userId">
+        ///     The user owner of the team
+        /// </param>
+        public Task<ServiceActionResult> GetMyTeamsWithMembers(string userId);
+
+        /// <summary>
         ///     Return filtered users by the specified name which are valid for team invitation
         /// </summary>
         /// <param name="name">

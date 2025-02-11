@@ -202,6 +202,7 @@
             public const string DECLINE_TEAM_INVITE = $"{TEAM}/decline-invite";
             public const string GET_USERS_TO_INVITE = $"{TEAM}/get-users-to-invite";
             public const string GET_MY_TEAMS = $"{TEAM}/my-teams";
+            public const string GET_MY_TEAMS_WITH_MEMBERS = $"{TEAM}/my-teams-with-members";
             public const string GET_MY_TEAM_MEMBERS= $"{TEAM}/get-my-team-members";
             public const string GET_JOINED_TEAM_MEMBERS = $"{TEAM}/get-joined-team-members";
 

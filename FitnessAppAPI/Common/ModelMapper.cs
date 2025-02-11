@@ -284,6 +284,27 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
+        ///     Map the Team to TeamWithMembersModel
+        /// </summary>
+        public static TeamWithMembersModel MapToTeamWithMembersModel(Team team, string viewTeamAs, List<TeamMemberModel> memberModels)
+        {
+            if (team == null)
+            {
+                return GetEmptyTeamWithMembersModelModel();
+            }
+
+            return new TeamWithMembersModel
+            {
+                Id = team.Id,
+                Image = Utils.EncodeByteArrayToBase64Image(team.Image),
+                Name = team.Name,
+                Description = team.Description,
+                ViewTeamAs = viewTeamAs,
+                Members = memberModels
+            };
+        }
+
+        /// <summary>
         ///     Map the team member record to TeamMemberModel
         /// </summary>
         public static async Task<TeamMemberModel> MapToTeamMemberModel(TeamMember teamMember, FitnessAppAPIContext DBAccess)
@@ -349,6 +370,22 @@ namespace FitnessAppAPI.Common
                 Name = "",
                 Description = "",
                 ViewTeamAs = ""
+            };
+        }
+
+        /// <summary>
+        ///    Return empty TeamWithMembersModel
+        /// </summary>
+        private static TeamWithMembersModel GetEmptyTeamWithMembersModelModel()
+        {
+            return new TeamWithMembersModel
+            {
+                Id = 0,
+                Image = "",
+                Name = "",
+                Description = "",
+                ViewTeamAs = "",
+                Members = []
             };
         }
 
