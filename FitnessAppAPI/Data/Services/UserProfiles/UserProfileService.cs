@@ -112,11 +112,12 @@ namespace FitnessAppAPI.Data.Services.UserProfile
 
         }
 
-        public async Task<ServiceActionResult> CreateUserProfile(string userId)
+        public async Task<ServiceActionResult> CreateUserProfile(string userId, string email)
         {
+
             var profile = new Data.Models.UserProfile
             {
-                FullName = "",
+                FullName = email.Substring(0, email.IndexOf("@")),
                 ProfileImage = [],
                 UserId = userId
             };

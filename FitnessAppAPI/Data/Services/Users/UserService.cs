@@ -64,7 +64,7 @@ namespace FitnessAppAPI.Data
             }
 
             // Create the user profile
-            var createUserProfile = await userProfileService.CreateUserProfile(user.Id);
+            var createUserProfile = await userProfileService.CreateUserProfile(user.Id, email);
             if (!createUserProfile.IsSuccess())
             {
                 return new ServiceActionResult(createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
