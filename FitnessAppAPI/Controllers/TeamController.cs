@@ -14,17 +14,12 @@ namespace FitnessAppAPI.Controllers
     /// </summary>
     [ApiController]
     [Route(Constants.RequestEndPoints.TEAMS)]
-    public class TeamController(ITeamService s, INotificationService notificationS) : BaseController
+    public class TeamController(ITeamService s) : BaseController
     {   
         /// <summary>
         //      TeamService instance
         /// </summary>
         private readonly ITeamService service = s;
-
-        /// <summary>
-        //      INotificationService instance
-        /// </summary>
-        private readonly INotificationService notificationService = notificationS;
 
         /// <summary>
         //      POST request to create a new team
@@ -73,23 +68,14 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> InviteMember([FromBody] Dictionary<string, string> requestData)
         {
-            var result = await service.InviteMember(requestData);
+            var result = await service.InviteMember(requestData, GetUserId());
             if (!result.IsSuccess())
             {
                 return SendResponse(result);
             }
 
-            // InviteMember must return team and userId on success
-            var teamId = long.Parse(result.Data[0]);
-            var userId = result.Data[1];
-
-            var createNotification = await notificationService.AddTeamInviteNotification(userId, GetUserId(), teamId);
-            if (!createNotification.IsSuccess()) {
-                return SendResponse(createNotification);
-            }
-
-            // Get the updated list of team members
-            return SendResponse(await service.GetMyTeamMembers(teamId));
+            // InviteMember team id on success, Get the updated list of team members
+            return SendResponse(await service.GetMyTeamMembers(result.Data[0]));
         }
 
         /// <summary>
@@ -105,10 +91,7 @@ namespace FitnessAppAPI.Controllers
                 return SendResponse(result);
             }
 
-            // Remove all notifications related to TeamMember record
-            await notificationService.DeleteNotifications(result.Data[0]);
-
-            // Get the updated list of team members, 
+            // Get the updated list of team members
             return SendResponse(await service.GetMyTeamMembers(result.Data[0].TeamId));
         }
 
@@ -193,43 +176,7 @@ namespace FitnessAppAPI.Controllers
         /// </param>
         private async Task<ActionResult> ProcessAcceptDeclineInvitationRequest(Dictionary<string, string> requestData, string newState)
         {
-            var result = await service.AcceptDeclineInvite(requestData, newState);
-            if (!result.IsSuccess())
-            {
-                return SendResponse(result);
-            }
-
-            var returnData = new List<NotificationModel>();
-
-            if (result.Data.Count > 1)
-            {
-                // The result contains notification, team and user ids, mark it as inactive for the logged in user
-                var notificationId = long.Parse(result.Data[0]);
-                var teamId = long.Parse(result.Data[1]);
-                var userId = result.Data[2];
-
-                var updateNotificationResult = await notificationService.UpdateNotification(notificationId, false);
-
-                if (updateNotificationResult.IsSuccess())
-                {
-                    // Add notification for the team owner
-                    if (newState == Constants.MemberTeamState.ACCEPTED.ToString())
-                    {
-                        await notificationService.AddAcceptedDeclinedNotification(userId, teamId, Constants.NotificationType.JOINED_TEAM.ToString());
-                    }
-                    else
-                    {
-                        await notificationService.AddAcceptedDeclinedNotification(userId, teamId, Constants.NotificationType.DECLINED_TEAM_INVITATION.ToString());
-
-                        // Get the updated list of notifications
-                        var updatedNotificationsResult = await notificationService.GetNotifications(userId);
-                        returnData = updatedNotificationsResult.Data;
-                    }
-                }
-            }
-
-            // Return response, showing the message from AcceptDeclineInvite action and the data returned from GetNotifications
-            return SendResponse(HttpStatusCode.OK, result.Message, returnData);
+            return SendResponse(await service.AcceptDeclineInvite(requestData, newState));
         }
     }
 }

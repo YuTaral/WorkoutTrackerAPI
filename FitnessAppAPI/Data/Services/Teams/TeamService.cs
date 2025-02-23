@@ -1,5 +1,7 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services.Notifications;
+using FitnessAppAPI.Data.Services.Notifications.Models;
 using FitnessAppAPI.Data.Services.Teams.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -10,8 +12,13 @@ namespace FitnessAppAPI.Data.Services.Teams
     /// <summary>
     ///     Team service class to implement ITeamService interface.
     /// </summary>
-    public class TeamService(FitnessAppAPIContext DB) : BaseService(DB), ITeamService
+    public class TeamService(FitnessAppAPIContext DB, INotificationService service) : BaseService(DB), ITeamService
     {
+        /// <summary>
+        //      INotificationService instance
+        /// </summary>
+        private readonly INotificationService notificationService = service;
+
         public async Task<ServiceActionResult<BaseModel>> AddTeam(Dictionary<string, string> requestData, string userId)
         {
             // Check if the neccessary data is provided
@@ -159,17 +166,17 @@ namespace FitnessAppAPI.Data.Services.Teams
             return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, Constants.MSG_LEFT_TEAM);
         }
 
-        public async Task<ServiceActionResult<string>> InviteMember(Dictionary<string, string> requestData)
+        public async Task<ServiceActionResult<long>> InviteMember(Dictionary<string, string> requestData, string senderUserId)
         {
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("teamId", out string? teamIdString) || !requestData.TryGetValue("userId", out string? userId))
             {
-                return new ServiceActionResult<string>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+                return new ServiceActionResult<long>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
             }
 
             if (!long.TryParse(teamIdString, out long teamId))
             {
-                return new ServiceActionResult<string>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+                return new ServiceActionResult<long>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
             }
 
             var teamMember = new TeamMember
@@ -182,8 +189,11 @@ namespace FitnessAppAPI.Data.Services.Teams
             DBAccess.TeamMembers.Add(teamMember);
             await DBAccess.SaveChangesAsync();
 
-            // Return the team and user ids on success
-            return new ServiceActionResult<string>(HttpStatusCode.Created, Constants.MSG_MEMBER_INVITE, [teamId.ToString(), userId]);
+            // Add the notification for invite
+            await notificationService.AddTeamInviteNotification(userId, senderUserId, teamId);
+
+            // Return the team id on success
+            return new ServiceActionResult<long>(HttpStatusCode.Created, Constants.MSG_MEMBER_INVITE, [teamId]);
         }
 
         public async Task<ServiceActionResult<TeamMemberModel>> RemoveMember(Dictionary<string, string> requestData)
@@ -209,21 +219,24 @@ namespace FitnessAppAPI.Data.Services.Teams
             DBAccess.TeamMembers.Remove(record);
             await DBAccess.SaveChangesAsync();
 
+            // Remove all notifications related to TeamMember record
+            await notificationService.DeleteNotifications(data);
+
             // Return the team member model on succes
             return new ServiceActionResult<TeamMemberModel>(HttpStatusCode.OK, Constants.MSG_MEMBER_REMOVED, [data]);
         }
 
-        public async Task<ServiceActionResult<string>> AcceptDeclineInvite(Dictionary<string, string> requestData, string newState)
+        public async Task<ServiceActionResult<NotificationModel>> AcceptDeclineInvite(Dictionary<string, string> requestData, string newState)
         {
             // Check if the neccessary data is provided
             if (!requestData.TryGetValue("userId", out string? userId) || !requestData.TryGetValue("teamId", out string? teamIdString))
             {
-                return new ServiceActionResult<string>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+                return new ServiceActionResult<NotificationModel>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
             }
 
             if (!long.TryParse(teamIdString, out long teamId))
             {
-                return new ServiceActionResult<string>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+                return new ServiceActionResult<NotificationModel>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
             }
 
             var returnMessage = "";
@@ -231,7 +244,7 @@ namespace FitnessAppAPI.Data.Services.Teams
             var record = await DBAccess.TeamMembers.Where(tm => tm.UserId == userId && tm.TeamId == teamId).FirstOrDefaultAsync();
             if (record == null)
             {
-                return new ServiceActionResult<string>(HttpStatusCode.NotFound, Constants.MSG_FAILED_TO_JOIN_DECLINE_TEAM);
+                return new ServiceActionResult<NotificationModel>(HttpStatusCode.NotFound, Constants.MSG_FAILED_TO_JOIN_DECLINE_TEAM);
             }
 
             if (newState == Constants.MemberTeamState.ACCEPTED.ToString())
@@ -253,19 +266,39 @@ namespace FitnessAppAPI.Data.Services.Teams
 
             await DBAccess.SaveChangesAsync();
 
-            // Return the notification id so it could be marked as inactive
-            long notificationId = 0;
             var notification = await DBAccess.Notifications.Where(n => n.ReceiverUserId == userId &&
                                                                  n.TeamId == teamId &&
                                                                  n.NotificationType == Constants.NotificationType.INVITED_TO_TEAM.ToString())
                                                             .FirstOrDefaultAsync();
 
-            if (notification != null)
+            if (notification == null)
             {
-                notificationId = notification.Id;
+                // Something went wrong, just return, the invitation has been accepted / declined
+                return new ServiceActionResult<NotificationModel>(HttpStatusCode.OK, returnMessage);
             }
-            
-            return new ServiceActionResult<string>(HttpStatusCode.OK, returnMessage, [notificationId.ToString(), teamId.ToString(), userId]);
+
+             var returnData = new List<NotificationModel>();
+
+            // Update the notification to mark it as inactive
+            var updateNotificationResult = await notificationService.UpdateNotification(notification.Id, false);
+            if (updateNotificationResult.IsSuccess())
+            {
+                // Add notification for the team owner
+                if (newState == Constants.MemberTeamState.ACCEPTED.ToString())
+                {
+                    await notificationService.AddAcceptedDeclinedNotification(userId, teamId, Constants.NotificationType.JOINED_TEAM.ToString());
+                }
+                else
+                {
+                    await notificationService.AddAcceptedDeclinedNotification(userId, teamId, Constants.NotificationType.DECLINED_TEAM_INVITATION.ToString());
+
+                    // Get the updated list of notifications
+                    var updatedNotificationsResult = await notificationService.GetNotifications(userId);
+                    returnData = updatedNotificationsResult.Data;
+                }
+            }
+
+            return new ServiceActionResult<NotificationModel>(HttpStatusCode.OK, returnMessage, returnData);
         }
 
         public async Task<ServiceActionResult<TeamModel>> GetMyTeams(string teamType, string userId)

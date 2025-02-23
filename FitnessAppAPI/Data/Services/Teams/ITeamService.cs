@@ -1,5 +1,6 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services.Notifications.Models;
 using FitnessAppAPI.Data.Services.Teams.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -60,7 +61,7 @@ namespace FitnessAppAPI.Data.Services.Teams
         /// <param name="requestData">
         ///     The request data (team and user id)
         /// </param>
-        public Task<ServiceActionResult<string>> InviteMember(Dictionary<string, string> requestData);
+        public Task<ServiceActionResult<long>> InviteMember(Dictionary<string, string> requestData, string senderUserId);
 
         /// <summary>
         ///     Remove member from the team
@@ -71,7 +72,9 @@ namespace FitnessAppAPI.Data.Services.Teams
         public Task<ServiceActionResult<TeamMemberModel>> RemoveMember(Dictionary<string, string> requestData);
 
         /// <summary>
-        ///     Change team member record state to accepted or declined
+        ///     Change team member record state to accepted or declined.
+        ///     Mark the invite notification as inactive and return
+        ///     updated notifications
         /// </summary>
         /// <param name="requestData">
         ///     The request data (user and team id)
@@ -79,7 +82,7 @@ namespace FitnessAppAPI.Data.Services.Teams
         /// <param name="newState">
         ///     The new state
         /// </param>
-        public Task<ServiceActionResult<string>> AcceptDeclineInvite(Dictionary<string, string> requestData, string newState);
+        public Task<ServiceActionResult<NotificationModel>> AcceptDeclineInvite(Dictionary<string, string> requestData, string newState);
 
         /// <summary>
         ///     Return all teams created by the user
