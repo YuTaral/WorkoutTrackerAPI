@@ -22,8 +22,9 @@
         public const string MSG_LOGIN_FAIL = "Login failed. Email or password not provided";
         public const string MSG_REG_FAIL_EMAIL = "Registration failed. Invalid email";
         public const string MSG_LOGIN_FAILED = "Invalid email or password.";
-        public const string MSG_WORKOUT_ADD_FAIL_NO_DATA = "Add workout failed. Workout data not provided";
-        public const string MSG_EXERCISE_ADD_FAIL_NO_DATA = "Add exercise failed. Workout id or exercise data not provided";
+        public const string MSG_WORKOUT_ADD_FAIL_NO_DATA = "Workout data not provided";
+        public const string MSG_EXERCISE_ADD_FAIL_NO_DATA = "Workout id or exercise data not provided";
+        public const string MSG_EXERCISE_FAIL_NO_DATA = "Exercise data not provided";
         public const string MSG_EXERCISE_UPDATE_FAIL_NO_DATA = "Update exercise failed. Workout id or exercise data not provided";
         public const string MSG_EXERCISE_DELETE_FAIL_NO_ID = "Delete exercise failed. Exercise id not provided";
         public const string MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ = "Request failed. Failed to deseriazlied object %s";
@@ -32,11 +33,7 @@
         public const string MSG_UNEXPECTED_DB_ERROR = "Unexpected database error occurred while proccessing your request. Please try again";
         public const string MSG_OBJECT_ID_NOT_PROVIDED = "Id not provided";
         public const string MSG_USER_REGISTER_SUCCESS = "User registered successfully";
-        public const string MSG_WORKOUT_DELETED = "Workout deleted";
-        public const string MSG_WORKOUT_ADDED = "Workout added";
-        public const string MSG_WORKOUT_UPDATED = "Workout updated";
         public const string MSG_EX_DELETED = "Exercise deleted";
-        public const string MSG_EX_ADDED = "Exercise added";
         public const string MSG_EX_UPDATED = "Exercise updated";
         public const string MSG_TEMPLATE_ADDED = "Workout template added";
         public const string MSG_TEMPLATE_DELETED = "Workout template deleted";

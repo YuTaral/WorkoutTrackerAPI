@@ -1,12 +1,8 @@
 ﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Services;
-using FitnessAppAPI.Data.Services.Exercises;
-using FitnessAppAPI.Data.Services.Exercises.Models;
 using FitnessAppAPI.Data.Services.Workouts;
-using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
+using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -14,7 +10,7 @@ namespace FitnessAppAPI.Controllers
     ///     Workout Controller
     /// </summary>
     [ApiController]
-    [Route(Constants.RequestEndPoints.WORKOUTS)]
+    [Route(RequestEndPoints.WORKOUTS)]
     public class WorkoutController(IWorkoutService s) : BaseController
     {
         /// <summary>
@@ -65,7 +61,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      Get request to fetch the weight units
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.WEIGHT_UNITS)]
+        [HttpGet(RequestEndPoints.WEIGHT_UNITS)]
         public async Task<ActionResult> GetWeightUnits()
         {
             return SendResponse(await service.GetWeightUnits());

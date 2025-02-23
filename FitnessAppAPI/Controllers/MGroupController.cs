@@ -1,7 +1,7 @@
 ﻿using FitnessAppAPI.Data.Services.MuscleGroups;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using FitnessAppAPI.Common;
+using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -10,7 +10,7 @@ namespace FitnessAppAPI.Controllers
     /// </summary>
     /// </summary>
     [ApiController]
-    [Route(Constants.RequestEndPoints.MUSCLE_GROUPS)]
+    [Route(RequestEndPoints.MUSCLE_GROUPS)]
     public class MGroupController(IMuscleGroupService s) : BaseController
     {
         /// <summary>

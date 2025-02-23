@@ -7,6 +7,7 @@ using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Net;
+using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Data.Services.Workouts
 {
@@ -24,23 +25,16 @@ namespace FitnessAppAPI.Data.Services.Workouts
 
         public async Task<ServiceActionResult<WorkoutModel>> AddWorkout(Dictionary<string, string> requestData, string userId)
         {
-            // Check if the neccessary data is provided
-            if (!requestData.TryGetValue("workout", out string? serializedWorkout))
+            // Validate workout
+            var validationResult = ValidateWorkoutData(requestData);
+
+            if (!validationResult.IsSuccess() || validationResult.Data.Count == 0)
             {
-                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, Constants.MSG_WORKOUT_ADD_FAIL_NO_DATA);
+                return validationResult;
             }
 
-            WorkoutModel? workoutData = JsonConvert.DeserializeObject<WorkoutModel>(serializedWorkout);
-            if (workoutData == null)
-            {
-                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "WorkoutModel"));
-            }
-
-            string validationErrors = Utils.ValidateModel(workoutData);
-            if (!string.IsNullOrEmpty(validationErrors))
-            {
-                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, validationErrors);
-            }
+            // Validation passed, create the workout
+            var workoutData = validationResult.Data[0];
 
             var workout = new Workout
             {
@@ -71,37 +65,28 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 }
             }
 
-            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.Created, Constants.MSG_WORKOUT_ADDED,
-                                                [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
+            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.Created, MSG_SUCCESS, [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
         }
 
         public async Task<ServiceActionResult<WorkoutModel>> UpdateWorkout(Dictionary<string, string> requestData, string userId)
         {
-            // Check if the neccessary data is provided
-            if (!requestData.TryGetValue("workout", out string? serializedWorkout))
+            // Validate workout
+            var validationResult = ValidateWorkoutData(requestData);
+
+            if (!validationResult.IsSuccess() || validationResult.Data.Count == 0)
             {
-                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, Constants.MSG_WORKOUT_ADD_FAIL_NO_DATA);
+                return validationResult;
             }
 
-            WorkoutModel? workoutData = JsonConvert.DeserializeObject<WorkoutModel>(serializedWorkout);
-            if (workoutData == null)
-            {
-                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "WorkoutModel"));
-            }
-
-            string validationErrors = Utils.ValidateModel(workoutData);
-            if (!string.IsNullOrEmpty(validationErrors))
-            {
-                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, validationErrors);
-            }
+            var workoutData = validationResult.Data[0];
 
             var workout = await CheckWorkoutExists(workoutData.Id, userId);
             if (workout == null)
             {
-                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.NotFound, Constants.MSG_WORKOUT_DOES_NOT_EXIST);
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.NotFound, MSG_WORKOUT_DOES_NOT_EXIST);
             }
 
-            // Change the data
+            // Validation passed, update the workout
             workout.Name = workoutData.Name;
             workout.FinishDateTime = workoutData.FinishDateTime;
             workout.DurationSeconds = workoutData.DurationSeconds;
@@ -110,8 +95,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
             DBAccess.Entry(workout).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, Constants.MSG_WORKOUT_UPDATED,
-                                                [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
+            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
         }
 
         public async Task<ServiceActionResult<BaseModel>> DeleteWorkout(long workoutId, string userId) {
@@ -119,37 +103,36 @@ namespace FitnessAppAPI.Data.Services.Workouts
             // Check if the neccessary data is provided
             if (workoutId <= 0)
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_OBJECT_ID_NOT_PROVIDED);
             }
 
             var workout = await CheckWorkoutExists(workoutId, userId);
             if (workout == null)
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, Constants.MSG_WORKOUT_DOES_NOT_EXIST);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, MSG_WORKOUT_DOES_NOT_EXIST);
             }
 
             // Delete the workout
             DBAccess.Workouts.Remove(workout);
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, Constants.MSG_WORKOUT_DELETED);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
         }
 
         public async Task<ServiceActionResult<WorkoutModel>> GetWorkout(long id, string userId) {
             var workout = await CheckWorkoutExists(id, userId);
             if (workout == null)
             {
-                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.NotFound, Constants.MSG_WORKOUT_DOES_NOT_EXIST, []);
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.NotFound, MSG_WORKOUT_DOES_NOT_EXIST, []);
             }
 
-            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS,
-                                                [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
+            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
         }
 
         public async Task<ServiceActionResult<WorkoutModel>> GetLatestWorkouts(string startDate, string userId) {
             if (!DateTime.TryParse(startDate, out DateTime date))
             {
-                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, Constants.MSG_INVALID_DATE_FORMAT);
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, MSG_INVALID_DATE_FORMAT);
             }
 
             // Start the query
@@ -165,7 +148,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 workoutModels.Add(workoutModel);
             }
 
-            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, workoutModels);
+            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, workoutModels);
         }
 
         public async Task<ServiceActionResult<WeightUnitModel>> GetWeightUnits()
@@ -174,10 +157,10 @@ namespace FitnessAppAPI.Data.Services.Workouts
 
             if (units.Count == 0)
             {
-                return new ServiceActionResult<WeightUnitModel>(HttpStatusCode.NotFound, Constants.MSG_FAILED_TO_FETCH_WEIGHT_UNITS);
+                return new ServiceActionResult<WeightUnitModel>(HttpStatusCode.NotFound, MSG_FAILED_TO_FETCH_WEIGHT_UNITS);
             }
 
-            return new ServiceActionResult<WeightUnitModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, units);
+            return new ServiceActionResult<WeightUnitModel>(HttpStatusCode.OK, MSG_SUCCESS, units);
         }
 
         /// <summary>
@@ -193,6 +176,36 @@ namespace FitnessAppAPI.Data.Services.Workouts
         private async Task<Workout?> CheckWorkoutExists(long id, string userId)
         {
             return await DBAccess.Workouts.Where(w => w.Id == id && w.UserId == userId).FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        ///    Perform validations whether the provided workout data is valid
+        ///    Return workout model if valid, otherwise Bad Request
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data - must contain serialized workout
+        /// </param>
+        private static ServiceActionResult<WorkoutModel> ValidateWorkoutData(Dictionary<string, string> requestData)
+        {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("workout", out string? serializedWorkout))
+            {
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, MSG_WORKOUT_ADD_FAIL_NO_DATA);
+            }
+
+            WorkoutModel? workoutData = JsonConvert.DeserializeObject<WorkoutModel>(serializedWorkout);
+            if (workoutData == null)
+            {
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, string.Format(MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "WorkoutModel"));
+            }
+
+            string validationErrors = Utils.ValidateModel(workoutData);
+            if (!string.IsNullOrEmpty(validationErrors))
+            {
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, validationErrors);
+            }
+
+            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, validationErrors, [workoutData]);
         }
     }
 }

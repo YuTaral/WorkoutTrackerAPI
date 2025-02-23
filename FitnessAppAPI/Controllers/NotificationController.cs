@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Services.Notifications;
-using Newtonsoft.Json;
 using System.Net;
 
 namespace FitnessAppAPI.Controllers

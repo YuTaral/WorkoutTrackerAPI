@@ -6,6 +6,7 @@ using FitnessAppAPI.Data.Services.Workouts;
 using Microsoft.AspNetCore.Authorization;
 using FitnessAppAPI.Data.Services;
 using System.Net;
+using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -14,7 +15,7 @@ namespace FitnessAppAPI.Controllers
     /// </summary>
     /// </summary>
     [ApiController]
-    [Route(Constants.RequestEndPoints.EXERCISES)]
+    [Route(RequestEndPoints.EXERCISES)]
     public class ExerciseController(IExerciseService s, IWorkoutService ws) : BaseController
     {
         /// <summary>
@@ -30,7 +31,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to add a new exercise to workout
         /// </summary>
-        [HttpPost(Constants.RequestEndPoints.TO_WORKOUT)]
+        [HttpPost(RequestEndPoints.TO_WORKOUT)]
         [Authorize]
         public async Task<ActionResult> AddExerciseToWorkout([FromBody] Dictionary<string, string> requestData)
         {
@@ -49,7 +50,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      Patch request to update an exercise
         /// </summary>
-        [HttpPatch(Constants.RequestEndPoints.EXERCISE_FROM_WORKOUT)]
+        [HttpPatch(RequestEndPoints.EXERCISE_FROM_WORKOUT)]
         [Authorize]
         public async Task<ActionResult> UpdateExerciseFromWorkout([FromBody] Dictionary<string, string> requestData)
         {
@@ -68,7 +69,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      Delete request to delete an exercise from workout
         /// </summary>
-        [HttpDelete(Constants.RequestEndPoints.EXERCISE_FROM_WORKOUT)]
+        [HttpDelete(RequestEndPoints.EXERCISE_FROM_WORKOUT)]
         [Authorize]
         public async Task<ActionResult> DeleteExerciseFromWorkout([FromQuery] long exerciseId)
         {
@@ -179,7 +180,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      Patch request to mark the set as completed
         /// </summary>
-        [HttpPatch(Constants.RequestEndPoints.COMPLETE_SET)]
+        [HttpPatch(RequestEndPoints.COMPLETE_SET)]
         [Authorize]
         public async Task<ActionResult> CompleteSet([FromBody] Dictionary<string, string> requestData)
         {
@@ -205,7 +206,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      GET request to fetch the exercise for muscle groups with the provided id
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.EXERCISES_FOR_MG)]
+        [HttpGet(RequestEndPoints.EXERCISES_FOR_MG)]
         [Authorize]
         public async Task<ActionResult> GetExercisesForMuscleGroup([FromQuery] long muscleGroupId, [FromQuery] string onlyForUser)
         {
@@ -215,7 +216,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      GET request to fetch the muscle group exercise with the provided id
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.MG_EXERCISE)]
+        [HttpGet(RequestEndPoints.MG_EXERCISE)]
         [Authorize]
         public async Task<ActionResult> GetMGExercise([FromQuery] long mGExerciseId)
         {

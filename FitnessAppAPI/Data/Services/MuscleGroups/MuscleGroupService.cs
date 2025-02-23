@@ -1,8 +1,8 @@
 ﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.MuscleGroups.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Data.Services.MuscleGroups
 {
@@ -20,11 +20,11 @@ namespace FitnessAppAPI.Data.Services.MuscleGroups
 
             if (returnData.Count > 0)
             {
-                return new ServiceActionResult<MuscleGroupModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, returnData);
+                return new ServiceActionResult<MuscleGroupModel>(HttpStatusCode.OK, MSG_SUCCESS, returnData);
             }
 
             // Should not happen as there are always default muscle groups
-            return new ServiceActionResult<MuscleGroupModel>(HttpStatusCode.NotFound, Constants.MSG_NO_MUSCLE_GROUPS_FOUND, returnData);
+            return new ServiceActionResult<MuscleGroupModel>(HttpStatusCode.NotFound, MSG_NO_MUSCLE_GROUPS_FOUND);
         }
     }
 }
