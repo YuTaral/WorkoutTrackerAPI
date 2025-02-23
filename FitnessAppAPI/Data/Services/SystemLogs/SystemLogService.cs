@@ -21,7 +21,6 @@ namespace FitnessAppAPI.Data.Services.SystemLogs
                 stackTrace = stackTrace[..4000];
             }
 
-
             var systemLog = new SystemLog
             {
                 ExceptionDescription = exception.Message,

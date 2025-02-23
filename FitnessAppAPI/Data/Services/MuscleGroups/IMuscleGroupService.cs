@@ -1,4 +1,6 @@
-﻿namespace FitnessAppAPI.Data.Services.MuscleGroups
+﻿using FitnessAppAPI.Data.Services.MuscleGroups.Models;
+
+namespace FitnessAppAPI.Data.Services.MuscleGroups
 {
     /// <summary>
     ///     Muscle Groups service interface to define the logic for muscle groups CRUD operations.
@@ -11,6 +13,6 @@
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public Task<ServiceActionResult> GetMuscleGroups(string userId);
+        public Task<ServiceActionResult<MuscleGroupModel>> GetMuscleGroups(string userId);
     }
 }

@@ -6,16 +6,11 @@
     public static class Constants
     {
         /// <summary>
-        ///     Enum with all custom defined response codes. Must correspond with client-side ResponseCode enum
+        ///     Custom response codes
         /// </summary>
-        public enum ResponseCode
+        public class CustomHttpStatusCode
         {
-            SUCCESS,
-            FAIL,
-            UNEXPECTED_ERROR,
-            EXERCISE_ALREADY_EXISTS,
-            TOKEN_EXPIRED,
-            REFRESH_TOKEN
+            public const int EXERCISE_ALREADY_EXISTS = 499;
         }
 
         /// <summary>
@@ -61,7 +56,7 @@
         public const string MSG_DEF_VALUES_UPDATED = "Default values updated";
         public const string MSG_FAILED_TO_FETCH_WEIGHT_UNITS = "Failed to fetch weight units";
         public const string MSG_FAILED_TO_FETCH_DEFAULT_VALUES = "Failed to fetch default values";
-        public const string MSG_FAILED_TO_UPDATE_DEFAULT_VALUES = "Failed to fetch update values";
+        public const string MSG_FAILED_TO_UPDATE_DEFAULT_VALUES = "Failed to update values";
         public const string MSG_TOKEN_VALIDATION_FAILED = "Authorization failed";
         public const string MSG_TOKEN_EXPIRED = "Session expired. Please login again";
         public const string MSG_WORKOUT_FINISHED = "Workout finished";
@@ -77,7 +72,7 @@
         public const string MSG_TEAM_UPDATED = "Team updated";
         public const string MSG_LEFT_TEAM = "You left the team";
         public const string MSG_UPDATE_TEAM_FAIL_NO_DATA = "Update team failed. No data provided";
-        public const string MSG_SEARCH_NAME_NOT_PROVIDED = "Search name not provided";
+        public const string MSG_SEARCH_NAME_NOT_PROVIDED = "Search name or team id not provided";
         public const string MSG_MEMBER_INVITE = "Member invited";
         public const string MSG_MEMBER_REMOVED = "Member removed";
         public const string MSG_MEMBER_IS_NOT_IN_TEAM = "The member is not in the team";
@@ -95,7 +90,7 @@
         public const string MSG_FAILED_TO_TEAM_MEMBERS = "Failed to fetch team members";
         public const string MSG_TEMPLATE_ADD_FAIL_NO_DATA = "Add template failed. Template data not provided";
         public const string MSG_TEMPLATE_UPDATE_FAIL_NO_DATA = "Update template failed. Template data not provided";
-
+        public const string MSG_INVALID_DATE_FORMAT = "Invalid date format provided";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -148,69 +143,44 @@
         {
             public const string API = "/api";
             public const string FAVICON = "/favicon.ico";
+            public const string USERS = $"{API}/users";
+            public const string EXERCISES = $"{API}/exercises";
+            public const string USER_PROFILES = $"{API}/user-profiles";
+            public const string WORKOUT_TEMPLATES = $"{API}/workout-templates";
+            public const string TEAMS = $"{API}/teams";
+            public const string NOTIFICATIONS = $"{API}/notifications";
+            public const string WORKOUTS = $"{API}/workouts";
+            public const string MUSCLE_GROUPS = $"{API}/muscle-groups";
 
-            public const string USER = $"{API}/user";
-            public const string WORKOUT = $"{API}/workout";
-            public const string EXERCISE = $"{API}/exercise";
-            public const string MUSCLE_GROUP = $"{API}/muscle-group";
-            public const string USER_PROFILE = $"{API}/user-profile";
-            public const string WORKOUT_TEMPLATE = $"{API}/workout-template";
-            public const string TEAM = $"{API}/team";
-            public const string NOTIFICATION = $"{API}/notification";
+            public const string REGISTER = $"{USERS}/register";
+            public const string LOGIN = $"{USERS}/login";
+            public const string LOGOUT = $"{USERS}/logout";
+            public const string CHANGE_PASSWORD = $"{USERS}/change-password";
+            public const string VALIDATE_TOKEN = $"{USERS}/validate-token";
 
-            public const string REGISTER = $"{USER}/register";
-            public const string LOGIN = $"{USER}/login";
-            public const string LOGOUT = $"{USER}/logout";
-            public const string CHANGE_PASSWORD = $"{USER}/change-password";
-            public const string VALIDATE_TOKEN = $"{USER}/validate-token";
+            public const string WEIGHT_UNITS= $"{WORKOUTS}/weight-units";
 
-            public const string ADD_WORKOUT = $"{WORKOUT}/add";
-            public const string UPDATE_WORKOUT = $"{WORKOUT}/update";
-            public const string DELETE_WORKOUT = $"{WORKOUT}/delete";
-            public const string GET_WORKOUTS = $"{WORKOUT}/get-workouts";
-            public const string GET_WORKOUT = $"{WORKOUT}/get-workout";
-            public const string GET_WEIGHT_UNITS = $"{WORKOUT}/get-weight-units";
+            public const string TO_WORKOUT = $"{EXERCISES}/to-workout";
+            public const string EXERCISE_FROM_WORKOUT = $"{EXERCISES}/exercise-from-workout";
+            public const string COMPLETE_SET = $"{EXERCISES}/complete-set";
+            public const string EXERCISES_FOR_MG = $"{EXERCISES}/by-mg-id";
+            public const string MG_EXERCISE = $"{EXERCISES}/mg-exercise";
 
-            public const string ADD_EXERCISE_TO_WORKOUT = $"{EXERCISE}/add-to-workout";
-            public const string UPDATE_EXERCISE_FROM_WORKOUT = $"{EXERCISE}/update-exercise-from-workout";
-            public const string DELETE_EXERCISE_FROM_WORKOUT = $"{EXERCISE}/delete-exercise-from-workout";
-            public const string ADD_EXERCISE = $"{EXERCISE}/add";
-            public const string UPDATE_EXERCISE = $"{EXERCISE}/update";
-            public const string DELETE_EXERCISE = $"{EXERCISE}/delete";
-            public const string COMPLETE_SET = $"{EXERCISE}/complete-set";
-            public const string GET_EXERCISES_FOR_MG = $"{EXERCISE}/get-by-mg-id";
-            public const string GET_MG_EXERCISE = $"{EXERCISE}/get-mg-exercise";
+            public const string DEFAULT_VALUES = $"{USER_PROFILES}/default-values";
 
-            public const string GET_MUSCLE_GROUPS_FOR_USER = $"{MUSCLE_GROUP}/get-by-user";
+            public const string LEAVE_TEAM = $"{TEAMS}/leave";
+            public const string INVITE_MEMBER = $"{TEAMS}/invite-member";
+            public const string REMOVE_MEMBER = $"{TEAMS}/remove-member";
+            public const string ACCEPT_TEAM_INVITE = $"{TEAMS}/accept-invite";
+            public const string DECLINE_TEAM_INVITE = $"{TEAMS}/decline-invite";
+            public const string MY_TEAMS = $"{TEAMS}/my-teams";
+            public const string MY_TEAMS_WITH_MEMBERS = $"{TEAMS}/my-teams-with-members";
+            public const string USERS_TO_INVITE = $"{TEAMS}/users-to-invite";
+            public const string MY_TEAM_MEMBERS= $"{TEAMS}/my-team-members";
+            public const string JOINED_TEAM_MEMBERS = $"{TEAMS}/joined-team-members";
 
-            public const string UPDATE_USER_DEFAULT_VALUES = $"{USER_PROFILE}/update-default-values";
-            public const string UPDATE_USER_PROFILE = $"{USER_PROFILE}/update-profile";
-            public const string GET_USER_DEFAULT_VALUES = $"{USER_PROFILE}/get-default-values";
-
-            public const string ADD_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATE}/add";
-            public const string UPDATE_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATE}/update";
-            public const string DELETE_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATE}/delete";
-            public const string GET_WORKOUT_TEMPLATES= $"{WORKOUT_TEMPLATE}/get-templates";
-
-            public const string ADD_TEAM= $"{TEAM}/add";
-            public const string UPDATE_TEAM = $"{TEAM}/update";
-            public const string DELETE_TEAM = $"{TEAM}/delete";
-            public const string LEAVE_TEAM = $"{TEAM}/leave";
-            public const string INVITE_MEMBER = $"{TEAM}/invite-member";
-            public const string REMOVE_MEMBER = $"{TEAM}/remove-member";
-            public const string ACCEPT_TEAM_INVITE = $"{TEAM}/accept-invite";
-            public const string DECLINE_TEAM_INVITE = $"{TEAM}/decline-invite";
-            public const string GET_USERS_TO_INVITE = $"{TEAM}/get-users-to-invite";
-            public const string GET_MY_TEAMS = $"{TEAM}/my-teams";
-            public const string GET_MY_TEAMS_WITH_MEMBERS = $"{TEAM}/my-teams-with-members";
-            public const string GET_MY_TEAM_MEMBERS= $"{TEAM}/get-my-team-members";
-            public const string GET_JOINED_TEAM_MEMBERS = $"{TEAM}/get-joined-team-members";
-
-            public const string NOTIFICATION_REVIEWED = $"{NOTIFICATION}/reviewed";
-            public const string DELETE_NOTIFICATION = $"{NOTIFICATION}/delete";
-            public const string GET_NOTIFICATIONS = $"{NOTIFICATION}/get-notifications";
-            public const string GET_JOIN_TEAM_NOTIFICATION_DETAILS = $"{NOTIFICATION}/get-join-team-notification-details";
-            public const string REFRESH_NOTIFICATIONS = $"{NOTIFICATION}/refresh-notifications";
+            public const string JOIN_TEAM_NOTIFICATION_DETAILS = $"{NOTIFICATIONS}/join-team-notification-details";
+            public const string REFRESH_NOTIFICATIONS = $"{NOTIFICATIONS}/refresh-notifications";
 
         }
 

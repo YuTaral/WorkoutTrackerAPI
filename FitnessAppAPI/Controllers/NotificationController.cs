@@ -2,7 +2,7 @@
 using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Services.Notifications;
 using Newtonsoft.Json;
-using FitnessAppAPI.Data.Services.Notifications.Models;
+using System.Net;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -10,7 +10,7 @@ namespace FitnessAppAPI.Controllers
     ///     User Controller
     /// </summary>
     [ApiController]
-    [Route(Constants.RequestEndPoints.NOTIFICATION)]
+    [Route(Constants.RequestEndPoints.NOTIFICATIONS)]
     public class NotificationController(INotificationService s) : BaseController
     {
         /// <summary>
@@ -19,72 +19,48 @@ namespace FitnessAppAPI.Controllers
         private readonly INotificationService service = s;
 
         /// <summary>
-        //      Post request to mark the notification as reviewed
+        //      Patch request to mark the notification as reviewed
         /// </summary>
-        [HttpPost(Constants.RequestEndPoints.NOTIFICATION_REVIEWED)]
-        public async Task<ActionResult> NotificationReviewed([FromQuery] long id)
+        [HttpPatch]
+        public async Task<ActionResult> NotificationReviewed([FromBody] Dictionary<string, string> requestData)
         {
-            // Check if the neccessary data is provided
-            if (id < 1)
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_GET_NOTIFICATION_DETAILS);
-            }
-
-            return CustomResponse(await service.UpdateNotification(id, false));
+            return SendResponse(await service.UpdateNotification(requestData, false));
         }
 
         /// <summary>
-        //      Post request to delete the notification
+        //      Delete request to delete the notification
         /// </summary>
-        [HttpPost(Constants.RequestEndPoints.DELETE_NOTIFICATION)]
-        public async Task<ActionResult> DeleteNotification([FromBody] Dictionary<string, string> requestData)
+        [HttpDelete]
+        public async Task<ActionResult> DeleteNotification([FromQuery] long notificationId)
         {
-            // Check if the neccessary data is provided
-            if (!requestData.TryGetValue("notification", out string? serializednotification))
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_DELETE_NOTIFICATION_FAILED);
-            }
-
-            NotificationModel? notification = JsonConvert.DeserializeObject<NotificationModel>(serializednotification);
-            if (notification == null)
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "NotificationModel"));
-            }
-
             var userId = GetUserId();
 
-            var result = await service.DeleteNotification(notification, userId);
+            var result = await service.DeleteNotification(notificationId, userId);
             if (!result.IsSuccess())
             {
-                return CustomResponse(result);
+                return SendResponse(result);
             }
 
             // Return the notifications on success
-            return CustomResponse(await service.GetNotifications(userId));
+            return SendResponse(await service.GetNotifications(userId));
         }
 
         /// <summary>
         //      Get request to get user notifications
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.GET_NOTIFICATIONS)]
+        [HttpGet]
         public async Task<ActionResult> GetNotifications()
         {
-            return CustomResponse(await service.GetNotifications(GetUserId()));
+            return SendResponse(await service.GetNotifications(GetUserId()));
         }
 
         /// <summary>
         //      Get request to get join team notification details
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.GET_JOIN_TEAM_NOTIFICATION_DETAILS)]
-        public async Task<ActionResult> GetJoinTeamNotificationDetails([FromQuery] long id)
+        [HttpGet(Constants.RequestEndPoints.JOIN_TEAM_NOTIFICATION_DETAILS)]
+        public async Task<ActionResult> GetJoinTeamNotificationDetails([FromQuery] long notificationId)
         {
-            // Check if the neccessary data is provided
-            if (id < 1)
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_GET_NOTIFICATION_DETAILS);
-            }
-
-            return CustomResponse(await service.GetJoinTeamNotificationDetails(id));
+            return SendResponse(await service.GetJoinTeamNotificationDetails(notificationId));
         }
 
         /// <summary>
@@ -94,7 +70,7 @@ namespace FitnessAppAPI.Controllers
         public ActionResult RefreshNotifications()
         {
             // Just return custom response, it will automatically refresh the notification
-            return CustomResponse(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS);
+            return SendResponse(HttpStatusCode.OK, Constants.MSG_SUCCESS);
         }
     }
 }

@@ -2,6 +2,7 @@
 using FitnessAppAPI.Data.Services.SystemLogs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Net;
 using System.Security.Claims;
 
 /// <summary>
@@ -25,8 +26,7 @@ public class GlobalExceptionFilter(IServiceProvider s) : IExceptionFilter
             userId = "";
         }
 
-
-        // User fire and forget technique, getting th service form the service provider. If we inject
+        // User fire and forget technique, getting the service form the service provider. If we inject
         // the systemLogService through the constructor, in some cases it is already disposed when 
         // OnException is reached and adding the record to system logs is impossible
         _ = Task.Run(async () =>
@@ -40,10 +40,10 @@ public class GlobalExceptionFilter(IServiceProvider s) : IExceptionFilter
             catch (Exception){}
         });
 
-        // Show unexpected error message to the user
-        context.Result = new JsonResult(Utils.CreateResponseObject(Constants.ResponseCode.UNEXPECTED_ERROR, Constants.MSG_UNEXPECTED_ERROR, []))
+        // Show internal server error message to the user
+        context.Result = new JsonResult(Utils.CreateResponseObject((int) HttpStatusCode.InternalServerError, Constants.MSG_UNEXPECTED_ERROR, []))
         {
-            StatusCode = StatusCodes.Status200OK,
+            StatusCode = StatusCodes.Status500InternalServerError,
         };
     }
 }

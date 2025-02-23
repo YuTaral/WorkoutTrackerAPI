@@ -6,6 +6,7 @@ using FitnessAppAPI.Data.Services.UserProfile.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using NuGet.Protocol;
+using System.Net;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -13,7 +14,7 @@ namespace FitnessAppAPI.Controllers
     ///     User Profile Controller
     /// </summary>
     [ApiController]
-    [Route(Constants.RequestEndPoints.USER_PROFILE)]
+    [Route(Constants.RequestEndPoints.USER_PROFILES)]
     public class UserProfileController(IUserProfileService s, IUserService uService) : BaseController
     {
         /// <summary>
@@ -27,79 +28,43 @@ namespace FitnessAppAPI.Controllers
         private readonly IUserService userService = uService;
 
         /// <summary>
-        //      POST request to update user exercise default values 
+        //      Patch request to update user exercise default values 
         /// </summary>
-        [HttpPost(Constants.RequestEndPoints.UPDATE_USER_DEFAULT_VALUES)]
+        [HttpPatch(Constants.RequestEndPoints.DEFAULT_VALUES)]
         public async Task<ActionResult> UpdateUserDefaultValues([FromBody] Dictionary<string, string> requestData)
         {
-            /// Check if new pass is provided
-            if (!requestData.TryGetValue("values", out string? serializedValues))
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_CHANGE_USER_DEF_VALUES);
-            }
-
-            UserDefaultValuesModel? data = JsonConvert.DeserializeObject<UserDefaultValuesModel>(serializedValues);
-            if (data == null)
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "UserDefaultValuesModel"));
-            }
-
-            string validationErrors = Utils.ValidateModel(data);
-            if (!string.IsNullOrEmpty(validationErrors))
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
-            }
-
-            return CustomResponse(await service.UpdateUserDefaultValues(data, GetUserId()));
+            return SendResponse(await service.UpdateUserDefaultValues(requestData, GetUserId()));
         }
 
         /// <summary>
-        //      POST request to update user exercise default values 
+        //      PATCH request to update user exercise default values 
         /// </summary>
-        [HttpPost(Constants.RequestEndPoints.UPDATE_USER_PROFILE)]
+        [HttpPatch]
         public async Task<ActionResult> UpdateUserProfile([FromBody] Dictionary<string, string> requestData)
         {
-            /// Check if new pass is provided
-            if (!requestData.TryGetValue("user", out string? serializedUser))
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_CHANGE_USER_DEF_VALUES);
-            }
-
-            UserModel? data = JsonConvert.DeserializeObject<UserModel>(serializedUser);
-            if (data == null)
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "UserModel"));
-            }
-
-            var validationErrors = Utils.ValidateModel(data);
-            if (!string.IsNullOrEmpty(validationErrors))
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, validationErrors);
-            }
-
-            var result = await service.UpdateUserProfile(data);
+            var result = await service.UpdateUserProfile(requestData);
 
             if (!result.IsSuccess())
             {
-                return CustomResponse(result);
+                return SendResponse(result);
             }
 
             // Get the updated user
-            var updatedUserResult = await userService.GetUserModel(data.Email);
+            var updatedUserResult = await userService.GetUserModel(result.Data[0].Email);
 
             if (updatedUserResult.Id == "") {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_USER_DOES_NOT_EXISTS);
+                return SendResponse(HttpStatusCode.NotFound, Constants.MSG_USER_DOES_NOT_EXISTS);
             }
 
-            return CustomResponse(result.Code, result.Message, [updatedUserResult.ToJson()]);
+            return SendResponse((HttpStatusCode) result.Code, result.Message, [updatedUserResult]);
         }
 
         /// <summary>
         //      Get request to fetch the user default values for specific exercise
-        [HttpGet(Constants.RequestEndPoints.GET_USER_DEFAULT_VALUES)]
+        [HttpGet(Constants.RequestEndPoints.DEFAULT_VALUES)]
         public async Task<ActionResult> Get([FromQuery] long mgExerciseId)
         {
-            return CustomResponse(await service.GetExerciseOrUserDefaultValues(mgExerciseId, GetUserId()));   
+            return SendResponse(await service.GetExerciseOrUserDefaultValues(mgExerciseId, GetUserId()));   
         }
     }
 }

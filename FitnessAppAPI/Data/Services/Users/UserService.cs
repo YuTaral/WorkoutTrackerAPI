@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using FitnessAppAPI.Data.Services.UserProfile;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 
 namespace FitnessAppAPI.Data
@@ -37,12 +38,18 @@ namespace FitnessAppAPI.Data
             userProfileService = userProfileS;
         }
 
-        public async Task<ServiceActionResult> Register(string email, string password)
+        public async Task<ServiceActionResult<BaseModel>> Register(Dictionary<string, string> requestData)
         {
+            /// Check if username and password are provided
+            if (!requestData.TryGetValue("email", out string? email) || !requestData.TryGetValue("password", out string? password))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_REG_FAIL);
+            }
+
             // Validate
             if (!Utils.IsValidEmail(email))
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_REG_FAIL_EMAIL);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_REG_FAIL_EMAIL);
             }
 
             // Create the user
@@ -53,31 +60,37 @@ namespace FitnessAppAPI.Data
 
             if (!result.Succeeded)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Utils.UserErrorsToString(result.Errors));
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Utils.UserErrorsToString(result.Errors));
             }
 
             // Create the default values for the user
             var createUserDefaultValuesResult = await userProfileService.AddUserDefaultValues(user.Id);
             if (!createUserDefaultValuesResult.IsSuccess())
             {
-                return new ServiceActionResult(createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
+                return new ServiceActionResult<BaseModel>((HttpStatusCode)createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
             }
 
             // Create the user profile
             var createUserProfile = await userProfileService.CreateUserProfile(user.Id, email);
             if (!createUserProfile.IsSuccess())
             {
-                return new ServiceActionResult(createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
+                return new ServiceActionResult<BaseModel>((HttpStatusCode)createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
             }
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_USER_REGISTER_SUCCESS);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.Created, Constants.MSG_USER_REGISTER_SUCCESS);
 
         }
 
-        public async Task<TokenResponseModel> Login(string email, string password)
+        public async Task<TokenResponseModel> Login(Dictionary<string, string> requestData)
         {
-            var returnUserModel = ModelMapper.GetEmptyUserModel();
-            ServiceActionResult? serviceActionResult;
+            ServiceActionResult<UserModel> serviceActionResult;
+
+            /// Check if username and password are provided
+            if (!requestData.TryGetValue("email", out string? email) || !requestData.TryGetValue("password", out string? password))
+            {
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, Constants.MSG_LOGIN_FAILED);
+                return new TokenResponseModel("", serviceActionResult);
+            }
 
             // Login attempt
             var result = await singInManager.PasswordSignInAsync(email, password, true, lockoutOnFailure: false);
@@ -85,8 +98,8 @@ namespace FitnessAppAPI.Data
             // Process result
             if (!result.Succeeded)
             {
-                serviceActionResult = new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAILED);
-                return new TokenResponseModel(returnUserModel, "", serviceActionResult);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, Constants.MSG_LOGIN_FAILED);
+                return new TokenResponseModel("", serviceActionResult);
             }
 
             // Retrieve the logged in user
@@ -94,36 +107,42 @@ namespace FitnessAppAPI.Data
 
             if (user == null || user.Email == null)
             {
-                serviceActionResult = new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAILED);
-                return new TokenResponseModel(returnUserModel, "", serviceActionResult);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, Constants.MSG_LOGIN_FAILED);
+                return new TokenResponseModel("", serviceActionResult);
             }
 
             // Generate JwtToken
             var token = GenerateJwtToken(user);
             if (token == "")
             {
-                serviceActionResult = new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LOGIN_FAILED);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, Constants.MSG_LOGIN_FAILED);
             } 
             else
             {
-                serviceActionResult = new ServiceActionResult(Constants.ResponseCode.SUCCESS);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, [await GetUserModel(email)]);
             }
 
-            return new TokenResponseModel(await GetUserModel(email), token, serviceActionResult);
+            return new TokenResponseModel(token, serviceActionResult);
         }
-        public async Task<ServiceActionResult> Logout()
+        public async Task<ServiceActionResult<BaseModel>> Logout()
         {
             await singInManager.SignOutAsync();
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
         }
 
-        public async Task<ServiceActionResult> ChangePassword(string oldPassword, string password, string userId)
+        public async Task<ServiceActionResult<BaseModel>> ChangePassword(Dictionary<string, string> requestData, string userId)
         {
-                // Find the user by id
+            /// Check if new pass is provided
+            if (!requestData.TryGetValue("oldPassword", out string? oldPassword) || !requestData.TryGetValue("password", out string? password))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_CHANGE_PASS_FAIL);
+            }
+
+            // Find the user by id
             var user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_USER_DOES_NOT_EXISTS);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, Constants.MSG_USER_DOES_NOT_EXISTS);
             }
 
             // Change the password
@@ -131,17 +150,16 @@ namespace FitnessAppAPI.Data
 
             if (!result.Succeeded)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Utils.UserErrorsToString(result.Errors));
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Utils.UserErrorsToString(result.Errors));
             }
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_PASSWORD_CHANGED);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, Constants.MSG_PASSWORD_CHANGED);
         }
 
         public async Task<TokenResponseModel> ValidateToken(string token, string userId)
         {
             var returnToken = "";
-            var returnUserModel = ModelMapper.GetEmptyUserModel();
-            ServiceActionResult? serviceActionResult;
+            ServiceActionResult<UserModel> serviceActionResult;
 
             if (string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(token)) {
                 // Make sure the userId is set when validation token
@@ -155,8 +173,8 @@ namespace FitnessAppAPI.Data
 
             if (keyString == null)
             {
-                serviceActionResult = new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TOKEN_VALIDATION_FAILED);
-                return new TokenResponseModel(returnUserModel, "", serviceActionResult);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.InternalServerError, Constants.MSG_TOKEN_VALIDATION_FAILED);
+                return new TokenResponseModel("", serviceActionResult);
             }
 
             var key = Encoding.ASCII.GetBytes(keyString);
@@ -180,20 +198,20 @@ namespace FitnessAppAPI.Data
                     if (user != null)
                     {
                         returnToken = GenerateJwtToken(user);
-                        serviceActionResult = new ServiceActionResult(Constants.ResponseCode.REFRESH_TOKEN, Constants.MSG_SUCCESS);
+                        serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.Unauthorized, Constants.MSG_SUCCESS);
 
-                        return new TokenResponseModel(returnUserModel, returnToken, serviceActionResult);
+                        return new TokenResponseModel(returnToken, serviceActionResult);
                     }
                 }
 
-                serviceActionResult = new ServiceActionResult(Constants.ResponseCode.SUCCESS);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.OK);
             }
             catch
             {
-                serviceActionResult =  new ServiceActionResult(Constants.ResponseCode.TOKEN_EXPIRED, Constants.MSG_TOKEN_EXPIRED);
+                serviceActionResult =  new ServiceActionResult<UserModel>(HttpStatusCode.Unauthorized, Constants.MSG_TOKEN_EXPIRED);
             }
 
-            return new TokenResponseModel(returnUserModel, returnToken, serviceActionResult);
+            return new TokenResponseModel(returnToken, serviceActionResult);
         }
 
         public async Task<UserModel> GetUserModel(string email)
@@ -243,7 +261,7 @@ namespace FitnessAppAPI.Data
                 issuer: null,
                 audience: null,
                 claims: claims,
-                expires: DateTime.Now.AddDays(14),
+                expires: DateTime.Now.AddDays(10),
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

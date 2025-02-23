@@ -4,12 +4,10 @@
     ///     TokenResponseModel user to return UserModel and JWT Token
     ///     after successfull login / token validation
     /// </summary>
-    public class TokenResponseModel(UserModel u, string t, ServiceActionResult r)
+    public class TokenResponseModel(string t, ServiceActionResult<UserModel> r)
     {
-        public UserModel User { get; set; } = u;
-
         public string Token { get; set; } = t;
 
-        public ServiceActionResult Result { get; set; } = r;
+        public ServiceActionResult<UserModel> Result { get; set; } = r;
     }
 }

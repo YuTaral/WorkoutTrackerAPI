@@ -319,6 +319,7 @@ namespace FitnessAppAPI.Common
             return new TeamMemberModel {
                 Id = teamMember.Id,
                 UserId = teamMember.UserId,
+                TeamId = teamMember.TeamId,
                 FullName = userProfile.FullName,
                 Image = Utils.EncodeByteArrayToBase64Image(userProfile.ProfileImage),
                 TeamState = teamMember.State
@@ -474,6 +475,7 @@ namespace FitnessAppAPI.Common
             {
                 Id = 0,
                 UserId = "",
+                TeamId = 0,
                 FullName = "",
                 Image = "",
                 TeamState = ""

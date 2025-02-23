@@ -10,7 +10,7 @@ namespace FitnessAppAPI.Controllers
     /// </summary>
     /// </summary>
     [ApiController]
-    [Route(Constants.RequestEndPoints.MUSCLE_GROUP)]
+    [Route(Constants.RequestEndPoints.MUSCLE_GROUPS)]
     public class MGroupController(IMuscleGroupService s) : BaseController
     {
         /// <summary>
@@ -21,12 +21,12 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      GET request to fetch the muscle groups for the user with the provided id
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.GET_MUSCLE_GROUPS_FOR_USER)]
+        [HttpGet]
         [Authorize]
         public async Task<ActionResult> GetMuscleGroups()
         {
             // Fetch the default and user defined muscle groups
-            return CustomResponse(await service.GetMuscleGroups(GetUserId()));
+            return SendResponse(await service.GetMuscleGroups(GetUserId()));
         }
     }
 }

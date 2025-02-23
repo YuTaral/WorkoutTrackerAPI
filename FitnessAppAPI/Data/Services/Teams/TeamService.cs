@@ -2,6 +2,8 @@
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Teams.Models;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.Net;
 
 namespace FitnessAppAPI.Data.Services.Teams
 {
@@ -10,56 +12,98 @@ namespace FitnessAppAPI.Data.Services.Teams
     /// </summary>
     public class TeamService(FitnessAppAPIContext DB) : BaseService(DB), ITeamService
     {
-        public async Task<ServiceActionResult> AddTeam(TeamModel data, string userId)
+        public async Task<ServiceActionResult<BaseModel>> AddTeam(Dictionary<string, string> requestData, string userId)
         {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("team", out string? serializedTeam))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_TEAM_FAIL_NO_DATA);
+            }
+
+            TeamModel? teamData = JsonConvert.DeserializeObject<TeamModel>(serializedTeam);
+            if (teamData == null)
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "TeamModel"));
+            }
+
+            string validationErrors = Utils.ValidateModel(teamData);
+            if (!string.IsNullOrEmpty(validationErrors))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, validationErrors);
+            }
+
             var team = new Team
             {
-                Image = Utils.DecodeBase64ToByteArray(data.Image),
-                Name = data.Name,
-                Description = data.Description,
+                Image = Utils.DecodeBase64ToByteArray(teamData.Image),
+                Name = teamData.Name,
+                Description = teamData.Description,
                 UserId = userId
             };
 
             await DBAccess.Teams.AddAsync(team);
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEAM_ADDED);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.Created, Constants.MSG_TEAM_ADDED);
         }
 
-        public async Task<ServiceActionResult> UpdateTeam(TeamModel data, string userId)
+        public async Task<ServiceActionResult<BaseModel>> UpdateTeam(Dictionary<string, string> requestData, string userId)
         {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("team", out string? serializedTeam))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_UPDATE_TEAM_FAIL_NO_DATA);
+            }
+
+            TeamModel? teamData = JsonConvert.DeserializeObject<TeamModel>(serializedTeam);
+            if (teamData == null)
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "TeamModel"));
+            }
+
+            string validationErrors = Utils.ValidateModel(teamData);
+            if (!string.IsNullOrEmpty(validationErrors))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, validationErrors);
+            }
+
             // Validate this is the team owner
-            var team = await DBAccess.Teams.Where(t => t.Id == data.Id).FirstOrDefaultAsync();
+            var team = await DBAccess.Teams.Where(t => t.Id == teamData.Id).FirstOrDefaultAsync();
             if (team == null)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TEAM_DOES_NOT_EXIST);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, Constants.MSG_TEAM_DOES_NOT_EXIST);
             }
             else if (team.UserId != userId)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_EDIT_TEAM_NOT_ALLOWED);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_EDIT_TEAM_NOT_ALLOWED);
             }
 
-            team.Image = Utils.DecodeBase64ToByteArray(data.Image);
-            team.Name = data.Name;
-            team.Description = data.Description;
+            team.Image = Utils.DecodeBase64ToByteArray(teamData.Image);
+            team.Name = teamData.Name;
+            team.Description = teamData.Description;
 
             DBAccess.Entry(team).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEAM_UPDATED);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, Constants.MSG_TEAM_UPDATED);
         }
 
-        public async Task<ServiceActionResult> DeleteTeam(long teamId, string userId)
+        public async Task<ServiceActionResult<BaseModel>> DeleteTeam(long teamId, string userId)
         {
+            // Check if the neccessary data is provided
+            if (teamId <= 0)
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
             // Validate this is the team owner
             var team = await DBAccess.Teams.Where(t => t.Id == teamId).FirstOrDefaultAsync();
             if (team == null)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TEAM_DOES_NOT_EXIST);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, Constants.MSG_TEAM_DOES_NOT_EXIST);
             } 
             else if (team.UserId != userId)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_DELETE_TEAM_NOT_ALLOWED);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_DELETE_TEAM_NOT_ALLOWED);
             }
 
             // Delete the team
@@ -70,26 +114,37 @@ namespace FitnessAppAPI.Data.Services.Teams
 
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_TEAM_DELETED);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, Constants.MSG_TEAM_DELETED);
         }
 
-        public async Task<ServiceActionResult> LeaveTeam(long teamId, string userId)
+        public async Task<ServiceActionResult<BaseModel>> LeaveTeam(Dictionary<string, string> requestData, string userId)
         {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("teamId", out string? teamIdString))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            if (!long.TryParse(teamIdString, out long teamId))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
             // Validate this is not team owner
             var team = await DBAccess.Teams.Where(t => t.Id == teamId).FirstOrDefaultAsync();
             if (team == null)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TEAM_DOES_NOT_EXIST);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, Constants.MSG_TEAM_DOES_NOT_EXIST);
             } 
             else if (team.UserId == userId)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_LEAVE_TEAM_NOT_ALLOWED);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_LEAVE_TEAM_NOT_ALLOWED);
             }
 
             var teamMember = await DBAccess.TeamMembers.Where(tm => tm.TeamId == teamId && tm.UserId == userId).FirstOrDefaultAsync();
             if (teamMember == null)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_TEAM_DOES_NOT_EXIST);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, Constants.MSG_TEAM_DOES_NOT_EXIST);
             }
 
             DBAccess.TeamMembers.Remove(teamMember);
@@ -101,11 +156,22 @@ namespace FitnessAppAPI.Data.Services.Teams
 
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_LEFT_TEAM);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, Constants.MSG_LEFT_TEAM);
         }
 
-        public async Task<ServiceActionResult> InviteMember(long teamId, string userId)
+        public async Task<ServiceActionResult<string>> InviteMember(Dictionary<string, string> requestData)
         {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("teamId", out string? teamIdString) || !requestData.TryGetValue("userId", out string? userId))
+            {
+                return new ServiceActionResult<string>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            if (!long.TryParse(teamIdString, out long teamId))
+            {
+                return new ServiceActionResult<string>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
             var teamMember = new TeamMember
             {
                 State = Constants.MemberTeamState.INVITED.ToString(),
@@ -116,38 +182,56 @@ namespace FitnessAppAPI.Data.Services.Teams
             DBAccess.TeamMembers.Add(teamMember);
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_MEMBER_INVITE);
+            // Return the team and user ids on success
+            return new ServiceActionResult<string>(HttpStatusCode.Created, Constants.MSG_MEMBER_INVITE, [teamId.ToString(), userId]);
         }
 
-        public async Task<ServiceActionResult> RemoveMember(TeamMemberModel data)
+        public async Task<ServiceActionResult<TeamMemberModel>> RemoveMember(Dictionary<string, string> requestData)
         {
-            var record = await DBAccess.TeamMembers.Where(tm => tm.Id == data.Id).FirstOrDefaultAsync();
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("member", out string? serializedMember))
+            {
+                return new ServiceActionResult<TeamMemberModel>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
 
+            TeamMemberModel? data = JsonConvert.DeserializeObject<TeamMemberModel>(serializedMember);
+            if (data == null)
+            {
+                return new ServiceActionResult<TeamMemberModel>(HttpStatusCode.BadRequest, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "TeamMemberModel"));
+            }
+
+            var record = await DBAccess.TeamMembers.Where(tm => tm.Id == data.Id).FirstOrDefaultAsync();
             if (record == null)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_MEMBER_IS_NOT_IN_TEAM);
+                return new ServiceActionResult<TeamMemberModel>(HttpStatusCode.NotFound, Constants.MSG_MEMBER_IS_NOT_IN_TEAM);
             }
 
             DBAccess.TeamMembers.Remove(record);
             await DBAccess.SaveChangesAsync();
 
-            // Return the team id on success
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_MEMBER_REMOVED, [new BaseModel { Id = record.TeamId }]);
+            // Return the team member model on succes
+            return new ServiceActionResult<TeamMemberModel>(HttpStatusCode.OK, Constants.MSG_MEMBER_REMOVED, [data]);
         }
 
-        public async Task<ServiceActionResult> AcceptDeclineInvite(string userId, long teamId, string newState)
+        public async Task<ServiceActionResult<string>> AcceptDeclineInvite(Dictionary<string, string> requestData, string newState)
         {
-            var model = new BaseModel
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("userId", out string? userId) || !requestData.TryGetValue("teamId", out string? teamIdString))
             {
-                Id = 0
-            };
+                return new ServiceActionResult<string>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            if (!long.TryParse(teamIdString, out long teamId))
+            {
+                return new ServiceActionResult<string>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
 
             var returnMessage = "";
 
             var record = await DBAccess.TeamMembers.Where(tm => tm.UserId == userId && tm.TeamId == teamId).FirstOrDefaultAsync();
             if (record == null)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_JOIN_DECLINE_TEAM);
+                return new ServiceActionResult<string>(HttpStatusCode.NotFound, Constants.MSG_FAILED_TO_JOIN_DECLINE_TEAM);
             }
 
             if (newState == Constants.MemberTeamState.ACCEPTED.ToString())
@@ -170,27 +254,51 @@ namespace FitnessAppAPI.Data.Services.Teams
             await DBAccess.SaveChangesAsync();
 
             // Return the notification id so it could be marked as inactive
+            long notificationId = 0;
             var notification = await DBAccess.Notifications.Where(n => n.ReceiverUserId == userId &&
                                                                  n.TeamId == teamId &&
                                                                  n.NotificationType == Constants.NotificationType.INVITED_TO_TEAM.ToString())
                                                             .FirstOrDefaultAsync();
+
             if (notification != null)
             {
-                model.Id = notification.Id;
+                notificationId = notification.Id;
             }
-
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, returnMessage, [model]);
+            
+            return new ServiceActionResult<string>(HttpStatusCode.OK, returnMessage, [notificationId.ToString(), teamId.ToString(), userId]);
         }
 
-        public async Task<ServiceActionResult> GetMyTeams(Constants.ViewTeamAs type, string userId)
+        public async Task<ServiceActionResult<TeamModel>> GetMyTeams(string teamType, string userId)
         {
-            List<BaseModel> teams = [];
+            // Check if the neccessary data is provided
+            if (teamType == "")
+            {
+                return new ServiceActionResult<TeamModel>(HttpStatusCode.BadRequest, Constants.MSG_INVALID_TEAM_TYPE);
+            }
+
+            Constants.ViewTeamAs type;
+
+            if (teamType == Constants.ViewTeamAs.COACH.ToString())
+            {
+                type = Constants.ViewTeamAs.COACH;
+            }
+            else if (teamType == Constants.ViewTeamAs.MEMBER.ToString())
+            {
+                type = Constants.ViewTeamAs.MEMBER;
+            }
+            else
+            {
+                // Invalid value
+                return new ServiceActionResult<TeamModel>(HttpStatusCode.BadRequest, Constants.MSG_INVALID_TEAM_TYPE);
+            }
+
+            List<TeamModel> teams = [];
 
             if (type == Constants.ViewTeamAs.COACH)
             {
                 // Fetch teams where user is coach
                 teams = await DBAccess.Teams.Where(t => t.UserId == userId)
-                                            .Select(t => (BaseModel)ModelMapper.MapToTeamModel(t, type.ToString()))
+                                            .Select(t => ModelMapper.MapToTeamModel(t, type.ToString()))
                                             .ToListAsync();
             } 
             else
@@ -198,17 +306,17 @@ namespace FitnessAppAPI.Data.Services.Teams
                 // Fetch teams where user is member
                 teams = await DBAccess.Teams.Where(t => DBAccess.TeamMembers.Any(tm => tm.TeamId == t.Id && tm.UserId == userId && 
                                                                                  tm.State == Constants.MemberTeamState.ACCEPTED.ToString()))
-                                              .Select(t => (BaseModel)ModelMapper.MapToTeamModel(t, type.ToString()))
+                                              .Select(t => ModelMapper.MapToTeamModel(t, type.ToString()))
                                               .ToListAsync();
             }
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, teams);
+            return new ServiceActionResult<TeamModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, teams);
         }
 
-        public async Task<ServiceActionResult> GetMyTeamsWithMembers(string userId)
+        public async Task<ServiceActionResult<TeamWithMembersModel>> GetMyTeamsWithMembers(string userId)
         {
             var teams = await DBAccess.Teams.Where(t => t.UserId == userId).ToListAsync();
-            var returnData = new List<BaseModel>();
+            var returnData = new List<TeamWithMembersModel>();
 
             foreach (Team t  in teams)
             {
@@ -229,19 +337,25 @@ namespace FitnessAppAPI.Data.Services.Teams
 
                 if (memberModels.Count > 0) {
                     // Add only the teams which have at least 1 member
-                    returnData.Add((BaseModel) ModelMapper.MapToTeamWithMembersModel(t, Constants.ViewTeamAs.COACH.ToString(), memberModels));
+                    returnData.Add(ModelMapper.MapToTeamWithMembersModel(t, Constants.ViewTeamAs.COACH.ToString(), memberModels));
                 }
             }
-            
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
+
+            return new ServiceActionResult<TeamWithMembersModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, returnData);
         }
 
-        public async Task<ServiceActionResult> GetUsersToInvite(string name, long teamId, string userId)
+        public async Task<ServiceActionResult<TeamMemberModel>> GetUsersToInvite(string name, long teamId, string userId)
         {
+            // Check if the neccessary data is provided
+            if (name == "" || teamId <= 0)
+            {
+                return new ServiceActionResult<TeamMemberModel>(HttpStatusCode.BadRequest, Constants.MSG_SEARCH_NAME_NOT_PROVIDED);
+            }
+
             // Trim and convert to lower
             name = name.Trim().ToLower();
 
-            var members = new List<BaseModel>();
+            var members = new List<TeamMemberModel>();
 
             // Fetch users with this name
             var users = await DBAccess.UserProfiles.Where(u => u.UserId != userId && u.FullName.ToLower().Contains(name) &&
@@ -265,12 +379,32 @@ namespace FitnessAppAPI.Data.Services.Teams
                 }
             }
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, members);
+            return new ServiceActionResult<TeamMemberModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, members);
         }
 
-        public async Task<ServiceActionResult> GetMyTeamMembers(long teamId)
+        public async Task<ServiceActionResult<TeamMemberModel>> GetMyTeamMembers(Dictionary<string, string> requestData)
         {
-            var returnData = new List<BaseModel>();
+            if (!requestData.TryGetValue("teamId", out string? teamIdString))
+            {
+                return new ServiceActionResult<TeamMemberModel>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            if (!long.TryParse(teamIdString, out long teamId))
+            {
+                return new ServiceActionResult<TeamMemberModel>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            return await GetMyTeamMembers(teamId);
+        }
+
+        public async Task<ServiceActionResult<TeamMemberModel>> GetMyTeamMembers(long teamId)
+        {
+            if (teamId <= 0)
+            {
+                return new ServiceActionResult<TeamMemberModel>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            var returnData = new List<TeamMemberModel>();
 
             var members = await DBAccess.TeamMembers.Where(tm => tm.TeamId == teamId).OrderBy(tm => tm.State).ToListAsync();
 
@@ -280,11 +414,17 @@ namespace FitnessAppAPI.Data.Services.Teams
                 returnData.Add(await ModelMapper.MapToTeamMemberModel(member, DBAccess));
             }
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
+            return new ServiceActionResult<TeamMemberModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, returnData);
         }
 
-        public async Task<ServiceActionResult> GetJoinedTeamMembers(long teamId, string userId)
+        public async Task<ServiceActionResult<BaseModel>> GetJoinedTeamMembers(long teamId, string userId)
         {
+            // Check if the neccessary data is provided
+            if (teamId <= 0)
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
             var returnData = new List<BaseModel>();
 
             // Add the coach
@@ -295,10 +435,10 @@ namespace FitnessAppAPI.Data.Services.Teams
                                             .FirstOrDefaultAsync();
             if (coach == null)
             {
-                return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_FAILED_TO_TEAM_OWNER);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, Constants.MSG_FAILED_TO_TEAM_OWNER);
             }
 
-            returnData.Add((BaseModel)coach);
+            returnData.Add(coach);
 
             var members = await DBAccess.TeamMembers.Where(tm => tm.TeamId == teamId && tm.UserId != userId &&
                                                            tm.State == Constants.MemberTeamState.ACCEPTED.ToString())
@@ -311,7 +451,7 @@ namespace FitnessAppAPI.Data.Services.Teams
                 returnData.Add(await ModelMapper.MapToTeamMemberModel(member, DBAccess));
             }
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, returnData);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, returnData);
         }
     }
 }

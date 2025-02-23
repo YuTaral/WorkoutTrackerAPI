@@ -1,4 +1,5 @@
-﻿using FitnessAppAPI.Data.Services.User.Models;
+﻿using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services.User.Models;
 
 namespace FitnessAppAPI.Data.Services
 {
@@ -10,24 +11,18 @@ namespace FitnessAppAPI.Data.Services
         /// <summary>
         ///     Register the user
         /// </summary>
-        /// <param name="email">
-        ///     The user email
+        /// <param name="requestData">
+        ///     The request data (user email and password)
         /// </param>
-        /// <param name="password">
-        ///     The user password
-        /// </param>
-        public Task<ServiceActionResult> Register(string email, string password);
+        public Task<ServiceActionResult<BaseModel>> Register(Dictionary<string, string> requestData);
 
         /// <summary>
         ///     Login the user
         /// </summary>
-        /// <param name="email">
-        ///     The user email
+        /// <param name="requestData">
+        ///     The request data (user email and password)
         /// </param>
-        /// <param name="password">
-        ///     The user password
-        /// </param>
-        public Task<TokenResponseModel> Login(string email, string password);
+        public Task<TokenResponseModel> Login(Dictionary<string, string> requestData);
 
         /// <summary>
         ///     Log Out the User
@@ -35,21 +30,18 @@ namespace FitnessAppAPI.Data.Services
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public Task<ServiceActionResult> Logout();
+        public Task<ServiceActionResult<BaseModel>> Logout();
 
         /// <summary>
         ///     Change user passowrd
         /// </summary>
-        /// <param name="oldPassword">
-        ///     The old password
-        /// </param>
-        /// <param name="s">
-        ///     The new password
+        /// <param name="requestData">
+        ///     The request data (old password and new password)
         /// </param>
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public Task<ServiceActionResult> ChangePassword(string oldPassword, string password, string userId);
+        public Task<ServiceActionResult<BaseModel>> ChangePassword(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
         ///     Validate the token

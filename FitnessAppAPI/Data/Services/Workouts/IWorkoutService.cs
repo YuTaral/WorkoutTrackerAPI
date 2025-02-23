@@ -1,4 +1,6 @@
-﻿using FitnessAppAPI.Data.Services.Workouts.Models;
+﻿using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services.UserProfile.Models;
+using FitnessAppAPI.Data.Services.Workouts.Models;
 
 namespace FitnessAppAPI.Data.Services.Workouts
 {
@@ -10,35 +12,35 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <summary>
         ///     Add new workout from the provided WorkoutModel data
         /// </summary>
-        /// <param name="data">
-        ///     The workout data
+        /// <param name="requestData">
+        ///     The request data (workout)
         /// </param>
         /// <param name="userId">
         ///     The user who is adding the workout
         /// </param>
-        public Task<ServiceActionResult> AddWorkout(WorkoutModel data, string userId);
+        public Task<ServiceActionResult<WorkoutModel>> AddWorkout(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
         ///     Edit the workout from the provided WorkoutModel data
         /// </summary>
-        /// <param name="data">
-        ///     The workout data
+        /// <param name="requestData">
+        ///     The request data (workout)
         /// </param>
         /// <param name="userId">
         ///     The user who is updating the workout
         /// </param>
-        public Task<ServiceActionResult> UpdateWorkout(WorkoutModel data, string userId);
+        public Task<ServiceActionResult<WorkoutModel>> UpdateWorkout(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
         ///     Delete the workout with the provided id
         /// </summary>
-        ///  /// <param name="workoutId">
+        /// <param name="workoutId">
         ///     The workout id
         /// </param>
         /// <param name="userId">
         ///     The user who is deleting the workout
         /// </param>
-        public Task<ServiceActionResult> DeleteWorkout(long workoutId, string userId);
+        public Task<ServiceActionResult<BaseModel>> DeleteWorkout(long workoutId, string userId);
 
         /// <summary>
         ///     Fetch the workout with the provided id and returns WorkoutModel
@@ -49,22 +51,22 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <param name="userId">
         ///     The user owner of the workout
         /// </param>
-        public Task<ServiceActionResult> GetWorkout(long id, string userId);
+        public Task<ServiceActionResult<WorkoutModel>> GetWorkout(long id, string userId);
 
         /// <summary>
         ///     Fetch the latest workout for the user and returns WorkoutModel list
         /// </summary>
         /// <param name="startDate">
-        ///     The workotus start date
+        ///     The start date
         /// </param>
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public Task<ServiceActionResult> GetLatestWorkouts(DateTime startDate, string userId);
+        public Task<ServiceActionResult<WorkoutModel>> GetLatestWorkouts(string startDate, string userId);
 
         /// <summary>
         ///     Fetch the weight units
         /// </summary>
-        public Task<ServiceActionResult> GetWeightUnits();
+        public Task<ServiceActionResult<WeightUnitModel>> GetWeightUnits();
     }
 }

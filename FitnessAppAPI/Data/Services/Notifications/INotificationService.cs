@@ -1,4 +1,5 @@
-﻿using FitnessAppAPI.Data.Services.Notifications.Models;
+﻿using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services.Notifications.Models;
 using FitnessAppAPI.Data.Services.Teams.Models;
 
 namespace FitnessAppAPI.Data.Services.Notifications
@@ -21,7 +22,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
         ///     The team id
         /// </param>
         /// 
-        public Task<ServiceActionResult> AddTeamInviteNotification(string receiverUserId, string senderUserId, long teamId);
+        public Task<ServiceActionResult<BaseModel>> AddTeamInviteNotification(string receiverUserId, string senderUserId, long teamId);
 
         /// <summary>
         ///     Add the team accept invitation notification to the notifications table
@@ -36,7 +37,18 @@ namespace FitnessAppAPI.Data.Services.Notifications
         ///     The notification type - "JOINED" or "DECLINED"
         /// </param>
         /// 
-        public Task<ServiceActionResult> AddAcceptedDeclinedNotification(string senderUserId, long teamId, string notificationType);
+        public Task<ServiceActionResult<BaseModel>> AddAcceptedDeclinedNotification(string senderUserId, long teamId, string notificationType);
+
+        /// <summary>
+        ///     Change the notification state
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data (notification id)
+        /// </param>
+        /// <param name="isActive">
+        ///     True if the notification must be set to active, false otherwise
+        /// </param>
+        public Task<ServiceActionResult<BaseModel>> UpdateNotification(Dictionary<string, string> requestData, bool isActive);
 
         /// <summary>
         ///     Change the notification state
@@ -47,18 +59,18 @@ namespace FitnessAppAPI.Data.Services.Notifications
         /// <param name="isActive">
         ///     True if the notification must be set to active, false otherwise
         /// </param>
-        public Task<ServiceActionResult> UpdateNotification(long id, bool isActive);
+        public Task<ServiceActionResult<BaseModel>> UpdateNotification(long id, bool isActive);
 
         /// <summary>
         ///     Delete the notification
         /// </summary>
-        /// <param name="data">
-        ///     The notification to delete
+        /// <param name="notificationId">
+        ///     The notification id
         /// </param>
         /// <param name="userId">
         ///     The user id - owner of the notifications
         /// </param>
-        public Task<ServiceActionResult> DeleteNotification(NotificationModel data, string userId);
+        public Task<ServiceActionResult<BaseModel>> DeleteNotification(long notificationId, string userId);
 
         /// <summary>
         ///     Delete notifications after TeamMember record has been deleted
@@ -69,7 +81,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
         /// <param name="teamId">
         ///     The team id
         /// </param>
-        public Task<ServiceActionResult> DeleteNotifications(TeamMemberModel data, long teamId);
+        public Task<ServiceActionResult<BaseModel>> DeleteNotifications(TeamMemberModel data);
 
         /// <summary>
         ///     Return the notifications for the user
@@ -77,7 +89,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
         /// <param name="userId">
         ///     The user id - owner of the notifications
         /// </param>
-        public Task<ServiceActionResult> GetNotifications(string userId);
+        public Task<ServiceActionResult<NotificationModel>> GetNotifications(string userId);
 
         /// <summary>
         ///     Check whether the current user have at least one active notification
@@ -90,9 +102,9 @@ namespace FitnessAppAPI.Data.Services.Notifications
         /// <summary>
         ///     Return the join team notification details
         /// </summary>
-        /// <param name="id">
+        /// <param name="notificationId">
         ///     The notification id
         /// </param>
-        public Task<ServiceActionResult> GetJoinTeamNotificationDetails(long id);
+        public Task<ServiceActionResult<JoinTeamNotificationModel>> GetJoinTeamNotificationDetails(long notificationId);
     }
 }

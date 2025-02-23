@@ -15,18 +15,18 @@ namespace FitnessAppAPI.Data.Services.UserProfile
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public Task<ServiceActionResult> AddUserDefaultValues(string userId);
+        public Task<ServiceActionResult<BaseModel>> AddUserDefaultValues(string userId);
 
         /// <summary>
         ///     Change user default values
         /// </summary>
-        /// <param name="data">
-        ///     The new default values
+        /// <param name="requestData">
+        ///     The request data (new default values)
         /// </param>
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public Task<ServiceActionResult> UpdateUserDefaultValues(UserDefaultValuesModel data, string userId);
+        public Task<ServiceActionResult<UserDefaultValuesModel>> UpdateUserDefaultValues(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
         ///     Create record in ExerciseDefaultValue with the default values for the user
@@ -37,15 +37,15 @@ namespace FitnessAppAPI.Data.Services.UserProfile
         /// <param name="email">
         ///     The user email
         /// </param
-        public Task<ServiceActionResult> CreateUserProfile(string userId, string email);
+        public Task<ServiceActionResult<BaseModel>> CreateUserProfile(string userId, string email);
 
         /// <summary>
         ///     Update user profile
         /// </summary>
-        /// <param name="data">
-        ///     The user model
+        /// <param name="requestData">
+        ///     The reqeust data (user model)
         /// </param>
-        public Task<ServiceActionResult> UpdateUserProfile(UserModel user);
+        public Task<ServiceActionResult<UserModel>> UpdateUserProfile(Dictionary<string, string> requestData);
 
         /// <summary>
         ///     Return the user default values for this specific exercise. If there are 
@@ -57,6 +57,6 @@ namespace FitnessAppAPI.Data.Services.UserProfile
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public Task<ServiceActionResult> GetExerciseOrUserDefaultValues(long mgExerciseId, string userId);
+        public Task<ServiceActionResult<UserDefaultValuesModel>> GetExerciseOrUserDefaultValues(long mgExerciseId, string userId);
     }
 }

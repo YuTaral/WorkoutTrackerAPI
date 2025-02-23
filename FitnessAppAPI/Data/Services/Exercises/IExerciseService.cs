@@ -1,5 +1,6 @@
 ﻿using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Exercises.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FitnessAppAPI.Data.Services.Exercises
 {
@@ -11,13 +12,21 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <summary>
         ///     Add the exercise to the workout with the provided id
         /// </summary>
+        /// <param name="requestData">
+        ///     The request data (exercise and workout id)
+        /// </param>
+        public Task<ServiceActionResult<long>> AddExerciseToWorkout(Dictionary<string, string> requestData);
+
+        /// <summary>
+        ///     Save the Exercise when adding exercse to workout
+        /// </summary>
         /// <param name="exerciseData">
-        ///     The exercise
+        ///     The exercise data
         /// </param>
         /// <param name="workoutId">
         ///     The workout id
         /// </param>
-        public Task<ServiceActionResult> AddExerciseToWorkout(ExerciseModel exerciseData, long workoutId);
+        public Task<ServiceActionResult<long>> AddExerciseToWorkout(ExerciseModel exerciseData, long workoutId);
 
         /// <summary>
         ///     Add the exercise to the workout with the provided id.
@@ -30,49 +39,42 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="workoutId">
         ///     The workout id
         /// </param>
-        public Task<ServiceActionResult> AddExerciseToWorkout(MGExerciseModel MGExerciseData, long workoutId);
+        public Task<ServiceActionResult<long>> AddExerciseToWorkout(MGExerciseModel MGExerciseData, long workoutId);
 
         /// <summary>
         ///     Update the provided exercise
         /// </summary>
-        /// <param name="exercise">
-        ///     The exercise
+        /// <param name="requestData">
+        ///     The request data (exercise and workout id)
         /// </param>
-        /// <param name="workoutId">
-        ///     The workout id
-        /// </param>
-        public Task<ServiceActionResult> UpdateExerciseFromWorkout(ExerciseModel exerciseData, long workoutId);
+        public Task<ServiceActionResult<long>> UpdateExerciseFromWorkout(Dictionary<string, string> requestData);
 
         /// <summary>
         ///     Delete the exercise with the provided id
         /// </summary>
         /// <param name="exerciseId">
-        ///     The exercise id
+        ///     The exercise id to delete
         /// </param>
-        public Task<ServiceActionResult> DeleteExerciseFromWorkout(long exerciseId);
+        public Task<ServiceActionResult<long>> DeleteExerciseFromWorkout(long exerciseId);
 
         /// <summary>
         ///     Add the exercise to specific muscle group
         /// </summary>
-        /// <param name="MGExerciseData">
-        ///     The exercise
+        /// <param name="requestData">
+        ///     The request data (the exercise)
         /// </param>
         /// <param name="userId">
         ///     The user id who adding the exercise
         /// </param>
-        /// <param name="checkExistingEx">
-        ///     "Y" if we need to check whether exercise with this name already exists,
-        ///     "N" to skip the check
-        /// </param>
-        public Task<ServiceActionResult> AddExercise(MGExerciseModel MGExerciseData, string userId, string checkExistingEx);
+        public Task<ServiceActionResult<MGExerciseModel>> AddExercise(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
         ///     Add the exercise to specific muscle group
         /// </summary>
-        /// <param name="exerciseData">
-        ///     The exercise
+        /// <param name="requestData">
+        ///      The request data (exercise)
         /// </param>
-        public Task<ServiceActionResult> UpdateExercise(MGExerciseModel exerciseData);
+        public Task<ServiceActionResult<MGExerciseModel>> UpdateExercise(Dictionary<string, string> requestData);
 
         /// <summary>
         ///     Delete the muscle group exercise with the provided id
@@ -83,31 +85,30 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="userId">
         ///     The user id who deleting the exercise
         /// </param>
-        public Task<ServiceActionResult> DeleteExercise(long MGExerciseId, string userId);
+        public Task<ServiceActionResult<long>> DeleteExercise(long MGExerciseId, string userId);
 
         /// <summary>
         ///     Mark the set as completed
         /// </summary>
-        /// <param name="id">
-        ///     The set id
+        /// <param name="requestData">
+        ///     The request data (set id)
         /// </param>
-        public Task<ServiceActionResult> CompleteSet(long id);
+        public Task<ServiceActionResult<BaseModel>> CompleteSet(Dictionary<string, string>  requestData);
 
         /// <summary>
-        ///     Fetch the exercises for the muscle group
+        ///    Fetch the exercises for the specified muscle group
         /// </summary>
         /// <param name="muscleGroupId">
         ///     The muscle group id
         /// </param>
-        /// <param name="userId">
-        ///     The the logged in user id
-        /// </param>
         /// <param name="onlyForUser">
-        ///     If "Y" the method will return only the user defined exercises for this muscle group,
-        ///     which are considered editable and can be deleted / updated
-        ///     If "N" the method will return all default and user defined exercises for this muscle group
+        ///     "Y" if the exercises should be only the ones created by the user,
+        ///     "N" if all
         /// </param>
-        public Task<ServiceActionResult> GetExercisesForMG(long muscleGroupId, string userId, string onlyForUser);
+        ///  <param name="userId">
+        ///     The logged in user id
+        /// </param>
+        public Task<ServiceActionResult<MGExerciseModel>> GetExercisesForMG(long muscleGroupId, string onlyForUser, string userId);
 
         /// <summary>
         ///     Fetch the muscle group exercise with the provided id
@@ -115,6 +116,6 @@ namespace FitnessAppAPI.Data.Services.Exercises
         /// <param name="mGExerciseId">
         ///     The muscle group exercise id
         /// </param>
-        public Task<ServiceActionResult> GetMGExercise(long mGExerciseId);
+        public Task<ServiceActionResult<MGExerciseModel>> GetMGExercise(long mGExerciseId);
     }
 }

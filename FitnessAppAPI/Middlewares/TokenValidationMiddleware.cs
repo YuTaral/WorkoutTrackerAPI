@@ -1,5 +1,6 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Services;
+using System.Net;
 
 namespace FitnessAppAPI.Middlewares
 {
@@ -28,22 +29,22 @@ namespace FitnessAppAPI.Middlewares
                 var userService = context.RequestServices.GetRequiredService<IUserService>();
                 var tokenValidationResult = await userService.ValidateToken(token, "");
 
-                if (tokenValidationResult.Result.IsTokenExpired())
+                if (tokenValidationResult.Result.Code == (int) HttpStatusCode.Unauthorized && tokenValidationResult.Token == "")
                 {
                     // Return response token expired
-                    var response = Utils.CreateResponseObject(Constants.ResponseCode.TOKEN_EXPIRED, Constants.MSG_TOKEN_EXPIRED, []);
-                    context.Response.StatusCode = StatusCodes.Status200OK;
+                    var response = Utils.CreateResponseObject((int) HttpStatusCode.Unauthorized, Constants.MSG_TOKEN_EXPIRED, []);
 
+                    context.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
                     await context.Response.WriteAsJsonAsync(response);
                     return;
                 }
-                else if (tokenValidationResult.Result.IsRefreshToken() && tokenValidationResult.Token != "")
+                else if (tokenValidationResult.Result.Code == (int) HttpStatusCode.Unauthorized && tokenValidationResult.Token != "")
                 {
 
                     // Return response token refresh
-                    var response = Utils.CreateResponseObject(Constants.ResponseCode.REFRESH_TOKEN, Constants.MSG_TOKEN_EXPIRED, [tokenValidationResult.Token]);
-                    context.Response.StatusCode = StatusCodes.Status200OK;
+                    var response = Utils.CreateResponseObject((int) HttpStatusCode.Unauthorized, Constants.MSG_TOKEN_EXPIRED, [tokenValidationResult.Token]);
 
+                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                     await context.Response.WriteAsJsonAsync(response);
                     return;
                 }

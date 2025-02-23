@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol;
 using System.Security.Claims;
 using FitnessAppAPI.Data.Services.Notifications;
+using System.Net;
+using FitnessAppAPI.Data.Services.User.Models;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -15,13 +17,13 @@ namespace FitnessAppAPI.Controllers
     {
 
         /// <summary>
-        ///     Return status 200OK Response with the provided data
+        ///     Return new ObjectResult
         ///     Returned fields must correspond with client-side CustomResponse class:
         ///         - Code
         ///         - Message
         ///         - Data
         /// </summary>
-        private OkObjectResult SendCustomResponse(Constants.ResponseCode Code, string Message, List<string> Data)
+        private ObjectResult SendResponse(int Code, string Message, List<string> Data)
         {
             var hasNotification = false;
 
@@ -29,28 +31,34 @@ namespace FitnessAppAPI.Controllers
 
             if (notificationService != null)
             {
-               hasNotification = notificationService.HasNotification(GetUserId()).Result;
+                hasNotification = notificationService.HasNotification(GetUserId()).Result;
             }
 
-            return Ok(Utils.CreateResponseObject(Code, Message, Data, hasNotification));
+            return Utils.CreateResponseObject(Code, Message, Data, hasNotification);
         }
 
-        public OkObjectResult CustomResponse(Constants.ResponseCode Code, string Message, List<string> Data)
+        public ObjectResult SendResponse(HttpStatusCode Code)
         {
-            return SendCustomResponse(Code, Message, Data);
+            return SendResponse((int) Code, Constants.MSG_SUCCESS, []);
         }
 
-        public OkObjectResult CustomResponse(Constants.ResponseCode Code)
+        public ObjectResult SendResponse(HttpStatusCode Code, string Message)
         {
-            return SendCustomResponse(Code, Constants.MSG_SUCCESS, []);
+            return SendResponse((int) Code, Message, []);
         }
 
-        public OkObjectResult CustomResponse(Constants.ResponseCode Code, string Message)
+        public ObjectResult SendResponse(HttpStatusCode Code, string Message, TokenResponseModel tokenRespModel)
         {
-            return SendCustomResponse(Code, Message, []);
+            var Data = new List<String>
+            {
+                tokenRespModel.Result.Data[0].ToJson(),
+                tokenRespModel.Token
+            };
+
+            return SendResponse((int)Code, Message, Data);
         }
 
-        public OkObjectResult CustomResponse(Constants.ResponseCode Code, string Message, List<BaseModel> DataVal)
+        public ObjectResult SendResponse<T>(HttpStatusCode Code, string Message, List<T> DataVal)
         {
             var Data = new List<String>();
 
@@ -59,11 +67,10 @@ namespace FitnessAppAPI.Controllers
                 Data.AddRange(DataVal.Select(m => m.ToJson()));
             }
 
-            return SendCustomResponse(Code, Message, Data);
-           
+            return SendResponse((int) Code, Message, Data);
         }
 
-        public OkObjectResult CustomResponse(ServiceActionResult result)
+        public ObjectResult SendResponse<T>(ServiceActionResult<T> result)
         {
             var ResponseData = new List<String>();
 
@@ -71,7 +78,7 @@ namespace FitnessAppAPI.Controllers
                 ResponseData.AddRange(result.Data.Select(m => m.ToJson()));
             }
 
-            return SendCustomResponse(result.Code, result.Message, ResponseData);
+            return SendResponse(result.Code, result.Message, ResponseData);
         }
 
 

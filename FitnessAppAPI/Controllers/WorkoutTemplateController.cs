@@ -12,7 +12,7 @@ namespace FitnessAppAPI.Controllers
     ///     Workout Templates Controller
     /// </summary>
     [ApiController]
-    [Route(Constants.RequestEndPoints.WORKOUT_TEMPLATE)]
+    [Route(Constants.RequestEndPoints.WORKOUT_TEMPLATES)]
     public class WorkoutTemplateController(IWorkoutTemplateService s) : BaseController
     {
         /// <summary>
@@ -23,84 +23,41 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to create a new workout template
         /// </summary>
-        [HttpPost(Constants.RequestEndPoints.ADD_WORKOUT_TEMPLATE)]
+        [HttpPost]
         [Authorize]
         public async Task<ActionResult> Add([FromBody] Dictionary<string, string> requestData)
         {
-            // Check if the neccessary data is provided
-            if (!requestData.TryGetValue("workout", out string? serializedWorkout))
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_TEMPLATE_ADD_FAIL_NO_DATA);
-            }
-
-            WorkoutModel? workoutData = JsonConvert.DeserializeObject<WorkoutModel>(serializedWorkout);
-            if (workoutData == null)
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "WorkoutModel"));
-            }
-
-            string validationErrors = Utils.ValidateModel(workoutData);
-            if (!string.IsNullOrEmpty(validationErrors))
-            {
-                return CustomResponse(Constants.ResponseCode.UNEXPECTED_ERROR, validationErrors);
-            }
-
-            return CustomResponse(await service.AddWorkoutTemplate(workoutData, GetUserId()));
+            return SendResponse(await service.AddWorkoutTemplate(requestData, GetUserId()));
         }
 
         /// <summary>
-        //      POST request to update the workout template
+        //      Patch request to update the workout template
         /// </summary>
-        [HttpPost(Constants.RequestEndPoints.UPDATE_WORKOUT_TEMPLATE)]
+        [HttpPatch]
         [Authorize]
         public async Task<ActionResult> Update([FromBody] Dictionary<string, string> requestData)
         {
-            // Check if the neccessary data is provided
-            if (!requestData.TryGetValue("workout", out string? serializedWorkout))
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_TEMPLATE_UPDATE_FAIL_NO_DATA);
-            }
-
-            WorkoutModel? workoutData = JsonConvert.DeserializeObject<WorkoutModel>(serializedWorkout);
-            if (workoutData == null)
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "WorkoutModel"));
-            }
-
-            string validationErrors = Utils.ValidateModel(workoutData);
-            if (!string.IsNullOrEmpty(validationErrors))
-            {
-                return CustomResponse(Constants.ResponseCode.UNEXPECTED_ERROR, validationErrors);
-            }
-
-            return CustomResponse(await service.UpdateWorkoutTemplate(workoutData, GetUserId()));
+            return SendResponse(await service.UpdateWorkoutTemplate(requestData, GetUserId()));
         }
 
         /// <summary>
-        //      POST request to delete the workout template
+        //      Delete request to delete the workout template
         /// </summary>
-        [HttpPost(Constants.RequestEndPoints.DELETE_WORKOUT_TEMPLATE)]
+        [HttpDelete]
         [Authorize]
         public async Task<ActionResult> Delete([FromQuery] long templateId)
         {
-            // Check if the neccessary data is provided
-            if (templateId < 1)
-            {
-                return CustomResponse(Constants.ResponseCode.FAIL, Constants.MSG_EXERCISE_DELETE_FAIL_NO_ID);
-            }
-
-            // Delete the template
-            return CustomResponse(await service.DeleteWorkoutTemplate(templateId));
+            return SendResponse(await service.DeleteWorkoutTemplate(templateId));
         }
 
         /// <summary>
         //      Get request to fetch the workout templates of the logged in user
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.GET_WORKOUT_TEMPLATES)]
+        [HttpGet]
         [Authorize]
         public async Task<ActionResult> GetTemplates()
         {
-            return CustomResponse(await service.GetWorkoutTemplates(GetUserId()));
+            return SendResponse(await service.GetWorkoutTemplates(GetUserId()));
         }
     }
 }

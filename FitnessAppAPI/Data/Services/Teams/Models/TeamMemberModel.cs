@@ -11,6 +11,8 @@ namespace FitnessAppAPI.Data.Services.Teams.Models
     {
         public required string UserId { get; set; }
 
+        public required long TeamId { get; set; }
+
         public required string FullName { get; set; }
 
         public required string Image { get; set; }

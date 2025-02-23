@@ -1,9 +1,9 @@
 ﻿using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.User.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mail;
-using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Common
 {
@@ -130,15 +130,21 @@ namespace FitnessAppAPI.Common
         ///         - Data
         ///         - Notification
         /// </summary>
-        public static System.Object CreateResponseObject(ResponseCode Code, string Message, List<string> Data, bool Notification = false)
+        public static ObjectResult CreateResponseObject(int Code, string Message, List<string> Data, bool Notification = false)
         {
-            return (new
+            // Create the response body
+            var response = new ObjectResult(new
             {
-                Code,
+                Code, // Set the response code in the body
                 Message,
                 Data,
                 Notification
             });
+
+            // Set the HTTP Status code
+            response.StatusCode = Code;
+
+            return response;
         }
 
         /// <summary>

@@ -3,6 +3,8 @@ using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Notifications.Models;
 using FitnessAppAPI.Data.Services.Teams.Models;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.Net;
 
 namespace FitnessAppAPI.Data.Services.Notifications
 {
@@ -12,7 +14,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
     public class NotificationService(FitnessAppAPIContext DB) : BaseService(DB), INotificationService
     {
 
-        public async Task<ServiceActionResult> AddTeamInviteNotification(string receiverUserId, string senderUserId, long teamId)
+        public async Task<ServiceActionResult<BaseModel>> AddTeamInviteNotification(string receiverUserId, string senderUserId, long teamId)
         {
             var teamName = await DBAccess.Teams.Where(t => t.Id == teamId).Select(t => t.Name).FirstOrDefaultAsync();
 
@@ -34,7 +36,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
             return await AddNotification(notification);
         }
 
-        public async Task<ServiceActionResult> AddAcceptedDeclinedNotification(string senderUserId, long teamId, string notificationType)
+        public async Task<ServiceActionResult<BaseModel>> AddAcceptedDeclinedNotification(string senderUserId, long teamId, string notificationType)
         {
             var notificationText = "";
             var senderName = await DBAccess.UserProfiles.Where(u => u.UserId == senderUserId).Select(t => t.FullName).FirstOrDefaultAsync();
@@ -46,7 +48,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
             var team = await DBAccess.Teams.Where(t => t.Id == teamId).FirstOrDefaultAsync();
             if (team == null)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_TEAM_OWNER);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, Constants.MSG_FAILED_TO_TEAM_OWNER);
             }
 
             if (notificationType == Constants.NotificationType.JOINED_TEAM.ToString()) 
@@ -72,34 +74,56 @@ namespace FitnessAppAPI.Data.Services.Notifications
             return await AddNotification(notification);
         }
 
-        public async Task<ServiceActionResult> UpdateNotification(long id, bool isActive)
+        public async Task<ServiceActionResult<BaseModel>> UpdateNotification(Dictionary<string, string> requestData, bool isActive)
+        {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("id", out string? idString))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_FAILED_TO_GET_NOTIFICATION_DETAILS);
+            }
+
+            if (!long.TryParse(idString, out long id))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_FAILED_TO_GET_NOTIFICATION_DETAILS);
+            }
+
+            return await UpdateNotification(id, isActive);
+        }
+
+        public async Task<ServiceActionResult<BaseModel>> UpdateNotification(long id, bool isActive)
         {
             var notification = await DBAccess.Notifications.Where(n => n.Id == id).FirstOrDefaultAsync();
-            if ( notification == null)
+            if (notification == null)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_GET_NOTIFICATION_DETAILS);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, Constants.MSG_FAILED_TO_GET_NOTIFICATION_DETAILS);
             }
 
             notification.IsActive = isActive;
             DBAccess.Entry(notification).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
         }
 
-        public async Task<ServiceActionResult> DeleteNotification(NotificationModel data, string userId)
+        public async Task<ServiceActionResult<BaseModel>> DeleteNotification(long notificationId, string userId)
         {
-            var notification = await DBAccess.Notifications.Where(n => n.Id == data.Id).FirstOrDefaultAsync();
+            // Check if the neccessary data is provided
+            if (notificationId <= 0)
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_DELETE_NOTIFICATION_FAILED);
+            }
+
+            var notification = await DBAccess.Notifications.Where(n => n.Id == notificationId).FirstOrDefaultAsync();
             if (notification == null)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_DELETE_NOTIFICATION_FAILED);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, Constants.MSG_DELETE_NOTIFICATION_FAILED);
             }
 
             if (notification.IsActive && notification.NotificationType == Constants.NotificationType.INVITED_TO_TEAM.ToString())
             { 
-                // If the user is deleting INVITED_TO_TEAM notification, remove the recrod from TeamMembers
+                // If the user is deleting INVITED_TO_TEAM notification, remove the record from TeamMembers
                 var record = await DBAccess.TeamMembers.Where(tm => tm.UserId == userId && 
-                                                              tm.TeamId == data.TeamId && 
+                                                              tm.TeamId == notification.TeamId && 
                                                               tm.State == Constants.MemberTeamState.INVITED.ToString())
                                                         .FirstOrDefaultAsync();
 
@@ -115,13 +139,13 @@ namespace FitnessAppAPI.Data.Services.Notifications
             DBAccess.Notifications.Remove(notification);
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_NOTIFICATION_DELETED);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, Constants.MSG_NOTIFICATION_DELETED);
         }
 
-        public async Task<ServiceActionResult> DeleteNotifications(TeamMemberModel data, long teamId)
+        public async Task<ServiceActionResult<BaseModel>> DeleteNotifications(TeamMemberModel data)
         {
             // Find all notifications related to the deleted TeamMember record
-            var notifications = await DBAccess.Notifications.Where(n => n.TeamId == teamId && 
+            var notifications = await DBAccess.Notifications.Where(n => n.TeamId == data.TeamId && 
                                                                   (n.SenderUserId == data.UserId || n.ReceiverUserId == data.UserId))
                                                             .ToListAsync();
 
@@ -130,12 +154,12 @@ namespace FitnessAppAPI.Data.Services.Notifications
                 await DBAccess.SaveChangesAsync();
             }
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS);  
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);  
         }
 
-        public async Task<ServiceActionResult> GetNotifications(string userId)
+        public async Task<ServiceActionResult<NotificationModel>> GetNotifications(string userId)
         {
-            var notifcationModels = new List<BaseModel>();
+            var notifcationModels = new List<NotificationModel>();
             var notifications = await DBAccess.Notifications.Where(n => n.ReceiverUserId == userId)
                                                              .OrderByDescending(n => n.DateTime)
                                                              .ToListAsync();
@@ -144,7 +168,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
                 notifcationModels.Add(await ModelMapper.MapToNotificationModel(n, DBAccess));    
             }
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, notifcationModels);
+            return new ServiceActionResult<NotificationModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, notifcationModels);
         }
 
         public async Task<bool> HasNotification(string userId)
@@ -154,25 +178,31 @@ namespace FitnessAppAPI.Data.Services.Notifications
             return notification != null;
         }
 
-        private async Task<ServiceActionResult> AddNotification(Notification data)
+        private async Task<ServiceActionResult<BaseModel>> AddNotification(Notification data)
         {
             DBAccess.Notifications.Add(data);
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.Created);
         }
 
-        public async Task<ServiceActionResult> GetJoinTeamNotificationDetails(long id)
+        public async Task<ServiceActionResult<JoinTeamNotificationModel>> GetJoinTeamNotificationDetails(long notificationId)
         {
+            // Check if the neccessary data is provided
+            if (notificationId <= 0)
+            {
+                return new ServiceActionResult<JoinTeamNotificationModel>(HttpStatusCode.BadRequest, Constants.MSG_FAILED_TO_GET_NOTIFICATION_DETAILS);
+            }
+
             var formattedDate = "";
             var description = "";
             var teamModel = ModelMapper.GetEmptyTeamModel();
 
-            var notification = await DBAccess.Notifications.Where(n => n.Id == id).FirstOrDefaultAsync();
+            var notification = await DBAccess.Notifications.Where(n => n.Id == notificationId).FirstOrDefaultAsync();
 
             if (notification == null)
             {
-                return new ServiceActionResult(Constants.ResponseCode.FAIL, Constants.MSG_FAILED_TO_GET_NOTIFICATION_DETAILS);
+                return new ServiceActionResult<JoinTeamNotificationModel>(HttpStatusCode.NotFound, Constants.MSG_FAILED_TO_GET_NOTIFICATION_DETAILS);
             }
 
             formattedDate = Utils.FormatDefaultDateTime(notification.DateTime);
@@ -202,7 +232,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
 
             var model = new JoinTeamNotificationModel
             {
-                Id = id,
+                Id = notificationId,
                 TeamName = teamModel.Name,
                 Description = description,
                 TeamImage = teamModel.Image,
@@ -210,7 +240,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
                 TeamId = teamModel.Id
             };
 
-            return new ServiceActionResult(Constants.ResponseCode.SUCCESS, Constants.MSG_SUCCESS, [model]);
+            return new ServiceActionResult<JoinTeamNotificationModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, [model]);
         }
     }
 }
