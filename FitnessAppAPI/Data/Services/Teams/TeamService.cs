@@ -3,7 +3,6 @@ using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Notifications;
 using FitnessAppAPI.Data.Services.Notifications.Models;
 using FitnessAppAPI.Data.Services.Teams.Models;
-using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Net;
@@ -169,7 +168,7 @@ namespace FitnessAppAPI.Data.Services.Teams
 
             var teamMember = new TeamMember
             {
-                State = Constants.MemberTeamState.INVITED.ToString(),
+                State = MemberTeamState.INVITED.ToString(),
                 UserId = userId,
                 TeamId = teamId
             };
@@ -233,7 +232,7 @@ namespace FitnessAppAPI.Data.Services.Teams
                 return new ServiceActionResult<NotificationModel>(HttpStatusCode.NotFound, MSG_FAILED_TO_JOIN_DECLINE_TEAM);
             }
 
-            if (newState == Constants.MemberTeamState.ACCEPTED.ToString())
+            if (newState == MemberTeamState.ACCEPTED.ToString())
             {
                 // Update the team members record
                 record.State = newState;
@@ -248,7 +247,7 @@ namespace FitnessAppAPI.Data.Services.Teams
 
             var notification = await DBAccess.Notifications.Where(n => n.ReceiverUserId == userId &&
                                                                  n.TeamId == teamId &&
-                                                                 n.NotificationType == Constants.NotificationType.INVITED_TO_TEAM.ToString())
+                                                                 n.NotificationType == NotificationType.INVITED_TO_TEAM.ToString())
                                                             .FirstOrDefaultAsync();
 
             if (notification == null)
@@ -264,7 +263,7 @@ namespace FitnessAppAPI.Data.Services.Teams
             if (updateNotificationResult.IsSuccess())
             {
                 // Add notification for the team owner
-                if (newState == Constants.MemberTeamState.ACCEPTED.ToString())
+                if (newState == MemberTeamState.ACCEPTED.ToString())
                 {
                     await notificationService.AddAcceptedDeclinedNotification(userId, teamId, NotificationType.JOINED_TEAM.ToString());
                 }
@@ -307,7 +306,7 @@ namespace FitnessAppAPI.Data.Services.Teams
 
             List<TeamModel> teams = [];
 
-            if (type == Constants.ViewTeamAs.COACH)
+            if (type == ViewTeamAs.COACH)
             {
                 // Fetch teams where user is coach
                 teams = await DBAccess.Teams.Where(t => t.UserId == userId)
@@ -323,7 +322,7 @@ namespace FitnessAppAPI.Data.Services.Teams
                                               .ToListAsync();
             }
 
-            return new ServiceActionResult<TeamModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, teams);
+            return new ServiceActionResult<TeamModel>(HttpStatusCode.OK, MSG_SUCCESS, teams);
         }
 
         public async Task<ServiceActionResult<TeamWithMembersModel>> GetMyTeamsWithMembers(string userId)
