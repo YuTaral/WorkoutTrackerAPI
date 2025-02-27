@@ -8,10 +8,7 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddIdentityConfiguration();
 builder.Services.AddApplicationServices();
 
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add<GlobalExceptionFilter>();
-});
+builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

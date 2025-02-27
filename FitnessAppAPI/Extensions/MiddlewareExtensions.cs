@@ -37,6 +37,7 @@ namespace FitnessAppAPI.Extensions
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseMiddleware<TokenValidationMiddleware>();
             app.MapControllers();
 
