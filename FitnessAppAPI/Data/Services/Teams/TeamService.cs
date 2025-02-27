@@ -245,39 +245,8 @@ namespace FitnessAppAPI.Data.Services.Teams
 
             await DBAccess.SaveChangesAsync();
 
-            var notification = await DBAccess.Notifications.Where(n => n.ReceiverUserId == userId &&
-                                                                 n.TeamId == teamId &&
-                                                                 n.NotificationType == NotificationType.INVITED_TO_TEAM.ToString())
-                                                            .FirstOrDefaultAsync();
-
-            if (notification == null)
-            {
-                // Something went wrong, just return, the invitation has been accepted / declined
-                return new ServiceActionResult<NotificationModel>(HttpStatusCode.OK);
-            }
-
-             var returnData = new List<NotificationModel>();
-
-            // Update the notification to mark it as inactive
-            var updateNotificationResult = await notificationService.UpdateNotification(notification.Id, false);
-            if (updateNotificationResult.IsSuccess())
-            {
-                // Add notification for the team owner
-                if (newState == MemberTeamState.ACCEPTED.ToString())
-                {
-                    await notificationService.AddAcceptedDeclinedNotification(userId, teamId, NotificationType.JOINED_TEAM.ToString());
-                }
-                else
-                {
-                    await notificationService.AddAcceptedDeclinedNotification(userId, teamId, NotificationType.DECLINED_TEAM_INVITATION.ToString());
-
-                    // Get the updated list of notifications
-                    var updatedNotificationsResult = await notificationService.GetNotifications(userId);
-                    returnData = updatedNotificationsResult.Data;
-                }
-            }
-
-            return new ServiceActionResult<NotificationModel>(HttpStatusCode.OK, MSG_SUCCESS, returnData);
+            // Deal with notifications
+            return await HandleNotifications(userId, teamId, newState);
         }
 
         public async Task<ServiceActionResult<TeamModel>> GetMyTeams(string teamType, string userId)
@@ -464,6 +433,56 @@ namespace FitnessAppAPI.Data.Services.Teams
             }
 
             return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, MSG_SUCCESS, returnData);
+        }
+
+        /// <summary>
+        ///    After processing accept / decline invite, update the notification to mark it as inactive
+        ///    and send notification to the invite sender for accept / invite. Return updated notifications
+        ///    on success
+        /// </summary>
+        /// <param name="userId">
+        ///     The user who accepted / declined the invitation
+        /// </param>
+        /// <param name="teamId">
+        ///     The team id
+        /// </param>
+        /// <param name="newState">
+        ///     The state new MemberTeamState - ACCEPTED / DECLINED notifcation
+        /// </param>
+        private async Task<ServiceActionResult<NotificationModel>> HandleNotifications(string userId, long teamId, string newState) {
+            var notification = await DBAccess.Notifications.Where(n => n.ReceiverUserId == userId &&
+                                                                 n.TeamId == teamId &&
+                                                                 n.NotificationType == NotificationType.INVITED_TO_TEAM.ToString())
+                                                            .FirstOrDefaultAsync();
+
+            if (notification == null)
+            {
+                // Something went wrong, just return, the invitation has been accepted / declined
+                return new ServiceActionResult<NotificationModel>(HttpStatusCode.OK);
+            }
+
+            var returnData = new List<NotificationModel>();
+
+            // Update the notification to mark it as inactive
+            var updateNotificationResult = await notificationService.UpdateNotification(notification.Id, false);
+            if (updateNotificationResult.IsSuccess())
+            {
+                // Add notification for the team owner
+                if (newState == MemberTeamState.ACCEPTED.ToString())
+                {
+                    await notificationService.AddAcceptedDeclinedNotification(userId, teamId, NotificationType.JOINED_TEAM.ToString());
+                }
+                else
+                {
+                    await notificationService.AddAcceptedDeclinedNotification(userId, teamId, NotificationType.DECLINED_TEAM_INVITATION.ToString());
+
+                    // Get the updated list of notifications
+                    var updatedNotificationsResult = await notificationService.GetNotifications(userId);
+                    returnData = updatedNotificationsResult.Data;
+                }
+            }
+
+            return new ServiceActionResult<NotificationModel>(HttpStatusCode.OK, MSG_SUCCESS, returnData);
         }
 
         /// <summary>
