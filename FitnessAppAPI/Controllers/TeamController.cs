@@ -2,10 +2,8 @@
 using FitnessAppAPI.Data.Services.Teams;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using FitnessAppAPI.Data.Services.Notifications;
-using FitnessAppAPI.Data.Models;
-using System.Net;
-using FitnessAppAPI.Data.Services.Notifications.Models;
+using static FitnessAppAPI.Common.Constants;
+
 
 namespace FitnessAppAPI.Controllers
 {
@@ -13,7 +11,7 @@ namespace FitnessAppAPI.Controllers
     ///     Team Controller
     /// </summary>
     [ApiController]
-    [Route(Constants.RequestEndPoints.TEAMS)]
+    [Route(RequestEndPoints.TEAMS)]
     public class TeamController(ITeamService s) : BaseController
     {   
         /// <summary>
@@ -54,7 +52,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      PUT request to leave the team with the provided id
         /// </summary>
-        [HttpPut(Constants.RequestEndPoints.LEAVE_TEAM)]
+        [HttpPut(RequestEndPoints.LEAVE_TEAM)]
         [Authorize]
         public async Task<ActionResult> Leave([FromBody] Dictionary<string, string> requestData)
         {
@@ -64,7 +62,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to invite the member to the team
         /// </summary>
-        [HttpPost(Constants.RequestEndPoints.INVITE_MEMBER)]
+        [HttpPost(RequestEndPoints.INVITE_MEMBER)]
         [Authorize]
         public async Task<ActionResult> InviteMember([FromBody] Dictionary<string, string> requestData)
         {
@@ -81,7 +79,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      DELETE request to remove the member from the team
         /// </summary>
-        [HttpPatch(Constants.RequestEndPoints.REMOVE_MEMBER)]
+        [HttpPatch(RequestEndPoints.REMOVE_MEMBER)]
         [Authorize]
         public async Task<ActionResult> RemoveMember([FromBody] Dictionary<string, string> requestData)
         {
@@ -98,27 +96,27 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      PATCH request to accept team invitation
         /// </summary>
-        [HttpPatch(Constants.RequestEndPoints.ACCEPT_TEAM_INVITE)]
+        [HttpPatch(RequestEndPoints.ACCEPT_TEAM_INVITE)]
         [Authorize]
         public async Task<ActionResult> AcceptInvite([FromBody] Dictionary<string, string> requestData)
         {
-            return await ProcessAcceptDeclineInvitationRequest(requestData, Constants.MemberTeamState.ACCEPTED.ToString());
+            return await ProcessAcceptDeclineInvitationRequest(requestData, MemberTeamState.ACCEPTED.ToString());
         }
 
         /// <summary>
         //      POST request to decline team invitation
         /// </summary>
-        [HttpPatch(Constants.RequestEndPoints.DECLINE_TEAM_INVITE)]
+        [HttpPatch(RequestEndPoints.DECLINE_TEAM_INVITE)]
         [Authorize]
         public async Task<ActionResult> DeclineInvite([FromBody] Dictionary<string, string> requestData)
         {
-            return await ProcessAcceptDeclineInvitationRequest(requestData, Constants.MemberTeamState.DECLINED.ToString());
+            return await ProcessAcceptDeclineInvitationRequest(requestData, MemberTeamState.DECLINED.ToString());
         }
 
         /// <summary>
         //      Get request to return my teams
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.MY_TEAMS)]
+        [HttpGet(RequestEndPoints.MY_TEAMS)]
         [Authorize]
         public async Task<ActionResult> GetMyTeams([FromQuery] string teamType)
         {
@@ -128,7 +126,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      Get request to return my teams with members
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.MY_TEAMS_WITH_MEMBERS)]
+        [HttpGet(RequestEndPoints.MY_TEAMS_WITH_MEMBERS)]
         [Authorize]
         public async Task<ActionResult> GetMyTeamsWithMembers()
         {
@@ -138,7 +136,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      Get request to return users by the specified name which are valid for team invitation
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.USERS_TO_INVITE)]
+        [HttpGet(RequestEndPoints.USERS_TO_INVITE)]
         [Authorize]
         public async Task<ActionResult> GetUsersToInvite([FromQuery] string name, [FromQuery] long teamId)
         {
@@ -148,7 +146,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      Get team members when logged in user is coach
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.MY_TEAM_MEMBERS)]
+        [HttpGet(RequestEndPoints.MY_TEAM_MEMBERS)]
         [Authorize]
         public async Task<ActionResult> GetTeamMembers([FromQuery] long teamId)
         {
@@ -158,7 +156,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      Get team members when logged in user is member of the team
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.JOINED_TEAM_MEMBERS)]
+        [HttpGet(RequestEndPoints.JOINED_TEAM_MEMBERS)]
         [Authorize]
         public async Task<ActionResult> GetJoinedTeamMembers([FromQuery] long teamId)
         {

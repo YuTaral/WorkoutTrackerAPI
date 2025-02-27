@@ -1,11 +1,10 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Services;
 using FitnessAppAPI.Data.Services.User.Models;
-using FitnessAppAPI.Data.Services.Workouts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Protocol;
 using System.Net;
+using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -13,7 +12,7 @@ namespace FitnessAppAPI.Controllers
     ///     User Controller
     /// </summary>
     [ApiController]
-    [Route(Constants.RequestEndPoints.USERS)]
+    [Route(RequestEndPoints.USERS)]
     public class UserController(IUserService s) : BaseController
     {
         /// <summary>
@@ -24,7 +23,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to login the user
         /// </summary>
-        [HttpPost(Constants.RequestEndPoints.LOGIN)]
+        [HttpPost(RequestEndPoints.LOGIN)]
         public async Task<ActionResult> Login([FromBody] Dictionary<string, string> requestData) { 
             TokenResponseModel model = await service.Login(requestData);
 
@@ -40,7 +39,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to register the user
         /// </summary>
-        [HttpPost(Constants.RequestEndPoints.REGISTER)]
+        [HttpPost(RequestEndPoints.REGISTER)]
         public async Task<ActionResult> Register([FromBody] Dictionary<string, string> requestData)
         {
             return SendResponse(await service.Register(requestData));
@@ -49,7 +48,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to logout the user
         /// </summary>
-        [HttpPost(Constants.RequestEndPoints.LOGOUT)]
+        [HttpPost(RequestEndPoints.LOGOUT)]
         [Authorize]
         public async Task<ActionResult> Logout()
         {
@@ -68,7 +67,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to change password
         /// </summary>
-        [HttpPut(Constants.RequestEndPoints.CHANGE_PASSWORD)]
+        [HttpPut(RequestEndPoints.CHANGE_PASSWORD)]
         public async Task<ActionResult> ChangePassword([FromBody] Dictionary<string, string> requestData)
         {
             return SendResponse(await service.ChangePassword(requestData, GetUserId()));
@@ -77,13 +76,13 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      POST request to validate token
         /// </summary>
-        [HttpPost(Constants.RequestEndPoints.VALIDATE_TOKEN)]
+        [HttpPost(RequestEndPoints.VALIDATE_TOKEN)]
         public async Task<ActionResult> ValidateToken([FromBody] Dictionary<string, string> requestData)
         {
             /// Check if new pass is provided
             if (!requestData.TryGetValue("token", out string? token))
             {
-                return SendResponse(HttpStatusCode.BadRequest, Constants.MSG_TOKEN_VALIDATION_FAILED);
+                return SendResponse(HttpStatusCode.BadRequest, MSG_TOKEN_VALIDATION_FAILED);
             }
 
             var tokenResponseModel = await service.ValidateToken(token, GetUserId());
@@ -97,7 +96,7 @@ namespace FitnessAppAPI.Controllers
             else if (tokenResponseModel.Result.Code == (int) HttpStatusCode.Unauthorized && tokenResponseModel.Token != "")
             {
                 // Need to refresh the token on the client side, return the token
-                return SendResponse(HttpStatusCode.Unauthorized, Constants.MSG_SUCCESS, [tokenResponseModel.Token]);
+                return SendResponse(HttpStatusCode.Unauthorized, MSG_SUCCESS, [tokenResponseModel.Token]);
             }
 
             // Token validation failed, probably token expired

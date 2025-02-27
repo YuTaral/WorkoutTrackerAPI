@@ -19,7 +19,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         /// <param name="userId">
         ///     The user who is adding the template
         /// </param>
-        public Task<ServiceActionResult<BaseModel>> AddWorkoutTemplate(Dictionary<string, string> requestData, string userId);
+        public Task<ServiceActionResult<WorkoutModel>> AddWorkoutTemplate(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
         ///    Update workout template
@@ -30,7 +30,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         /// <param name="userId">
         ///     The user who is adding the template
         /// </param>
-        public Task<ServiceActionResult<BaseModel>> UpdateWorkoutTemplate(Dictionary<string, string> requestData, string userId);
+        public Task<ServiceActionResult<WorkoutModel>> UpdateWorkoutTemplate(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
         ///    Delete the template with the provided id

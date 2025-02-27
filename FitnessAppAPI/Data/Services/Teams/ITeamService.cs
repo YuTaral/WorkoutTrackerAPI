@@ -20,7 +20,7 @@ namespace FitnessAppAPI.Data.Services.Teams
         /// <param name="userId">
         ///     The user owner of the team
         /// </param>
-        public Task<ServiceActionResult<BaseModel>> AddTeam(Dictionary<string, string> requestData, string userId);
+        public Task<ServiceActionResult<TeamModel>> AddTeam(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
         ///     Update the team 
@@ -31,7 +31,7 @@ namespace FitnessAppAPI.Data.Services.Teams
         /// <param name="userId">
         ///     The logged in user id
         /// </param>
-        public Task<ServiceActionResult<BaseModel>> UpdateTeam(Dictionary<string, string> requestData, string userId);
+        public Task<ServiceActionResult<TeamModel>> UpdateTeam(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
         ///     Delete the team with the provided id

@@ -4,38 +4,32 @@ using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services.Exercises.Models;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Net;
+using static FitnessAppAPI.Common.Constants;
+
 
 namespace FitnessAppAPI.Data.Services.WorkoutTemplates
 {
     /// <summary>
     ///     Workout Temaplte service class to implement IWorkoutTemplateService interface.
     /// </summary>
-    public class WorkoutTemplateService(FitnessAppAPIContext DB, IExerciseService exService) : BaseService(DB), IWorkoutTemplateService 
+    public class WorkoutTemplateService(FitnessAppAPIContext DB, IExerciseService exService) : BaseService(DB), IWorkoutTemplateService
     {
         private readonly IExerciseService exerciseService = exService;
 
-        public async Task<ServiceActionResult<BaseModel>> AddWorkoutTemplate(Dictionary<string, string> requestData, string userId) {
-            // Check if the neccessary data is provided
-            if (!requestData.TryGetValue("workout", out string? serializedWorkout))
+        public async Task<ServiceActionResult<WorkoutModel>> AddWorkoutTemplate(Dictionary<string, string> requestData, string userId)
+        {
+            // Validate template
+            var validationResult = ValidateTemplateData(requestData);
+
+            if (!validationResult.IsSuccess() || validationResult.Data.Count == 0)
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_TEMPLATE_ADD_FAIL_NO_DATA);
+                return validationResult;
             }
 
-            WorkoutModel? workoutData = JsonConvert.DeserializeObject<WorkoutModel>(serializedWorkout);
-            if (workoutData == null)
-            {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "WorkoutModel"));
-            }
-
-            string validationErrors = Utils.ValidateModel(workoutData);
-            if (!string.IsNullOrEmpty(validationErrors))
-            {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, validationErrors);
-            }
+            // Validation passed, create the template
+            var workoutData = validationResult.Data[0];
 
             // Create Workout record, with Template = "Y"
             var template = new Workout
@@ -62,75 +56,62 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
 
                     if (!result.IsSuccess())
                     {
-                        return new ServiceActionResult<BaseModel>((HttpStatusCode) result.Code, result.Message);
+                        return new ServiceActionResult<WorkoutModel>((HttpStatusCode)result.Code, result.Message);
                     }
                 }
             }
 
-            return new ServiceActionResult<BaseModel>(HttpStatusCode.Created, Constants.MSG_TEMPLATE_ADDED);
+            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.Created, MSG_SUCCESS);
         }
 
-        public async Task<ServiceActionResult<BaseModel>> UpdateWorkoutTemplate(Dictionary<string, string> requestData, string userId)
+        public async Task<ServiceActionResult<WorkoutModel>> UpdateWorkoutTemplate(Dictionary<string, string> requestData, string userId)
         {
-            // Check if the neccessary data is provided
-            if (!requestData.TryGetValue("workout", out string? serializedWorkout))
+            // Validate template
+            var validationResult = ValidateTemplateData(requestData);
+
+            if (!validationResult.IsSuccess() || validationResult.Data.Count == 0)
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_TEMPLATE_UPDATE_FAIL_NO_DATA);
+                return validationResult;
             }
 
-            WorkoutModel? workoutData = JsonConvert.DeserializeObject<WorkoutModel>(serializedWorkout);
-            if (workoutData == null)
-            {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "WorkoutModel"));
-            }
-
-            string validationErrors = Utils.ValidateModel(workoutData);
-            if (!string.IsNullOrEmpty(validationErrors))
-            {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, validationErrors);
-            }
+            // Validation passed, update the template
+            var workoutData = validationResult.Data[0];
 
             var template = await DBAccess.Workouts.Where(w => w.Id == workoutData.Id && w.Template == "Y").FirstOrDefaultAsync();
 
             if (template == null)
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, Constants.MSG_TEMPLATE_DOES_NOT_EXIST);
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.NotFound, MSG_TEMPLATE_DOES_NOT_EXIST);
             }
 
-            if (template.Name != workoutData.Name)
-            {
-                template.Name = workoutData.Name;
-            }
-
-            if (template.Notes != workoutData.Notes) 
-            {
-                template.Notes = workoutData.Notes;
-            }
+            template.Name = workoutData.Name;
+            template.Notes = workoutData.Notes;
 
             DBAccess.Entry(template).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, Constants.MSG_TEMPLATE_UPDATED);
+            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK);
         }
 
-        public async Task<ServiceActionResult<BaseModel>> DeleteWorkoutTemplate(long templateId) {
+        public async Task<ServiceActionResult<BaseModel>> DeleteWorkoutTemplate(long templateId)
+        {
             // Check if the neccessary data is provided
             if (templateId <= 0)
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_EXERCISE_DELETE_FAIL_NO_ID);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_EXERCISE_DELETE_FAIL_NO_ID);
             }
 
             var template = await DBAccess.Workouts.Where(w => w.Id == templateId && w.Template == "Y").FirstOrDefaultAsync();
 
             if (template == null)
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, Constants.MSG_TEMPLATE_DOES_NOT_EXIST);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, MSG_TEMPLATE_DOES_NOT_EXIST);
             }
 
             DBAccess.Workouts.Remove(template);
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, Constants.MSG_TEMPLATE_DELETED);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
         }
 
         public async Task<ServiceActionResult<WorkoutModel>> GetWorkoutTemplates(string userId)
@@ -149,7 +130,37 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
                 templateModels.Add(workoutModel);
             }
 
-            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, templateModels);
+            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, templateModels);
+        }
+
+        /// <summary>
+        ///    Perform validations whether the provided template data is valid
+        ///    Return workout model if valid, otherwise Bad Request
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data - must contain serialized template
+        /// </param>
+        private static ServiceActionResult<WorkoutModel> ValidateTemplateData(Dictionary<string, string> requestData)
+        {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("workout", out string? serializedWorkout))
+            {
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, MSG_TEMPLATE_ADD_FAIL_NO_DATA);
+            }
+
+            WorkoutModel? workoutData = JsonConvert.DeserializeObject<WorkoutModel>(serializedWorkout);
+            if (workoutData == null)
+            {
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, string.Format(MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "WorkoutModel"));
+            }
+
+            string validationErrors = Utils.ValidateModel(workoutData);
+            if (!string.IsNullOrEmpty(validationErrors))
+            {
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, validationErrors);
+            }
+
+            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, validationErrors, [workoutData]);
         }
     }
 }

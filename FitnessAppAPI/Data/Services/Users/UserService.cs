@@ -10,6 +10,7 @@ using System.Text;
 using FitnessAppAPI.Data.Services.UserProfile;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using static FitnessAppAPI.Common.Constants;
 
 
 namespace FitnessAppAPI.Data
@@ -43,13 +44,13 @@ namespace FitnessAppAPI.Data
             /// Check if username and password are provided
             if (!requestData.TryGetValue("email", out string? email) || !requestData.TryGetValue("password", out string? password))
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_REG_FAIL);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_REG_FAIL);
             }
 
             // Validate
             if (!Utils.IsValidEmail(email))
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_REG_FAIL_EMAIL);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_REG_FAIL_EMAIL);
             }
 
             // Create the user
@@ -77,7 +78,7 @@ namespace FitnessAppAPI.Data
                 return new ServiceActionResult<BaseModel>((HttpStatusCode)createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
             }
 
-            return new ServiceActionResult<BaseModel>(HttpStatusCode.Created, Constants.MSG_USER_REGISTER_SUCCESS);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.Created);
 
         }
 
@@ -88,8 +89,8 @@ namespace FitnessAppAPI.Data
             /// Check if username and password are provided
             if (!requestData.TryGetValue("email", out string? email) || !requestData.TryGetValue("password", out string? password))
             {
-                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, Constants.MSG_LOGIN_FAILED);
-                return new TokenResponseModel("", serviceActionResult);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, MSG_LOGIN_FAILED);
+                return new TokenResponseModel("", serviceActionResult); 
             }
 
             // Login attempt
@@ -98,7 +99,7 @@ namespace FitnessAppAPI.Data
             // Process result
             if (!result.Succeeded)
             {
-                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, Constants.MSG_LOGIN_FAILED);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, MSG_LOGIN_FAILED);
                 return new TokenResponseModel("", serviceActionResult);
             }
 
@@ -107,7 +108,7 @@ namespace FitnessAppAPI.Data
 
             if (user == null || user.Email == null)
             {
-                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, Constants.MSG_LOGIN_FAILED);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, MSG_LOGIN_FAILED);
                 return new TokenResponseModel("", serviceActionResult);
             }
 
@@ -115,11 +116,11 @@ namespace FitnessAppAPI.Data
             var token = GenerateJwtToken(user);
             if (token == "")
             {
-                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, Constants.MSG_LOGIN_FAILED);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, MSG_LOGIN_FAILED);
             } 
             else
             {
-                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, [await GetUserModel(email)]);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.OK, MSG_SUCCESS, [await GetUserModel(email)]);
             }
 
             return new TokenResponseModel(token, serviceActionResult);
@@ -135,14 +136,14 @@ namespace FitnessAppAPI.Data
             /// Check if new pass is provided
             if (!requestData.TryGetValue("oldPassword", out string? oldPassword) || !requestData.TryGetValue("password", out string? password))
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Constants.MSG_CHANGE_PASS_FAIL);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_CHANGE_PASS_FAIL);
             }
 
             // Find the user by id
             var user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, Constants.MSG_USER_DOES_NOT_EXISTS);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, MSG_USER_DOES_NOT_EXISTS);
             }
 
             // Change the password
@@ -153,7 +154,7 @@ namespace FitnessAppAPI.Data
                 return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Utils.UserErrorsToString(result.Errors));
             }
 
-            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, Constants.MSG_PASSWORD_CHANGED);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
         }
 
         public async Task<TokenResponseModel> ValidateToken(string token, string userId)
@@ -173,9 +174,9 @@ namespace FitnessAppAPI.Data
 
             if (keyString == null)
             {
-                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.InternalServerError, Constants.MSG_TOKEN_VALIDATION_FAILED);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.InternalServerError, MSG_TOKEN_VALIDATION_FAILED);
                 return new TokenResponseModel("", serviceActionResult);
-            }
+            }   
 
             var key = Encoding.ASCII.GetBytes(keyString);
 
@@ -198,7 +199,7 @@ namespace FitnessAppAPI.Data
                     if (user != null)
                     {
                         returnToken = GenerateJwtToken(user);
-                        serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.Unauthorized, Constants.MSG_SUCCESS);
+                        serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.Unauthorized, MSG_TOKEN_EXPIRED);
 
                         return new TokenResponseModel(returnToken, serviceActionResult);
                     }
@@ -208,7 +209,7 @@ namespace FitnessAppAPI.Data
             }
             catch
             {
-                serviceActionResult =  new ServiceActionResult<UserModel>(HttpStatusCode.Unauthorized, Constants.MSG_TOKEN_EXPIRED);
+                serviceActionResult =  new ServiceActionResult<UserModel>(HttpStatusCode.Unauthorized, MSG_TOKEN_EXPIRED);
             }
 
             return new TokenResponseModel(returnToken, serviceActionResult);

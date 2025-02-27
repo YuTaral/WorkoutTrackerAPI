@@ -5,6 +5,7 @@ using FitnessAppAPI.Data.Services.UserProfile.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Net;
+using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Data.Services.UserProfile
 {
@@ -12,11 +13,11 @@ namespace FitnessAppAPI.Data.Services.UserProfile
     {
         public async Task<ServiceActionResult<BaseModel>> AddUserDefaultValues(string userId)
         {
-            var kg = await DBAccess.WeightUnits.Where(w => w.Text == Constants.DBConstants.KG).FirstOrDefaultAsync();
+            var kg = await DBAccess.WeightUnits.Where(w => w.Text == DBConstants.KG).FirstOrDefaultAsync();
             if (kg == null)
             {
                 // Must NOT happen
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.InternalServerError, Constants.MSG_UNEXPECTED_DB_ERROR);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.InternalServerError, MSG_UNEXPECTED_DB_ERROR);
             }
 
             // Create ExerciseDefaultValue record for the user
@@ -43,13 +44,13 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             /// Check if new pass is provided
             if (!requestData.TryGetValue("values", out string? serializedValues))
             {
-                return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.BadRequest, Constants.MSG_CHANGE_USER_DEF_VALUES);
+                return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.BadRequest, MSG_CHANGE_USER_DEF_VALUES);
             }
 
             UserDefaultValuesModel? data = JsonConvert.DeserializeObject<UserDefaultValuesModel>(serializedValues);
             if (data == null)
             {
-                return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.BadRequest, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "UserDefaultValuesModel"));
+                return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.BadRequest, string.Format(MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "UserDefaultValuesModel"));
             }
 
             string validationErrors = Utils.ValidateModel(data);
@@ -62,7 +63,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             var existing = await GetUserDefaultValues(data.MGExerciseId, userId);
             if (existing == null)
             {
-                return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.NotFound, Constants.MSG_FAILED_TO_UPDATE_DEFAULT_VALUES);
+                return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.NotFound, MSG_FAILED_TO_UPDATE_DEFAULT_VALUES);
             }
 
             if (existing.MGExeciseId == 0 && data.MGExerciseId > 0)
@@ -75,11 +76,11 @@ namespace FitnessAppAPI.Data.Services.UserProfile
 
                 if (!addResult.IsSuccess())
                 {
-                    return new ServiceActionResult<UserDefaultValuesModel>((HttpStatusCode) addResult.Code, Constants.MSG_FAILED_TO_UPDATE_DEFAULT_VALUES);
+                    return new ServiceActionResult<UserDefaultValuesModel>((HttpStatusCode) addResult.Code, MSG_FAILED_TO_UPDATE_DEFAULT_VALUES);
 
                 }
 
-                return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.Created, Constants.MSG_DEF_VALUES_UPDATED);
+                return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.Created);
             }
 
             // Find the unit record and set the code, the model contains the Text column
@@ -125,7 +126,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
 
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.OK, Constants.MSG_DEF_VALUES_UPDATED,
+            return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.OK, MSG_SUCCESS,
                                             [await ModelMapper.MapToUserDefaultValuesModel(existing, DBAccess)]);
 
         }
@@ -151,13 +152,13 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             /// Check if new pass is provided
             if (!requestData.TryGetValue("user", out string? serializedUser))
             {
-                return new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, Constants.MSG_CHANGE_USER_DEF_VALUES);
+                return new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, MSG_CHANGE_USER_DEF_VALUES);
             }
 
             UserModel? data = JsonConvert.DeserializeObject<UserModel>(serializedUser);
             if (data == null)
             {
-                return new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, string.Format(Constants.MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "UserModel"));
+                return new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, string.Format(MSG_WORKOUT_FAILED_TO_DESERIALIZE_OBJ, "UserModel"));
             }
 
             var validationErrors = Utils.ValidateModel(data);
@@ -169,7 +170,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             var profile = await DBAccess.UserProfiles.Where(p => p.UserId == data.Id).FirstOrDefaultAsync();
             if (profile == null)
             {
-                return new ServiceActionResult<UserModel>(HttpStatusCode.NotFound, Constants.MSG_FAILED_TO_UPDATE_USER_PROFILE);
+                return new ServiceActionResult<UserModel>(HttpStatusCode.NotFound, MSG_FAILED_TO_UPDATE_USER_PROFILE);
             }
 
             profile.FullName = data.FullName;
@@ -178,7 +179,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             DBAccess.Entry(profile).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult<UserModel>(HttpStatusCode.OK, Constants.MSG_USER_PROFILE_UPDATED, [data]);
+            return new ServiceActionResult<UserModel>(HttpStatusCode.OK, MSG_SUCCESS, [data]);
         }
 
         public async Task<ServiceActionResult<UserDefaultValuesModel>> GetExerciseOrUserDefaultValues(long mgExerciseId, string userId)
@@ -189,7 +190,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
 
             if (values == null)
             {
-                return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.NotFound, Constants.MSG_FAILED_TO_FETCH_DEFAULT_VALUES);
+                return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.NotFound, MSG_FAILED_TO_FETCH_DEFAULT_VALUES);
             }
 
             // Return the data, making sure tghe values we are returning are returned with the correct mgExerciseId
@@ -198,7 +199,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
             // because there are no exercise specific values yet
             values.MGExeciseId = mgExerciseId;
 
-            return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.OK, Constants.MSG_SUCCESS, 
+            return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.OK, MSG_SUCCESS, 
                                             [await ModelMapper.MapToUserDefaultValuesModel(values, DBAccess)]);
         }
 

@@ -1,10 +1,7 @@
-﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Services.Workouts.Models;
-using FitnessAppAPI.Data.Services.WorkoutTemplates;
+﻿using FitnessAppAPI.Data.Services.WorkoutTemplates;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
+using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -12,7 +9,7 @@ namespace FitnessAppAPI.Controllers
     ///     Workout Templates Controller
     /// </summary>
     [ApiController]
-    [Route(Constants.RequestEndPoints.WORKOUT_TEMPLATES)]
+    [Route(RequestEndPoints.WORKOUT_TEMPLATES)]
     public class WorkoutTemplateController(IWorkoutTemplateService s) : BaseController
     {
         /// <summary>

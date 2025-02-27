@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Services.Notifications;
 using System.Net;
+using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Controllers
 {
@@ -9,7 +9,7 @@ namespace FitnessAppAPI.Controllers
     ///     User Controller
     /// </summary>
     [ApiController]
-    [Route(Constants.RequestEndPoints.NOTIFICATIONS)]
+    [Route(RequestEndPoints.NOTIFICATIONS)]
     public class NotificationController(INotificationService s) : BaseController
     {
         /// <summary>
@@ -56,7 +56,7 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      Get request to get join team notification details
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.JOIN_TEAM_NOTIFICATION_DETAILS)]
+        [HttpGet(RequestEndPoints.JOIN_TEAM_NOTIFICATION_DETAILS)]
         public async Task<ActionResult> GetJoinTeamNotificationDetails([FromQuery] long notificationId)
         {
             return SendResponse(await service.GetJoinTeamNotificationDetails(notificationId));
@@ -65,11 +65,11 @@ namespace FitnessAppAPI.Controllers
         /// <summary>
         //      Get request to refresh notifications
         /// </summary>
-        [HttpGet(Constants.RequestEndPoints.REFRESH_NOTIFICATIONS)]
+        [HttpGet(RequestEndPoints.REFRESH_NOTIFICATIONS)]
         public ActionResult RefreshNotifications()
         {
             // Just return custom response, it will automatically refresh the notification
-            return SendResponse(HttpStatusCode.OK, Constants.MSG_SUCCESS);
+            return SendResponse(HttpStatusCode.OK, MSG_SUCCESS);
         }
     }
 }
