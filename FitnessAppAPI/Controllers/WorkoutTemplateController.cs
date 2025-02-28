@@ -24,7 +24,15 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> Add([FromBody] Dictionary<string, string> requestData)
         {
-            return SendResponse(await service.AddWorkoutTemplate(requestData, GetUserId()));
+            var userId = GetUserId();
+            var result = await service.AddWorkoutTemplate(requestData, userId);
+
+            if (!result.IsSuccess())
+            {
+                return SendResponse(result);
+            }
+
+             return SendResponse(await service.GetWorkoutTemplates(userId));
         }
 
         /// <summary>
@@ -34,7 +42,15 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> Update([FromBody] Dictionary<string, string> requestData)
         {
-            return SendResponse(await service.UpdateWorkoutTemplate(requestData, GetUserId()));
+            var userId = GetUserId();
+            var result = await service.UpdateWorkoutTemplate(requestData, userId);
+
+            if (!result.IsSuccess())
+            {
+                return SendResponse(result);
+            }
+
+            return SendResponse(await service.GetWorkoutTemplates(userId));
         }
 
         /// <summary>
@@ -44,7 +60,14 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> Delete([FromQuery] long templateId)
         {
-            return SendResponse(await service.DeleteWorkoutTemplate(templateId));
+            var result = await service.DeleteWorkoutTemplate(templateId);
+
+            if (!result.IsSuccess())
+            {
+                return SendResponse(result);
+            }
+
+            return SendResponse(await service.GetWorkoutTemplates(GetUserId()));
         }
 
         /// <summary>

@@ -38,7 +38,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         /// <param name="templateId">
         ///     The emplate id
         /// </param>
-        public Task<ServiceActionResult<BaseModel>> DeleteWorkoutTemplate(long templateId);
+        public Task<ServiceActionResult<WorkoutModel>> DeleteWorkoutTemplate(long templateId);
 
         /// <summary>
         ///     Return list of all workout templates created by the user with the provided id

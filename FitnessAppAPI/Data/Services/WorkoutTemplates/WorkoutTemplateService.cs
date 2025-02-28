@@ -93,25 +93,25 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
             return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK);
         }
 
-        public async Task<ServiceActionResult<BaseModel>> DeleteWorkoutTemplate(long templateId)
+        public async Task<ServiceActionResult<WorkoutModel>> DeleteWorkoutTemplate(long templateId)
         {
             // Check if the neccessary data is provided
             if (templateId <= 0)
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_EXERCISE_DELETE_FAIL_NO_ID);
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, MSG_EXERCISE_DELETE_FAIL_NO_ID);
             }
 
             var template = await DBAccess.Workouts.Where(w => w.Id == templateId && w.Template == "Y").FirstOrDefaultAsync();
 
             if (template == null)
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, MSG_TEMPLATE_DOES_NOT_EXIST);
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.NotFound, MSG_TEMPLATE_DOES_NOT_EXIST);
             }
 
             DBAccess.Workouts.Remove(template);
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
+            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK);
         }
 
         public async Task<ServiceActionResult<WorkoutModel>> GetWorkoutTemplates(string userId)
