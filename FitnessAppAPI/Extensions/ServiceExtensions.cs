@@ -25,6 +25,9 @@ namespace FitnessAppAPI.Extensions
         /// <returns>The service collection with the added application services.</returns>
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
+            // DbContext in .NET is registered as scoped by default (when using AddDbContext<T>),
+            // so services that depend on it should also be scoped
+            // to ensure they share the same DbContext instance within a request.
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IWorkoutService, WorkoutService>();
             services.AddScoped<IExerciseService, ExerciseService>();
