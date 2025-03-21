@@ -10,7 +10,7 @@ To test the API locally:
 	- dotnet user-secrets set "JwtSettings:SecretKey" "<secret_key>"
 3. In launchesttings.Json -> profiles -> http, set applicationUrl to "http://192.168.0.0:1111", 
    replacing "192.168.0.0" with your localhost address and "1111" with a valid port number
-4. Go to https://github.com/YuTaral/FitnessApp to setup the client side application
+4. Go to https://github.com/YuTaral/WorkoutTracker to setup the client side application
 
 License
 This project is licensed under the MIT License.
