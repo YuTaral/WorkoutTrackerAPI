@@ -40,7 +40,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
             {
                 Name = workoutData.Name,
                 UserId = userId,
-                StartDateTime = DateTime.Now,
+                StartDateTime = DateTime.Now.AddSeconds(-20), // Subtract 20s, sometimes there is difference between device and server's time
                 FinishDateTime = null,
                 Template = "N",
                 DurationSeconds = 0,
