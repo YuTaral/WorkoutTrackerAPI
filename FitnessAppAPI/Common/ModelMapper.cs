@@ -151,6 +151,7 @@ namespace FitnessAppAPI.Common
                 defaultValuesModel.Id = defaultValues.Id;
                 defaultValuesModel.Sets = defaultValues.Sets;
                 defaultValuesModel.Reps = defaultValues.Reps;
+                defaultValuesModel.Rest = defaultValues.Rest;
                 defaultValuesModel.Completed = defaultValues.Completed;
                 defaultValuesModel.Weight = defaultValues.Weight;
                 defaultValuesModel.WeightUnit = weightUnitModel;
