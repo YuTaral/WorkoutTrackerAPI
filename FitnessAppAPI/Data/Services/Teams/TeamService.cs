@@ -482,6 +482,24 @@ namespace FitnessAppAPI.Data.Services.Teams
             return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_WORKOUT_ASSIGNED);
         }
 
+        public async Task<ServiceActionResult<long>> DeleteAssignedWorkouts(long templateId)
+        {
+            var assignedWorkouts = DBAccess.AssignedWorkouts.Where(a => a.WorkoutId == templateId).ToList();
+            var assignedWorkoutIds = assignedWorkouts.Select(a => a.Id).ToList();
+
+            // Remove the assigned workout recrods with this id
+            DBAccess.AssignedWorkouts.RemoveRange(assignedWorkouts);
+
+            // Remove the notifications with this id
+            if (assignedWorkoutIds.Count != 0)
+            { 
+                await notificationService.DeleteNotificationsForAssignedWorkout(assignedWorkoutIds);
+            }
+
+
+            return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_SUCCESS);
+        }
+
 
         /// <summary>
         ///    After processing accept / decline invite, update the notification to mark it as inactive

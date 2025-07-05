@@ -84,6 +84,14 @@ namespace FitnessAppAPI.Data.Services.Notifications
         public Task<ServiceActionResult<BaseModel>> DeleteNotifications(TeamMemberModel data);
 
         /// <summary>
+        ///     Delete notifications for assigned workout
+        /// </summary>
+        /// <param name="ids">
+        ///     The records' AssignedWorkoutId value
+        /// </param>
+        public Task<ServiceActionResult<BaseModel>> DeleteNotificationsForAssignedWorkout(List<long> ids);
+
+        /// <summary>
         ///     Return the notifications for the user
         /// </summary>
         /// <param name="userId">

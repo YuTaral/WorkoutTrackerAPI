@@ -2,6 +2,7 @@
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services.Exercises.Models;
+using FitnessAppAPI.Data.Services.Teams;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -14,9 +15,10 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
     /// <summary>
     ///     Workout Temaplte service class to implement IWorkoutTemplateService interface.
     /// </summary>
-    public class WorkoutTemplateService(FitnessAppAPIContext DB, IExerciseService exService) : BaseService(DB), IWorkoutTemplateService
+    public class WorkoutTemplateService(FitnessAppAPIContext DB, IExerciseService exService, ITeamService tService) : BaseService(DB), IWorkoutTemplateService
     {
         private readonly IExerciseService exerciseService = exService;
+        private readonly ITeamService teamService = tService;
 
         public async Task<ServiceActionResult<WorkoutModel>> AddWorkoutTemplate(Dictionary<string, string> requestData, string userId)
         {
@@ -108,9 +110,12 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
                 return new ServiceActionResult<WorkoutModel>(HttpStatusCode.NotFound, MSG_TEMPLATE_DOES_NOT_EXIST);
             }
 
+            // First delete assigned workouts records because of constraint errors
+            await teamService.DeleteAssignedWorkouts(templateId);
+
             DBAccess.Workouts.Remove(template);
             await DBAccess.SaveChangesAsync();
-
+           
             return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK);
         }
 

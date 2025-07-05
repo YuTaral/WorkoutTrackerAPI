@@ -3,6 +3,7 @@ using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Notifications.Models;
 using FitnessAppAPI.Data.Services.Teams.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Net;
 using static FitnessAppAPI.Common.Constants;
 
@@ -149,12 +150,15 @@ namespace FitnessAppAPI.Data.Services.Notifications
                                                                   (n.SenderUserId == data.UserId || n.ReceiverUserId == data.UserId))
                                                             .ToListAsync();
 
-            if (notifications.Count > 0) {
-                DBAccess.RemoveRange(notifications);
-                await DBAccess.SaveChangesAsync();
-            }
+            return await DeleteNotifications(notifications);
+        }
 
-            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);  
+        public async Task<ServiceActionResult<BaseModel>> DeleteNotificationsForAssignedWorkout(List<long> ids)
+        {
+            // Find all notifications AssignedWorkoutId value is in the list with ids
+            var notifications = await DBAccess.Notifications.Where(n => n.AssignedWorkoutId.HasValue && ids.Contains(n.AssignedWorkoutId.Value)).ToListAsync();
+
+            return await DeleteNotifications(notifications);
         }
 
         public async Task<ServiceActionResult<NotificationModel>> GetNotifications(string userId)
@@ -258,6 +262,13 @@ namespace FitnessAppAPI.Data.Services.Notifications
             };
 
             return await AddNotification(notification);
+        }
+
+        private async Task<ServiceActionResult<BaseModel>> DeleteNotifications(List<Notification> notifications)
+        {
+            DBAccess.RemoveRange(notifications);
+            await DBAccess.SaveChangesAsync();
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
         }
     }
 }

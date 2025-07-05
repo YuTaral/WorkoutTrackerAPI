@@ -147,5 +147,13 @@ namespace FitnessAppAPI.Data.Services.Teams
         ///     The coach id
         /// </param>
         public Task<ServiceActionResult<long>> AssignWorkout(Dictionary<string, string> requestData, string coachId);
+
+        /// <summary>
+        ///    Delete the assigned workout records
+        /// </summary>
+        /// <param name="templateId">
+        ///     The the template id which was deleted
+        /// </param>
+        public Task<ServiceActionResult<long>> DeleteAssignedWorkouts(long templateId);
     }
 }
