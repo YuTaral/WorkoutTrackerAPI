@@ -242,5 +242,22 @@ namespace FitnessAppAPI.Data.Services.Notifications
 
             return new ServiceActionResult<JoinTeamNotificationModel>(HttpStatusCode.OK, MSG_SUCCESS, [model]);
         }
+
+        public async Task<ServiceActionResult<BaseModel>> AddWorkoutAssignedNotification(string senderUserId, long teamId, string receiverUserId, long assignedWorkoutRecId)
+        {
+            var notification = new Notification
+            {
+                NotificationType = NotificationType.WORKOUT_ASSIGNED.ToString(),
+                ReceiverUserId = receiverUserId,
+                SenderUserId = senderUserId,
+                NotificationText = DBConstants.WorkoutAssigned,
+                DateTime = DateTime.Now,
+                IsActive = true,
+                TeamId = teamId,
+                AssignedWorkoutId = assignedWorkoutRecId
+            };
+
+            return await AddNotification(notification);
+        }
     }
 }

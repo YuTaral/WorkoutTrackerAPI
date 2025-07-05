@@ -80,6 +80,7 @@
             public const string InviteToTeamNotification = "You have received invitation to join team \"{0}\"";
             public const string AcceptTeamInvitationNotification = "{0} joined team {1}";
             public const string DeclineTeamInvitationNotification = "{0} declined your request to join team {1}";
+            public const string WorkoutAssigned = "You have new workout assignment";
 
         }
 
@@ -175,7 +176,8 @@
         {
             INVITED_TO_TEAM,
             JOINED_TEAM,
-            DECLINED_TEAM_INVITATION
+            DECLINED_TEAM_INVITATION,
+            WORKOUT_ASSIGNED
         }
 
         /// <summary>

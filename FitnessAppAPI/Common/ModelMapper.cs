@@ -334,8 +334,7 @@ namespace FitnessAppAPI.Common
         {
             var img = "";
 
-            if (notification.NotificationType == Constants.NotificationType.INVITED_TO_TEAM.ToString() ||
-                notification.NotificationType == Constants.NotificationType.JOINED_TEAM.ToString())
+            if (notification.TeamId != null)
             {
                 // Show user sender image in case of invited to team / joined in team notification
                 var user = await DBAccess.UserProfiles.Where(p => p.UserId == notification.SenderUserId).FirstOrDefaultAsync();

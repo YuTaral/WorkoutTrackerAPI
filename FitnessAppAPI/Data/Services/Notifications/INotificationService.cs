@@ -28,7 +28,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
         ///     Add the team accept invitation notification to the notifications table
         /// </summary>
         /// <param name="senderUserId">
-        ///     The user who should be notified
+        ///     The user who send the notification
         /// </param>
         /// <param name="teamId">
         ///     The team id
@@ -106,5 +106,23 @@ namespace FitnessAppAPI.Data.Services.Notifications
         ///     The notification id
         /// </param>
         public Task<ServiceActionResult<JoinTeamNotificationModel>> GetJoinTeamNotificationDetails(long notificationId);
+
+        /// <summary>
+        ///     Add the team accept invitation notification to the notifications table
+        /// </summary>
+        /// <param name="senderUserId">
+        ///     The user send the workout
+        /// </param>
+        /// <param name="teamId">
+        ///     The team id
+        /// </param>
+        /// <param name="receiverUserId">
+        ///     The user who must be notified
+        /// </param>
+        /// <param name="assignedWorkoutRecId">
+        ///     Id of the assigned workout record
+        /// </param>
+        /// 
+        public Task<ServiceActionResult<BaseModel>> AddWorkoutAssignedNotification(string senderUserId, long teamId, string receiverUserId, long assignedWorkoutRecId);
     }
 }

@@ -309,6 +309,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
             entity.HasIndex(n => n.ReceiverUserId);
             entity.HasIndex(n => n.SenderUserId);
             entity.HasIndex(n => n.NotificationType);
+            entity.HasIndex(n => n.AssignedWorkoutId);
         });
 
         modelBuilder.Entity<Set>(entity =>
@@ -331,6 +332,12 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
         {
             entity.HasIndex(t => t.UserId);
             entity.HasIndex(t => t.MGExeciseId);
+        });
+
+        modelBuilder.Entity<AssignedWorkout>(entity =>
+        {
+            entity.HasIndex(a => a.WorkoutId);
+            entity.HasIndex(a => a.TeamMemberId);
         });
     }
 

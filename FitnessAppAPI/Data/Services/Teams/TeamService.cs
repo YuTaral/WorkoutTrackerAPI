@@ -445,7 +445,7 @@ namespace FitnessAppAPI.Data.Services.Teams
 
             if (!long.TryParse(workoutIdString, out long workoutId))
             {
-                return new ServiceActionResult<long>(HttpStatusCode.BadRequest, MSG_TEAM_ID_NOT_PROVIDED);
+                return new ServiceActionResult<long>(HttpStatusCode.BadRequest, MSG_WOKOUT_ID_NOT_PROVIDED);
             }
 
             if (!requestData.TryGetValue("memberIds", out string? memberIdsString))
@@ -456,7 +456,15 @@ namespace FitnessAppAPI.Data.Services.Teams
             List<long> teamMemberIds = JsonConvert.DeserializeObject<List<long>>(memberIdsString!)!;
 
             foreach (long id in teamMemberIds)
-            {   
+            {
+                // Find the TeamMember record
+                var teamMemberRecord = DBAccess.TeamMembers.Where(tm => tm.Id == id).FirstOrDefault();
+
+                if (teamMemberRecord == null)
+                {
+                    continue;
+                }
+
                 var record = new AssignedWorkout
                 {
                     WorkoutId = workoutId,
@@ -466,6 +474,9 @@ namespace FitnessAppAPI.Data.Services.Teams
 
                 await DBAccess.AssignedWorkouts.AddAsync(record);
                 await DBAccess.SaveChangesAsync();
+
+                // Send notification
+                await notificationService.AddWorkoutAssignedNotification(coachId, teamMemberRecord.TeamId, teamMemberRecord.UserId, record.Id);
             }
 
             return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_WORKOUT_ASSIGNED);

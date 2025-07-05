@@ -31,5 +31,8 @@ namespace FitnessAppAPI.Data.Models
 
         [ForeignKey("Team")]
         public long? TeamId { get; set; }
+
+        [ForeignKey("AssignedWorkout")]
+        public long? AssignedWorkoutId { get; set; }
     }
 }
