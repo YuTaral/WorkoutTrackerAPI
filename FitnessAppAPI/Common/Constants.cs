@@ -59,6 +59,10 @@
         public const string MSG_INVALID_TEAM_TYPE = "Invalid team type value provided";
         public const string MSG_TEMPLATE_ADD_FAIL_NO_DATA = "Template data not provided";
         public const string MSG_INVALID_DATE_FORMAT = "Invalid date format provided";
+        public const string MSG_WOKOUT_ID_NOT_PROVIDED = "Workout id not provided";
+        public const string MSG_TEAM_ID_NOT_PROVIDED = "Team id not provided";
+        public const string MSG_MEMBER_IDS_NOT_PROVIDED = "Member ids not provided";
+        public const string MSG_WORKOUT_ASSIGNED = "Workout assigned to members";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -146,6 +150,7 @@
             public const string USERS_TO_INVITE = $"{TEAMS}/users-to-invite";
             public const string MY_TEAM_MEMBERS= $"{TEAMS}/my-team-members";
             public const string JOINED_TEAM_MEMBERS = $"{TEAMS}/joined-team-members";
+            public const string ASSIGN_WORKOUT = $"{TEAMS}/assign-workout";
 
             public const string JOIN_TEAM_NOTIFICATION_DETAILS = $"{NOTIFICATIONS}/join-team-notification-details";
             public const string REFRESH_NOTIFICATIONS = $"{NOTIFICATIONS}/refresh-notifications";
@@ -180,6 +185,16 @@
         {
             COACH,
             MEMBER
+        }
+
+        /// <summary>
+        ///     User -> Assigned workout state - whether the user has not started / started / completed the assigned workout
+        /// </summary>
+        public enum AssignedWorkoutState
+        {
+            ASSIGNED,
+            STARTED,
+            COMPLETED
         }
     }
 }

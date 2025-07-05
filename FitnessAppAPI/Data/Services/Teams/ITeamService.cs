@@ -136,5 +136,16 @@ namespace FitnessAppAPI.Data.Services.Teams
         /// </param>
 
         public Task<ServiceActionResult<BaseModel>> GetJoinedTeamMembers(long teamId, string userId);
+
+        /// <summary>
+        ///     Assign the workout to the members
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data (workout id and member ids)
+        /// </param>
+        /// <param name="coachId">
+        ///     The coach id
+        /// </param>
+        public Task<ServiceActionResult<long>> AssignWorkout(Dictionary<string, string> requestData, string coachId);
     }
 }

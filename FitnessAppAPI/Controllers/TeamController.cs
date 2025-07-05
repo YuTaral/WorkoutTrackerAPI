@@ -176,5 +176,15 @@ namespace FitnessAppAPI.Controllers
         {
             return SendResponse(await service.AcceptDeclineInvite(requestData, newState));
         }
+
+        /// <summary>
+        //      POST request to assign the workout
+        /// </summary>
+        [HttpPost(RequestEndPoints.ASSIGN_WORKOUT)]
+        [Authorize]
+        public async Task<ActionResult> AssignWorkout([FromBody] Dictionary<string, string> requestData)
+        {
+            return SendResponse (await service.AssignWorkout(requestData, GetUserId()));
+        }
     }
 }

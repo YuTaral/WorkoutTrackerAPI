@@ -435,6 +435,43 @@ namespace FitnessAppAPI.Data.Services.Teams
             return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, MSG_SUCCESS, returnData);
         }
 
+        public async Task<ServiceActionResult<long>> AssignWorkout(Dictionary<string, string> requestData, string coachId)
+        {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("workoutId", out string? workoutIdString))
+            {
+                return new ServiceActionResult<long>(HttpStatusCode.BadRequest, MSG_WOKOUT_ID_NOT_PROVIDED);
+            }
+
+            if (!long.TryParse(workoutIdString, out long workoutId))
+            {
+                return new ServiceActionResult<long>(HttpStatusCode.BadRequest, MSG_TEAM_ID_NOT_PROVIDED);
+            }
+
+            if (!requestData.TryGetValue("memberIds", out string? memberIdsString))
+            {
+                return new ServiceActionResult<long>(HttpStatusCode.BadRequest, MSG_MEMBER_IDS_NOT_PROVIDED);
+            }
+
+            List<long> teamMemberIds = JsonConvert.DeserializeObject<List<long>>(memberIdsString!)!;
+
+            foreach (long id in teamMemberIds)
+            {   
+                var record = new AssignedWorkout
+                {
+                    WorkoutId = workoutId,
+                    TeamMemberId = id,
+                    State = AssignedWorkoutState.ASSIGNED.ToString(),
+                };
+
+                await DBAccess.AssignedWorkouts.AddAsync(record);
+                await DBAccess.SaveChangesAsync();
+            }
+
+            return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_WORKOUT_ASSIGNED);
+        }
+
+
         /// <summary>
         ///    After processing accept / decline invite, update the notification to mark it as inactive
         ///    and send notification to the invite sender for accept / invite. Return updated notifications

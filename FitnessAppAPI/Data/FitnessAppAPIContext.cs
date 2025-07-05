@@ -22,6 +22,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
     public required DbSet<Team> Teams { get; init; }
     public required DbSet<TeamMember> TeamMembers { get; init; }
     public required DbSet<Notification> Notifications { get; init; }
+    public required DbSet<AssignedWorkout> AssignedWorkouts { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -177,6 +178,22 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .WithMany()
                .HasForeignKey(w => w.ReceiverUserId)
                .OnDelete(DeleteBehavior.NoAction);
+
+        // AssignedWorkout -> Workout relation via AssignedWorkout.WorkoutId
+        // Manually delete AssignedWorkout when Workout is deleted to avoid
+        // "multiple cascade paths" on delete
+        modelBuilder.Entity<AssignedWorkout>()
+               .HasOne<Workout>()
+               .WithMany()
+               .HasForeignKey(w => w.WorkoutId)
+               .OnDelete(DeleteBehavior.NoAction);
+
+        // AssignedWorkout -> TeamMember relation via AssignedWorkout.TeamMemberId
+        modelBuilder.Entity<AssignedWorkout>()
+               .HasOne<TeamMember>()
+               .WithMany()
+               .HasForeignKey(w => w.TeamMemberId)
+               .OnDelete(DeleteBehavior.Cascade);
     }
 
     /// <summary>
@@ -341,6 +358,17 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
             entity.ToTable(tb =>
                 tb.HasCheckConstraint("CK_Notification_NotificationType",
                 $"NotificationType IN ({validNotifications})")
+            );
+        });
+
+        // Add constraint for AssignedWorkout.State value
+        modelBuilder.Entity<AssignedWorkout>(entity =>
+        {
+            var validStates = string.Join(", ", Enum.GetNames<Constants.AssignedWorkoutState>().Select(state => $"'{state}'"));
+
+            entity.ToTable(tb =>
+                tb.HasCheckConstraint("CK_AssignedWorkout_State",
+                $"State IN ({validStates})")
             );
         });
     }
