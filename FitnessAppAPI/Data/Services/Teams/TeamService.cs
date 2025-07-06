@@ -467,7 +467,7 @@ namespace FitnessAppAPI.Data.Services.Teams
 
                 var record = new AssignedWorkout
                 {
-                    WorkoutId = workoutId,
+                    TemplateId = workoutId,
                     TeamMemberId = id,
                     State = AssignedWorkoutState.ASSIGNED.ToString(),
                 };
@@ -484,7 +484,7 @@ namespace FitnessAppAPI.Data.Services.Teams
 
         public async Task<ServiceActionResult<long>> DeleteAssignedWorkouts(long templateId)
         {
-            var assignedWorkouts = DBAccess.AssignedWorkouts.Where(a => a.WorkoutId == templateId).ToList();
+            var assignedWorkouts = DBAccess.AssignedWorkouts.Where(a => a.TemplateId == templateId).ToList();
             var assignedWorkoutIds = assignedWorkouts.Select(a => a.Id).ToList();
 
             // Remove the assigned workout recrods with this id

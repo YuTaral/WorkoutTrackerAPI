@@ -355,7 +355,8 @@ namespace FitnessAppAPI.Common
                 Type = notification.NotificationType,
                 Image = img,
                 TeamId = notification.TeamId,
-                ClickDisabled = NotificationNotClickable(notification.IsActive, notification.NotificationType)
+                ClickDisabled = NotificationNotClickable(notification.IsActive, notification.NotificationType),
+                AssignedWorkoutId = notification.AssignedWorkoutId,
             };
         }
 

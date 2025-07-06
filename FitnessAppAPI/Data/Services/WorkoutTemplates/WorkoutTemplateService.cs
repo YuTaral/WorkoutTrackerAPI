@@ -138,6 +138,29 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
             return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, templateModels);
         }
 
+        public async Task<ServiceActionResult<WorkoutModel>> GetWorkoutTemplate(long assignedWorkoutId)
+        {
+            // Check if the neccessary data is provided
+            if (assignedWorkoutId <= 0)
+            {
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, MSG_ASSIGNED_WORKOUT_ID_NOT_PROVIDED);
+            }
+
+            var assignedWorkoutRecord = await DBAccess.AssignedWorkouts.Where(a => a.Id == assignedWorkoutId).FirstOrDefaultAsync();
+            if (assignedWorkoutRecord == null)
+            {
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, MSG_ASSIGNED_WORKOUT_ID_NOT_PROVIDED);
+            }
+
+            var template = await DBAccess.Workouts.Where(w => w.Id == assignedWorkoutRecord.TemplateId).FirstOrDefaultAsync();
+            if (template == null)
+            {
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.NotFound, MSG_WORKOUT_DOES_NOT_EXIST);
+            }
+
+            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, [await ModelMapper.MapToWorkoutModel(template, DBAccess)]);
+        }
+
         /// <summary>
         ///    Perform validations whether the provided template data is valid
         ///    Return workout model if valid, otherwise Bad Request

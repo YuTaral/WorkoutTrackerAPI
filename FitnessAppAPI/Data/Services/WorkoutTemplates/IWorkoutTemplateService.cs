@@ -47,5 +47,13 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
         ///     The user who is fetching the templates
         /// </param>
         public Task<ServiceActionResult<WorkoutModel>> GetWorkoutTemplates(string userId);
+
+        /// <summary>
+        ///     Get the workout template data by the provided assigned workout id
+        /// </summary>
+        /// <param name="assignedWorkoutId">
+        ///     The assigned workout id
+        /// </param>
+        public Task<ServiceActionResult<WorkoutModel>> GetWorkoutTemplate(long assignedWorkoutId);
     }
 }

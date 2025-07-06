@@ -63,6 +63,8 @@
         public const string MSG_TEAM_ID_NOT_PROVIDED = "Team id not provided";
         public const string MSG_MEMBER_IDS_NOT_PROVIDED = "Member ids not provided";
         public const string MSG_WORKOUT_ASSIGNED = "Workout assigned to members";
+        public const string MSG_ASSIGNED_WORKOUT_ID_NOT_PROVIDED = "Assigned workout id not provided";
+
 
         /// <summary>
         ///     Class containing the DB constants
@@ -156,6 +158,7 @@
             public const string JOIN_TEAM_NOTIFICATION_DETAILS = $"{NOTIFICATIONS}/join-team-notification-details";
             public const string REFRESH_NOTIFICATIONS = $"{NOTIFICATIONS}/refresh-notifications";
 
+            public const string GET_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATES}/get-template-by-assigned-workout";
         }
 
         /// <summary>

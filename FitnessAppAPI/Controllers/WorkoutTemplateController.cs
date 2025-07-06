@@ -79,5 +79,15 @@ namespace FitnessAppAPI.Controllers
         {
             return SendResponse(await service.GetWorkoutTemplates(GetUserId()));
         }
+
+        /// <summary>
+        //      Get request to fetch the workout template by assigned workout id
+        /// </summary>
+        [HttpGet(RequestEndPoints.GET_WORKOUT_TEMPLATE)]
+        [Authorize]
+        public async Task<ActionResult> GetWorkoutTemplate([FromQuery] long assignedWorkoutId)
+        {
+            return SendResponse(await service.GetWorkoutTemplate(assignedWorkoutId));
+        }
     }
 }

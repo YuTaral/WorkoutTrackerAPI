@@ -185,7 +185,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
         modelBuilder.Entity<AssignedWorkout>()
                .HasOne<Workout>()
                .WithMany()
-               .HasForeignKey(w => w.WorkoutId)
+               .HasForeignKey(w => w.TemplateId)
                .OnDelete(DeleteBehavior.NoAction);
 
         // AssignedWorkout -> TeamMember relation via AssignedWorkout.TeamMemberId
@@ -336,7 +336,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
 
         modelBuilder.Entity<AssignedWorkout>(entity =>
         {
-            entity.HasIndex(a => a.WorkoutId);
+            entity.HasIndex(a => a.TemplateId);
             entity.HasIndex(a => a.TeamMemberId);
         });
     }
