@@ -2,6 +2,7 @@
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services.Exercises.Models;
+using FitnessAppAPI.Data.Services.Teams;
 using FitnessAppAPI.Data.Services.UserProfile.Models;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.EntityFrameworkCore;
@@ -15,13 +16,18 @@ namespace FitnessAppAPI.Data.Services.Workouts
     ///     Workout service class to implement IWorkoutService interface.
     /// </summary>
 
-    public class WorkoutService(FitnessAppAPIContext DB, IExerciseService eService) : BaseService(DB), IWorkoutService
+    public class WorkoutService(FitnessAppAPIContext DB, IExerciseService eService, ITeamService tService) : BaseService(DB), IWorkoutService
     {
 
         /// <summary>
         //      ExerciseService instance
         /// </summary>
         private readonly IExerciseService exerciseService = eService;
+
+        /// <summary>
+        //      TeamService instance
+        /// </summary>
+        private readonly ITeamService teamService = tService;
 
         public async Task<ServiceActionResult<WorkoutModel>> AddWorkout(Dictionary<string, string> requestData, string userId)
         {
@@ -65,6 +71,14 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 }
             }
 
+            if (requestData.TryGetValue("assignedWorkoutId", out string? assignedWorkoutIdString))
+            {
+                if (long.TryParse(assignedWorkoutIdString, out long assignedWorkoutId))
+                {
+                    await teamService.UpdateAssignedWorkoutStarted(assignedWorkoutId, workout.Id);
+                }
+            }
+
             return new ServiceActionResult<WorkoutModel>(HttpStatusCode.Created, MSG_SUCCESS, [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
         }
 
@@ -84,6 +98,12 @@ namespace FitnessAppAPI.Data.Services.Workouts
             if (workout == null)
             {
                 return new ServiceActionResult<WorkoutModel>(HttpStatusCode.NotFound, MSG_WORKOUT_DOES_NOT_EXIST);
+            }
+
+            if (workout.FinishDateTime == null && workoutData.FinishDateTime != null)
+            {
+                // Check if this was assigned workout and send notification if so
+               await teamService.FinishAssignedWorkout(workout.Id);
             }
 
             // Validation passed, update the workout
@@ -115,6 +135,8 @@ namespace FitnessAppAPI.Data.Services.Workouts
             // Delete the workout
             DBAccess.Workouts.Remove(workout);
             await DBAccess.SaveChangesAsync();
+
+            await teamService.DeleteAssignedWorkoutsByWorkoutId(workoutId);
 
             return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
         }

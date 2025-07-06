@@ -94,6 +94,7 @@
         {
             public const string AskTeamInviteAccept = "{0} invited you to join the team on {1}.\nDo you accept?";
             public const string AskTeamInviteAcceptNoSender = "You have received invitation to join the team on {0}.\nDo you accept?";
+            public const string WorkoutAssignmentFinished = "{0} completed your workout assignment";
         }
 
         /// <summary>
@@ -180,7 +181,8 @@
             INVITED_TO_TEAM,
             JOINED_TEAM,
             DECLINED_TEAM_INVITATION,
-            WORKOUT_ASSIGNED
+            WORKOUT_ASSIGNED,
+            WORKOUT_ASSIGNMENT_COMPLETED
         }
 
         /// <summary>

@@ -4,6 +4,7 @@ using FitnessAppAPI.Data.Services.Notifications;
 using FitnessAppAPI.Data.Services.Notifications.Models;
 using FitnessAppAPI.Data.Services.Teams.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using Newtonsoft.Json;
 using System.Net;
 using static FitnessAppAPI.Common.Constants;
@@ -493,13 +494,77 @@ namespace FitnessAppAPI.Data.Services.Teams
             // Remove the notifications with this id
             if (assignedWorkoutIds.Count != 0)
             { 
-                await notificationService.DeleteNotificationsForAssignedWorkout(assignedWorkoutIds);
+                await notificationService.DeleteNotificationsForAssignedWorkout(assignedWorkoutIds, "");
             }
 
 
             return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_SUCCESS);
         }
 
+        public async Task<ServiceActionResult<long>> DeleteAssignedWorkoutsByWorkoutId(long startedWorkoutId)
+        {
+            var assignedWorkouts = DBAccess.AssignedWorkouts.Where(a => a.StartedWorkoutId == startedWorkoutId).ToList();
+            var assignedWorkoutIds = assignedWorkouts.Select(a => a.Id).ToList();
+
+            // Remove the assigned workout recrods with this id
+            DBAccess.AssignedWorkouts.RemoveRange(assignedWorkouts);
+
+            // Remove the workout completed notifications with this id
+            if (assignedWorkoutIds.Count != 0)
+            {
+                await notificationService.DeleteNotificationsForAssignedWorkout(assignedWorkoutIds, NotificationType.WORKOUT_ASSIGNMENT_COMPLETED.ToString());
+            }
+
+
+            return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_SUCCESS);
+        }
+
+        public async Task<ServiceActionResult<long>> FinishAssignedWorkout(long workoutId)
+        {
+            var record = await DBAccess.AssignedWorkouts.Where(w => w.StartedWorkoutId == workoutId).FirstOrDefaultAsync();
+
+            if (record == null)
+            {
+                // The workout was not assigned, just return
+                return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_SUCCESS);
+            }
+
+            record.State = AssignedWorkoutState.COMPLETED.ToString();
+            DBAccess.Entry(record).State = EntityState.Modified;
+            await DBAccess.SaveChangesAsync();
+
+            var teamMemberRec = await DBAccess.TeamMembers.Where(t => t.Id == record.TeamMemberId).FirstOrDefaultAsync();
+
+            if (teamMemberRec != null) {
+                var teamRecord = await DBAccess.Teams.Where(t => t.Id == teamMemberRec.TeamId).FirstOrDefaultAsync();
+
+                if (teamRecord != null)
+                {
+                    // Send notification to the coach that the workout assignment was completed
+                    await notificationService.AssignedWorkoutFinishedNotification(teamMemberRec.UserId, teamRecord.UserId, teamMemberRec.TeamId, record.Id);
+                }
+            }
+
+            return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_SUCCESS);
+        }
+
+        public async Task<ServiceActionResult<long>> UpdateAssignedWorkoutStarted(long assignedWorkoutId, long startedWorkoutId)
+        {
+            var record = await DBAccess.AssignedWorkouts.Where(w => w.Id == assignedWorkoutId).FirstOrDefaultAsync();
+
+            if (record == null)
+            {
+                // The workout was not assigned, just return
+                return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_SUCCESS);
+            }
+
+            record.StartedWorkoutId = startedWorkoutId;
+            record.State = AssignedWorkoutState.STARTED.ToString();
+            DBAccess.Entry(record).State = EntityState.Modified;
+            await DBAccess.SaveChangesAsync();
+
+             return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_SUCCESS);
+        }
 
         /// <summary>
         ///    After processing accept / decline invite, update the notification to mark it as inactive

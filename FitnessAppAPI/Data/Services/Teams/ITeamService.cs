@@ -155,5 +155,29 @@ namespace FitnessAppAPI.Data.Services.Teams
         ///     The the template id which was deleted
         /// </param>
         public Task<ServiceActionResult<long>> DeleteAssignedWorkouts(long templateId);
+
+        /// <summary>
+        ///    Delete the assigned workout records
+        /// </summary>
+        /// <param name="startedWorkoutId">
+        ///     The stared workout id value of the records to delete
+        /// </param>
+        public Task<ServiceActionResult<long>> DeleteAssignedWorkoutsByWorkoutId(long startedWorkoutId);
+
+        /// <summary>
+        ///     Mark the state of assigned workout as finished
+        /// </summary>
+        /// <param name="workoutId">
+        ///     The workout id
+        /// </param>
+        public Task<ServiceActionResult<long>> FinishAssignedWorkout(long workoutId);
+
+        /// <summary>
+        ///     Mark the state of assigned workout as in progress and update started workout id
+        /// </summary>
+        /// <param name="assignedWorkoutId">
+        ///     The assigned workout id record
+        /// </param>
+        public Task<ServiceActionResult<long>> UpdateAssignedWorkoutStarted(long assignedWorkoutId, long startedWorkoutId);
     }
 }

@@ -442,7 +442,7 @@ namespace FitnessAppAPI.Common
                 Id = 0,
                 Name = "",
                 DurationSeconds = 0,
-                StartDateTime = DateTime.UtcNow,
+                StartDateTime = DateTime.Now,
                 Template = false,
                 Exercises = { },
                 Notes = ""

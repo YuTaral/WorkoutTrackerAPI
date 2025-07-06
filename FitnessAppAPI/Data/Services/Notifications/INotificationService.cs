@@ -89,7 +89,10 @@ namespace FitnessAppAPI.Data.Services.Notifications
         /// <param name="ids">
         ///     The records' AssignedWorkoutId value
         /// </param>
-        public Task<ServiceActionResult<BaseModel>> DeleteNotificationsForAssignedWorkout(List<long> ids);
+        /// <param name="notificationType">
+        ///     The notification type - may be empty for all notification types
+        /// </param>
+        public Task<ServiceActionResult<BaseModel>> DeleteNotificationsForAssignedWorkout(List<long> ids, string notificationType);
 
         /// <summary>
         ///     Return the notifications for the user
@@ -116,7 +119,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
         public Task<ServiceActionResult<JoinTeamNotificationModel>> GetJoinTeamNotificationDetails(long notificationId);
 
         /// <summary>
-        ///     Add the team accept invitation notification to the notifications table
+        ///     Add notification for workout assign
         /// </summary>
         /// <param name="senderUserId">
         ///     The user send the workout
@@ -132,5 +135,23 @@ namespace FitnessAppAPI.Data.Services.Notifications
         /// </param>
         /// 
         public Task<ServiceActionResult<BaseModel>> AddWorkoutAssignedNotification(string senderUserId, long teamId, string receiverUserId, long assignedWorkoutRecId);
+
+        /// <summary>
+        ///     Add notification for workout assign completed
+        /// </summary>
+        /// <param name="senderUserId">
+        ///     The user who completed the workout (member)
+        /// </param>
+        /// <param name="receiverUserId">
+        ///     The user who must be notified (coach)
+        /// </param>
+        ///  <param name="teamId">
+        ///     The team id
+        /// </param>
+        /// <param name="assignedWorkoutRecId">
+        ///     Id of the assigned workout record
+        /// </param>
+        /// 
+        public Task<ServiceActionResult<BaseModel>> AssignedWorkoutFinishedNotification(string senderUserId, string receiverUserId, long teamId, long assignedWorkoutRecId);
     }
 }

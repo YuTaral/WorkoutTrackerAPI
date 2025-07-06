@@ -25,7 +25,7 @@ namespace FitnessAppAPI.Data.Services.SystemLogs
             {
                 ExceptionDescription = exception.Message,
                 ExceptionStackTrace = stackTrace,
-                Date = DateTime.UtcNow,
+                Date = DateTime.Now,
                 UserId = userId
             };
 

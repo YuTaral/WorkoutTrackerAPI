@@ -2,10 +2,12 @@
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Notifications.Models;
 using FitnessAppAPI.Data.Services.Teams.Models;
+using FitnessAppAPI.Data.Services.User.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Net;
 using static FitnessAppAPI.Common.Constants;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FitnessAppAPI.Data.Services.Notifications
 {
@@ -153,10 +155,14 @@ namespace FitnessAppAPI.Data.Services.Notifications
             return await DeleteNotifications(notifications);
         }
 
-        public async Task<ServiceActionResult<BaseModel>> DeleteNotificationsForAssignedWorkout(List<long> ids)
+        public async Task<ServiceActionResult<BaseModel>> DeleteNotificationsForAssignedWorkout(List<long> ids, string notificationType)
         {
-            // Find all notifications AssignedWorkoutId value is in the list with ids
-            var notifications = await DBAccess.Notifications.Where(n => n.AssignedWorkoutId.HasValue && ids.Contains(n.AssignedWorkoutId.Value)).ToListAsync();
+            // Find all notifications AssignedWorkoutId value is in the list with ids and notificaion type
+            var notifications = await DBAccess.Notifications
+                                .Where(n => n.AssignedWorkoutId.HasValue
+                                       && ids.Contains(n.AssignedWorkoutId.Value) 
+                                       && ((n.NotificationType == notificationType) || notificationType == ""))
+                                .ToListAsync();
 
             return await DeleteNotifications(notifications);
         }
@@ -262,6 +268,47 @@ namespace FitnessAppAPI.Data.Services.Notifications
             };
 
             return await AddNotification(notification);
+        }
+
+        public async Task<ServiceActionResult<BaseModel>> AssignedWorkoutFinishedNotification(string senderUserId, string receiverUserId, long teamId, long assignedWorkoutRecId)
+        {
+            var notificationExists = await DBAccess.Notifications
+                                    .Where(n => n.AssignedWorkoutId == assignedWorkoutRecId && 
+                                           n.NotificationType == NotificationType.WORKOUT_ASSIGNMENT_COMPLETED.ToString())
+                                    .FirstOrDefaultAsync();
+
+            if (notificationExists != null)
+            {
+                // Notificaiton already exists, update it as active
+                // (member may have completed the same assignment twice,no need for new notification record)
+                notificationExists.IsActive = true;
+                notificationExists.DateTime = DateTime.Now;
+                DBAccess.Entry(notificationExists).State = EntityState.Modified;
+                await DBAccess.SaveChangesAsync();
+            } 
+            else
+            {
+                var profile = await DBAccess.UserProfiles.Where(p => p.UserId == senderUserId).FirstOrDefaultAsync();
+                if (profile != null)
+                {
+                    var notification = new Notification
+                    {
+                        NotificationType = NotificationType.WORKOUT_ASSIGNMENT_COMPLETED.ToString(),
+                        ReceiverUserId = receiverUserId,
+                        SenderUserId = senderUserId,
+                        NotificationText = string.Format(NotificationText.WorkoutAssignmentFinished, profile.FullName),
+                        DateTime = DateTime.Now,
+                        IsActive = true,
+                        TeamId = teamId,
+                        AssignedWorkoutId = assignedWorkoutRecId
+                    };
+
+                    return await AddNotification(notification);
+                }
+            }
+            
+
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
         }
 
         private async Task<ServiceActionResult<BaseModel>> DeleteNotifications(List<Notification> notifications)
