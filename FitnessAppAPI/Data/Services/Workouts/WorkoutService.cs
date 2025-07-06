@@ -46,7 +46,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
             {
                 Name = workoutData.Name,
                 UserId = userId,
-                StartDateTime = DateTime.Now.AddSeconds(-20), // Subtract 20s, sometimes there is difference between device and server's time
+                StartDateTime = DateTime.UtcNow.AddSeconds(-20), // Subtract 20s, sometimes there is difference between device and server's time
                 FinishDateTime = null,
                 Template = "N",
                 DurationSeconds = 0,
@@ -100,20 +100,36 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 return new ServiceActionResult<WorkoutModel>(HttpStatusCode.NotFound, MSG_WORKOUT_DOES_NOT_EXIST);
             }
 
-            if (workout.FinishDateTime == null && workoutData.FinishDateTime != null)
-            {
-                // Check if this was assigned workout and send notification if so
-               await teamService.FinishAssignedWorkout(workout.Id);
-            }
-
             // Validation passed, update the workout
             workout.Name = workoutData.Name;
-            workout.FinishDateTime = workoutData.FinishDateTime;
-            workout.DurationSeconds = workoutData.DurationSeconds;
             workout.Notes = workoutData.Notes;
 
             DBAccess.Entry(workout).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();
+
+            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
+        }
+
+        public async Task<ServiceActionResult<WorkoutModel>> FinishWorkout(long workoutId, string userId)
+        {
+            var workout = await CheckWorkoutExists(workoutId, userId);
+            if (workout == null)
+            {
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.NotFound, MSG_WORKOUT_DOES_NOT_EXIST);
+            }
+
+            // Calculate duration
+            var duration = DateTime.UtcNow - workout.StartDateTime!.Value;
+
+            // Mark the workotu as finished
+            workout.FinishDateTime = DateTime.UtcNow;
+            workout.DurationSeconds = (int)duration.TotalSeconds;
+
+            DBAccess.Entry(workout).State = EntityState.Modified;
+            await DBAccess.SaveChangesAsync();
+
+            // Check if this was assigned workout and send notification if so
+            await teamService.FinishAssignedWorkout(workout.Id);
 
             return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
         }

@@ -31,7 +31,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
                 ReceiverUserId = receiverUserId,
                 SenderUserId = senderUserId,
                 NotificationText = string.Format(DBConstants.InviteToTeamNotification, teamName),
-                DateTime = DateTime.Now,
+                DateTime = DateTime.UtcNow,
                 IsActive = true,
                 TeamId = teamId
             };
@@ -69,7 +69,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
                 ReceiverUserId = team.UserId,
                 SenderUserId = senderUserId,
                 NotificationText = notificationText,
-                DateTime = DateTime.Now,
+                DateTime = DateTime.UtcNow,
                 IsActive = true,
                 TeamId = teamId
             };
@@ -261,7 +261,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
                 ReceiverUserId = receiverUserId,
                 SenderUserId = senderUserId,
                 NotificationText = DBConstants.WorkoutAssigned,
-                DateTime = DateTime.Now,
+                DateTime = DateTime.UtcNow,
                 IsActive = true,
                 TeamId = teamId,
                 AssignedWorkoutId = assignedWorkoutRecId
@@ -282,7 +282,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
                 // Notificaiton already exists, update it as active
                 // (member may have completed the same assignment twice,no need for new notification record)
                 notificationExists.IsActive = true;
-                notificationExists.DateTime = DateTime.Now;
+                notificationExists.DateTime = DateTime.UtcNow;
                 DBAccess.Entry(notificationExists).State = EntityState.Modified;
                 await DBAccess.SaveChangesAsync();
             } 
@@ -297,7 +297,7 @@ namespace FitnessAppAPI.Data.Services.Notifications
                         ReceiverUserId = receiverUserId,
                         SenderUserId = senderUserId,
                         NotificationText = string.Format(NotificationText.WorkoutAssignmentFinished, profile.FullName),
-                        DateTime = DateTime.Now,
+                        DateTime = DateTime.UtcNow,
                         IsActive = true,
                         TeamId = teamId,
                         AssignedWorkoutId = assignedWorkoutRecId

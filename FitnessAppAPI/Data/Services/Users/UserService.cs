@@ -262,7 +262,7 @@ namespace FitnessAppAPI.Data
                 issuer: null,
                 audience: null,
                 claims: claims,
-                expires: DateTime.Now.AddDays(10),
+                expires: DateTime.UtcNow.AddDays(10),
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
@@ -299,7 +299,7 @@ namespace FitnessAppAPI.Data
             var expirationDateTime = DateTimeOffset.FromUnixTimeSeconds(expirationUnixTime).DateTime;
 
             // Check if the token expires within 2 days
-            if (expirationDateTime <= DateTime.Now.AddDays(2))
+            if (expirationDateTime <= DateTime.UtcNow.AddDays(2))
             {
                 return true;
             }

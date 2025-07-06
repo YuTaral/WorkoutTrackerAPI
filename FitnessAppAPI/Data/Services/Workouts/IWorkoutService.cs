@@ -31,6 +31,18 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// </param>
         public Task<ServiceActionResult<WorkoutModel>> UpdateWorkout(Dictionary<string, string> requestData, string userId);
 
+
+        /// <summary>
+        ///     Mark the workout as finished
+        /// </summary>
+        /// <param name="workoutId">
+        ///     The workout id
+        /// </param>
+        /// <param name="userId">
+        ///     The user who is updating the workout
+        /// </param>
+        public Task<ServiceActionResult<WorkoutModel>> FinishWorkout(long workoutId, string userId);
+
         /// <summary>
         ///     Delete the workout with the provided id
         /// </summary>

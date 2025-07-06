@@ -184,7 +184,7 @@ namespace FitnessAppAPI.Common
         ///     The date time
         /// </param>
         public static string FormatDefaultDateTime(DateTime dateTime) {
-            return dateTime.ToString("dd MMM yyyy, HH:mm");
+            return dateTime.ToString("dd MMM yyyy");
         }
     }
 }

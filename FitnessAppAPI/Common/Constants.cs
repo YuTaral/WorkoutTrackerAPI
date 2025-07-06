@@ -160,6 +160,8 @@
             public const string REFRESH_NOTIFICATIONS = $"{NOTIFICATIONS}/refresh-notifications";
 
             public const string GET_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATES}/get-template-by-assigned-workout";
+
+            public const string FINISH_WORKOUT = $"{WORKOUTS}/finish";
         }
 
         /// <summary>

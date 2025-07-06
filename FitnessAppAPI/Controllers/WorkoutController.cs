@@ -1,6 +1,8 @@
-﻿using FitnessAppAPI.Data.Services.Workouts;
+﻿using FitnessAppAPI.Common;
+using FitnessAppAPI.Data.Services.Workouts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Controllers
@@ -35,6 +37,16 @@ namespace FitnessAppAPI.Controllers
         public async Task<ActionResult> Update([FromBody] Dictionary<string, string> requestData)
         {
             return SendResponse(await service.UpdateWorkout(requestData, GetUserId()));
+        }
+
+        /// <summary>
+        //      Patch request to finish the workout
+        /// </summary>
+        [HttpPatch(RequestEndPoints.FINISH_WORKOUT)]
+        [Authorize]
+        public async Task<ActionResult> FinishWorkout([FromQuery] long workoutId)
+        {
+            return SendResponse(await service.FinishWorkout(workoutId, GetUserId()));
         }
 
         /// <summary>
