@@ -63,7 +63,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
                 }
             }
 
-            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.Created, MSG_SUCCESS);
+            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.Created);
         }
 
         public async Task<ServiceActionResult<WorkoutModel>> UpdateWorkoutTemplate(Dictionary<string, string> requestData, string userId)

@@ -69,7 +69,7 @@ namespace FitnessAppAPI.Controllers
         public ActionResult RefreshNotifications()
         {
             // Just return custom response, it will automatically refresh the notification
-            return SendResponse(HttpStatusCode.OK, MSG_SUCCESS);
+            return SendResponse(HttpStatusCode.OK);
         }
     }
 }

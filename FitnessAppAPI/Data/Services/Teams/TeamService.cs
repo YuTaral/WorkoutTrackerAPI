@@ -498,7 +498,7 @@ namespace FitnessAppAPI.Data.Services.Teams
             }
 
 
-            return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_SUCCESS);
+            return new ServiceActionResult<long>(HttpStatusCode.OK);
         }
 
         public async Task<ServiceActionResult<long>> DeleteAssignedWorkoutsByWorkoutId(long startedWorkoutId)
@@ -516,7 +516,7 @@ namespace FitnessAppAPI.Data.Services.Teams
             }
 
 
-            return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_SUCCESS);
+            return new ServiceActionResult<long>(HttpStatusCode.OK);
         }
 
         public async Task<ServiceActionResult<long>> FinishAssignedWorkout(long workoutId)
@@ -526,7 +526,7 @@ namespace FitnessAppAPI.Data.Services.Teams
             if (record == null)
             {
                 // The workout was not assigned, just return
-                return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_SUCCESS);
+                return new ServiceActionResult<long>(HttpStatusCode.OK);
             }
 
             record.State = AssignedWorkoutState.COMPLETED.ToString();
@@ -545,7 +545,7 @@ namespace FitnessAppAPI.Data.Services.Teams
                 }
             }
 
-            return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_SUCCESS);
+            return new ServiceActionResult<long>(HttpStatusCode.OK);
         }
 
         public async Task<ServiceActionResult<long>> UpdateAssignedWorkoutStarted(long assignedWorkoutId, long startedWorkoutId)
@@ -555,7 +555,7 @@ namespace FitnessAppAPI.Data.Services.Teams
             if (record == null)
             {
                 // The workout was not assigned, just return
-                return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_SUCCESS);
+                return new ServiceActionResult<long>(HttpStatusCode.OK);
             }
 
             record.StartedWorkoutId = startedWorkoutId;
@@ -563,7 +563,7 @@ namespace FitnessAppAPI.Data.Services.Teams
             DBAccess.Entry(record).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();
 
-             return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_SUCCESS);
+             return new ServiceActionResult<long>(HttpStatusCode.OK);
         }
 
         /// <summary>
