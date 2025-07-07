@@ -136,6 +136,22 @@ namespace FitnessAppAPI.Data.Services.Notifications
                     DBAccess.TeamMembers.Remove(record);
                     await AddAcceptedDeclinedNotification(userId, record.TeamId, NotificationType.DECLINED_TEAM_INVITATION.ToString());
                 }
+            } 
+            else if (notification.NotificationType == NotificationType.WORKOUT_ASSIGNED.ToString())
+            {
+                // Delete the record from workout assignments and send notification for workout assignment decline only if the workout is not yet completed
+                var workoutAssignmentRec = await DBAccess.AssignedWorkouts.Where(a => a.Id == notification.AssignedWorkoutId).FirstOrDefaultAsync();
+
+                if (workoutAssignmentRec != null && workoutAssignmentRec.State != AssignedWorkoutState.COMPLETED.ToString()) 
+                {
+                    var teamRecord = await DBAccess.Teams.Where(t => t.Id == notification.TeamId).FirstOrDefaultAsync();
+
+                    if (teamRecord != null)
+                    {
+                        DBAccess.AssignedWorkouts.Remove(workoutAssignmentRec);
+                        await AddWorkoutAssignmentDeclinedNotification(userId, teamRecord.Id, teamRecord.UserId);
+                    }
+                }
             }
 
             // Delete the notification
@@ -309,6 +325,27 @@ namespace FitnessAppAPI.Data.Services.Notifications
             
 
             return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
+        }
+
+        public async Task<ServiceActionResult<BaseModel>> AddWorkoutAssignmentDeclinedNotification(string senderUserId, long teamId, string receiverUserId)
+        {
+            var senderName = await DBAccess.UserProfiles.Where(u => u.UserId == senderUserId).Select(t => t.FullName).FirstOrDefaultAsync();
+            
+            // Must not happen
+            senderName ??= "Unknown user";
+
+            var notification = new Notification
+            {
+                NotificationType = NotificationType.WORKOUT_ASSIGNMENT_DECLINED.ToString(),
+                ReceiverUserId = receiverUserId,
+                SenderUserId = senderUserId,
+                NotificationText = string.Format(DBConstants.WorkoutAssignmentDeclined, senderName),
+                DateTime = DateTime.UtcNow,
+                IsActive = true,
+                TeamId = teamId,
+            };
+
+            return await AddNotification(notification);
         }
 
         private async Task<ServiceActionResult<BaseModel>> DeleteNotifications(List<Notification> notifications)
