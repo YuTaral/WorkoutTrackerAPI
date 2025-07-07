@@ -27,19 +27,36 @@ namespace FitnessAppAPI.Common
                 return GetEmptyWorkoutModel();
             }
 
-            return new WorkoutModel
+            if (workout.Template == "Y")
             {
-                Id = workout.Id,
-                Name = workout.Name,
-                StartDateTime = workout.StartDateTime,
-                FinishDateTime = workout.FinishDateTime,
-                Template = workout.Template == "Y",
-                Exercises = await DBAccess.Exercises.Where(e => e.WorkoutId == workout.Id)
-                                              .Select(e => MapToExerciseModel(e, DBAccess))
-                                              .ToListAsync(),
-                DurationSeconds = workout.DurationSeconds,
-                Notes = workout.Notes
-            };
+                return new WorkoutModel
+                {
+                    Id = workout.Id,
+                    Name = workout.Name,
+                    Template = workout.Template == "Y",
+                    Exercises = await DBAccess.Exercises.Where(e => e.WorkoutId == workout.Id)
+                                                 .Select(e => MapToExerciseModel(e, DBAccess))
+                                                 .ToListAsync(),
+                    DurationSeconds = workout.DurationSeconds,
+                    Notes = workout.Notes
+                };
+            } 
+            else
+            {
+                return new WorkoutModel
+                {
+                    Id = workout.Id,
+                    Name = workout.Name,
+                    StartDateTime = DateTime.SpecifyKind(workout.StartDateTime.GetValueOrDefault(), DateTimeKind.Utc),
+                    FinishDateTime = workout.FinishDateTime.HasValue ? DateTime.SpecifyKind(workout.FinishDateTime.Value, DateTimeKind.Utc) : null,
+                    Template = workout.Template == "Y",
+                    Exercises = await DBAccess.Exercises.Where(e => e.WorkoutId == workout.Id)
+                                                                 .Select(e => MapToExerciseModel(e, DBAccess))
+                                                                 .ToListAsync(),
+                    DurationSeconds = workout.DurationSeconds,
+                    Notes = workout.Notes
+                };
+            }
         }
 
         /// <summary>
@@ -350,7 +367,7 @@ namespace FitnessAppAPI.Common
             {
                 Id = notification.Id,
                 NotificationText = notification.NotificationText,
-                DateTime = notification.DateTime,
+                DateTime = DateTime.SpecifyKind(notification.DateTime, DateTimeKind.Utc),
                 IsActive = notification.IsActive,
                 Type = notification.NotificationType,
                 Image = img,
