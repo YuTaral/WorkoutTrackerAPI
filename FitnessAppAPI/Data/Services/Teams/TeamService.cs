@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using Newtonsoft.Json;
 using System.Net;
+using System.Runtime.InteropServices;
 using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Data.Services.Teams
@@ -468,6 +469,7 @@ namespace FitnessAppAPI.Data.Services.Teams
 
                 var record = new AssignedWorkout
                 {
+                    DateAssigned = DateTime.UtcNow,
                     TemplateId = workoutId,
                     TeamMemberId = id,
                     State = AssignedWorkoutState.ASSIGNED.ToString(),
@@ -564,6 +566,47 @@ namespace FitnessAppAPI.Data.Services.Teams
             await DBAccess.SaveChangesAsync();
 
              return new ServiceActionResult<long>(HttpStatusCode.OK);
+        }
+
+        public async Task<ServiceActionResult<AssignedWorkoutModel>> GetAssignedWorkouts(string startDate, long teamId, string coachId)
+        {
+            if (!DateTime.TryParse(startDate, out DateTime date))
+            {
+                return new ServiceActionResult<AssignedWorkoutModel>(HttpStatusCode.BadRequest, MSG_INVALID_DATE_FORMAT);
+            }
+
+            // Get all teams of the user (or the specific team if teamId is provided)
+            var teams = await DBAccess.Teams.Where(t => t.UserId == coachId && (teamId == 0 || t.Id == teamId)).Select(t => t.Id).ToListAsync();
+            if (teams.Count == 0) {
+                return new ServiceActionResult<AssignedWorkoutModel>(HttpStatusCode.NotFound, MSG_NO_TEAMS);
+            }
+
+            // Get all team member record ids
+            var teamMembers = await DBAccess.TeamMembers.Where(tm => teams.Contains(tm.TeamId)).ToListAsync();
+            if (teamMembers.Count == 0)
+            {
+                return new ServiceActionResult<AssignedWorkoutModel>(HttpStatusCode.NotFound, MSG_NO_TEAM_MEMBERS);
+            }
+
+            var teamMemberIds = teamMembers.Select(tm => tm.Id).ToList();
+            var teamMemberUsedIds = teamMembers.Select(tm => tm.UserId).ToList();
+
+            var assignedWorkouts = await DBAccess.AssignedWorkouts
+                    .Where(a => a.DateAssigned >= date && teamMemberIds.Contains(a.TeamMemberId))
+                    .OrderByDescending(a => a.DateAssigned)
+                    .ToListAsync();
+
+            if (assignedWorkouts.Count == 0) {
+                return new ServiceActionResult<AssignedWorkoutModel>(HttpStatusCode.NotFound, MSG_WORKOUT_ASSIGNMENTS);
+            }
+
+            var assignedWorkoutModels = new List<AssignedWorkoutModel>();
+            foreach (var a in assignedWorkouts)
+            {
+                assignedWorkoutModels.Add(await ModelMapper.MapToAssignedWorkoutModel(a, DBAccess));
+            }
+
+            return new ServiceActionResult<AssignedWorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, assignedWorkoutModels);
         }
 
         /// <summary>

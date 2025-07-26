@@ -377,6 +377,68 @@ namespace FitnessAppAPI.Common
             };
         }
 
+
+        /// <summary>
+        ///     Map the assigned workout to assigned workout model
+        /// </summary>
+        public static async Task<AssignedWorkoutModel> MapToAssignedWorkoutModel(AssignedWorkout assignedWorkout, FitnessAppAPIContext DBAccess)
+        {
+            var teamMemberRecord = await DBAccess.TeamMembers.Where(t => t.Id == assignedWorkout.TeamMemberId).FirstOrDefaultAsync();
+            if (teamMemberRecord == null)
+            {
+                return GetEmptyAssignedWorkoutModell();
+            }
+
+            var team = await DBAccess.Teams.Where(t => t.Id == teamMemberRecord.TeamId).FirstOrDefaultAsync();
+            if (team == null)
+            {
+                return GetEmptyAssignedWorkoutModell();
+            }
+
+            var user = await DBAccess.UserProfiles.Where(t => t.UserId == teamMemberRecord.UserId).FirstOrDefaultAsync();
+            if (user == null)
+            {
+                return GetEmptyAssignedWorkoutModell();
+            }
+
+            var workout = await DBAccess.Workouts.Where(w => w.Id == assignedWorkout.StartedWorkoutId).FirstOrDefaultAsync();
+            var workoutModel = GetEmptyWorkoutModel();
+            Workout? template;
+
+            if (workout == null)
+            {
+                // Workout not yet started, fetch the data from the template id
+                template = await DBAccess.Workouts.Where(w => w.Id == assignedWorkout.TemplateId).FirstOrDefaultAsync();
+                if (template != null)
+                {
+                    workoutModel = await MapToWorkoutModel(template, DBAccess);
+                } 
+                else
+                {
+                    return GetEmptyAssignedWorkoutModell();
+                }
+            } 
+            else
+            {
+                workoutModel = await MapToWorkoutModel(workout, DBAccess);
+            }
+
+            // Set template to false so the workout is displayed as workout instead of as template on the client
+            workoutModel.Template = false;
+
+            return new AssignedWorkoutModel
+            {
+                Id = assignedWorkout.Id,
+                WorkoutModel = workoutModel,
+                TeamName = team.Name,
+                TeamImage = Utils.EncodeByteArrayToBase64Image(team.Image),
+                TeamId = team.Id,
+                UserFullName = user.FullName,
+                
+                DateTimeAssigned = DateTime.SpecifyKind(assignedWorkout.DateAssigned, DateTimeKind.Utc)
+            };
+        }
+
         /// <summary>
         ///    Return empty TeamModel
         /// </summary>
@@ -514,6 +576,23 @@ namespace FitnessAppAPI.Common
             // Notification is not clickable (won't execute action on click on the clinet) when
             // it's inactive and is of type INVITED_TO_TEAM
             return (!isActive && type == Constants.NotificationType.INVITED_TO_TEAM.ToString());
+        }
+
+        /// <summary>
+        ///    Return empty GetEmptyTeamMemberModel
+        /// </summary>
+        private static AssignedWorkoutModel GetEmptyAssignedWorkoutModell()
+        {
+            return new AssignedWorkoutModel
+            {
+                Id = 0,
+                WorkoutModel = GetEmptyWorkoutModel(),
+                TeamName = "",
+                TeamImage = "",
+                TeamId = 0L,
+                UserFullName = "",
+                DateTimeAssigned = DateTime.UtcNow,
+            };
         }
     } 
 }

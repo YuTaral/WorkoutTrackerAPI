@@ -164,6 +164,26 @@ namespace FitnessAppAPI.Controllers
         }
 
         /// <summary>
+        //      POST request to assign the workout
+        /// </summary>
+        [HttpPost(RequestEndPoints.ASSIGN_WORKOUT)]
+        [Authorize]
+        public async Task<ActionResult> AssignWorkout([FromBody] Dictionary<string, string> requestData)
+        {
+            return SendResponse(await service.AssignWorkout(requestData, GetUserId()));
+        }
+
+        /// <summary>
+        //      POST request to assign the workout
+        /// </summary>
+        [HttpGet(RequestEndPoints.ASSIGNED_WORKOUTS)]
+        [Authorize]
+        public async Task<ActionResult> GetAssignedWorkouts([FromQuery] string startDate, [FromQuery] long teamId)
+        {
+            return SendResponse(await service.GetAssignedWorkouts(startDate, teamId, GetUserId()));
+        }
+
+        /// <summary>
         ///     Call the service method to accept / decline team invitation 
         /// </summary>
         /// <param name="requestData">
@@ -176,15 +196,6 @@ namespace FitnessAppAPI.Controllers
         {
             return SendResponse(await service.AcceptDeclineInvite(requestData, newState));
         }
-
-        /// <summary>
-        //      POST request to assign the workout
-        /// </summary>
-        [HttpPost(RequestEndPoints.ASSIGN_WORKOUT)]
-        [Authorize]
-        public async Task<ActionResult> AssignWorkout([FromBody] Dictionary<string, string> requestData)
-        {
-            return SendResponse (await service.AssignWorkout(requestData, GetUserId()));
-        }
+        
     }
 }

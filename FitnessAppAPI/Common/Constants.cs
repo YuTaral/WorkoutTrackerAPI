@@ -64,7 +64,9 @@
         public const string MSG_MEMBER_IDS_NOT_PROVIDED = "Member ids not provided";
         public const string MSG_WORKOUT_ASSIGNED = "Workout assigned to members";
         public const string MSG_ASSIGNED_WORKOUT_ID_NOT_PROVIDED = "Assigned workout id not provided";
-
+        public const string MSG_NO_TEAMS = "You don't have any teams";
+        public const string MSG_NO_TEAM_MEMBERS = "You don't have any members in your teams";
+        public const string MSG_WORKOUT_ASSIGNMENTS = "You don't have any assigned workouts with the selected filters";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -155,6 +157,7 @@
             public const string MY_TEAM_MEMBERS= $"{TEAMS}/my-team-members";
             public const string JOINED_TEAM_MEMBERS = $"{TEAMS}/joined-team-members";
             public const string ASSIGN_WORKOUT = $"{TEAMS}/assign-workout";
+            public const string ASSIGNED_WORKOUTS = $"{TEAMS}/assigned-workouts";
 
             public const string JOIN_TEAM_NOTIFICATION_DETAILS = $"{NOTIFICATIONS}/join-team-notification-details";
             public const string REFRESH_NOTIFICATIONS = $"{NOTIFICATIONS}/refresh-notifications";
