@@ -100,7 +100,10 @@ namespace FitnessAppAPI.Data.Services.Notifications
         /// <param name="userId">
         ///     The user id - owner of the notifications
         /// </param>
-        public Task<ServiceActionResult<NotificationModel>> GetNotifications(string userId);
+        /// <param name="showReviewed">
+        ///     Whether to show reviewed notifications or not
+        /// </param>
+        public Task<ServiceActionResult<NotificationModel>> GetNotifications(string userId, bool showReviewed);
 
         /// <summary>
         ///     Check whether the current user have at least one active notification

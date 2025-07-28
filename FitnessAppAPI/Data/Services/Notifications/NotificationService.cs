@@ -184,10 +184,10 @@ namespace FitnessAppAPI.Data.Services.Notifications
             return await DeleteNotifications(notifications);
         }
 
-        public async Task<ServiceActionResult<NotificationModel>> GetNotifications(string userId)
+        public async Task<ServiceActionResult<NotificationModel>> GetNotifications(string userId, bool showReviewed)
         {
             var notifcationModels = new List<NotificationModel>();
-            var notifications = await DBAccess.Notifications.Where(n => n.ReceiverUserId == userId)
+            var notifications = await DBAccess.Notifications.Where(n => n.ReceiverUserId == userId && (showReviewed || n.IsActive == true))
                                                              .OrderByDescending(n => n.DateTime)
                                                              .ToListAsync();
 

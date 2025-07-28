@@ -247,8 +247,14 @@ namespace FitnessAppAPI.Data.Services.Teams
 
             await DBAccess.SaveChangesAsync();
 
+            var showReviewed = true;
+            if (requestData.TryGetValue("showReviewed", out string? showReviewedStr))
+            {
+                showReviewed = showReviewedStr == "Y";
+            }
+
             // Deal with notifications
-            return await HandleNotifications(userId, teamId, newState);
+            return await HandleNotifications(userId, teamId, newState, showReviewed);
         }
 
         public async Task<ServiceActionResult<TeamModel>> GetMyTeams(string teamType, string userId)
@@ -623,7 +629,10 @@ namespace FitnessAppAPI.Data.Services.Teams
         /// <param name="newState">
         ///     The state new MemberTeamState - ACCEPTED / DECLINED notifcation
         /// </param>
-        private async Task<ServiceActionResult<NotificationModel>> HandleNotifications(string userId, long teamId, string newState) {
+        /// <param name="showReviewed">
+        ///     True to fetch reviewed notifications, false to fetch only active notifications
+        /// </param>
+        private async Task<ServiceActionResult<NotificationModel>> HandleNotifications(string userId, long teamId, string newState, bool showReviewed) {
             var notification = await DBAccess.Notifications.Where(n => n.ReceiverUserId == userId &&
                                                                  n.TeamId == teamId &&
                                                                  n.NotificationType == NotificationType.INVITED_TO_TEAM.ToString())
@@ -651,7 +660,7 @@ namespace FitnessAppAPI.Data.Services.Teams
                     await notificationService.AddAcceptedDeclinedNotification(userId, teamId, NotificationType.DECLINED_TEAM_INVITATION.ToString());
 
                     // Get the updated list of notifications
-                    var updatedNotificationsResult = await notificationService.GetNotifications(userId);
+                    var updatedNotificationsResult = await notificationService.GetNotifications(userId, showReviewed);
                     returnData = updatedNotificationsResult.Data;
                 }
             }
