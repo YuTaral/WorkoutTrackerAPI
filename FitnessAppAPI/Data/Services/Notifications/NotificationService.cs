@@ -139,10 +139,11 @@ namespace FitnessAppAPI.Data.Services.Notifications
             } 
             else if (notification.NotificationType == NotificationType.WORKOUT_ASSIGNED.ToString())
             {
-                // Delete the record from workout assignments and send notification for workout assignment decline only if the workout is not yet completed
+                // Delete the record from workout assignments and send notification for workout assignment decline only if the workout is not yet started / completed
                 var workoutAssignmentRec = await DBAccess.AssignedWorkouts.Where(a => a.Id == notification.AssignedWorkoutId).FirstOrDefaultAsync();
 
-                if (workoutAssignmentRec != null && workoutAssignmentRec.State != AssignedWorkoutState.COMPLETED.ToString()) 
+                if (workoutAssignmentRec != null && 
+                    (workoutAssignmentRec.State != AssignedWorkoutState.COMPLETED.ToString() && workoutAssignmentRec.State != AssignedWorkoutState.STARTED.ToString()))
                 {
                     var teamRecord = await DBAccess.Teams.Where(t => t.Id == notification.TeamId).FirstOrDefaultAsync();
 
