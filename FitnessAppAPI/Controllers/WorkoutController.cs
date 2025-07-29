@@ -68,14 +68,5 @@ namespace FitnessAppAPI.Controllers
         {
             return SendResponse(await service.GetLatestWorkouts(startDate, GetUserId()));
         }
-
-        /// <summary>
-        //      Get request to fetch the weight units
-        /// </summary>
-        [HttpGet(RequestEndPoints.WEIGHT_UNITS)]
-        public async Task<ActionResult> GetWeightUnits()
-        {
-            return SendResponse(await service.GetWeightUnits());
-        }
     }
 }

@@ -30,5 +30,7 @@ namespace FitnessAppAPI.Data.Models
 
         [MaxLength(Constants.DBConstants.Len4000, ErrorMessage = Constants.ValidationErrors.DESCRIPTION_MAX_LEN_4000)]
         public required string Notes { get; set; }
+        
+        public required string WeightUnit { get; set; }
     }
 }

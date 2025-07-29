@@ -17,7 +17,6 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
     public required DbSet<MGExercise> MGExercises { get; init; }
     public required DbSet<SystemLog> SystemLogs { get; init; }
     public required DbSet<UserDefaultValue> UserDefaultValues { get; init; }
-    public required DbSet<WeightUnit> WeightUnits { get; init; }
     public required DbSet<UserProfile> UserProfiles { get; init; }
     public required DbSet<Team> Teams { get; init; }
     public required DbSet<TeamMember> TeamMembers { get; init; }
@@ -118,18 +117,11 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
         // ExerciseDefaultValue -> MGExercise relation via ExerciseDefaultValue.MGExeciseId
         // Do not create the foreign key as the user default value has MGExerciseId = 0
         // Handle the delete mannually
-        //modelBuilder.Entity<UserDefaultValue>()
+        // modelBuilder.Entity<UserDefaultValue>()
         //       .HasOne<MGExercise>()
         //       .WithMany()
         //       .HasForeignKey(e => e.MGExeciseId)
         //       .OnDelete(DeleteBehavior.Cascade);
-
-        // UserDefaultValue -> MGExeWeightUnitcise relation via WeightUnit.WeightUnitId
-        modelBuilder.Entity<UserDefaultValue>()
-               .HasOne<WeightUnit>()
-               .WithMany()
-               .HasForeignKey(u => u.WeightUnitId)
-               .OnDelete(DeleteBehavior.Cascade);
 
         // UserProfile -> User relation via UserProfile.UserId
         modelBuilder.Entity<UserProfile>()
@@ -201,12 +193,6 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
     /// </summary>
     private static void AddInitialData(ModelBuilder modelBuilder)
     {
-        // Add the default Weight Units
-        modelBuilder.Entity<WeightUnit>().HasData(
-            new WeightUnit { Id = 1, Text = Common.Constants.DBConstants.KG },
-            new WeightUnit { Id = 2, Text = Common.Constants.DBConstants.LB }
-        );
-
         // Add the default Muscle Groups
         modelBuilder.Entity<MuscleGroup>().HasData(
            new MuscleGroup { Id = 1, Name = "Abs", ImageName = "icon_mg_abs", Default = "Y" },

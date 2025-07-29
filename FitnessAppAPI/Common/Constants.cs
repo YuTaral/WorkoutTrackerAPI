@@ -136,8 +136,6 @@
             public const string CHANGE_PASSWORD = $"{USERS}/change-password";
             public const string VALIDATE_TOKEN = $"{USERS}/validate-token";
 
-            public const string WEIGHT_UNITS= $"{WORKOUTS}/weight-units";
-
             public const string TO_WORKOUT = $"{EXERCISES}/to-workout";
             public const string EXERCISE_FROM_WORKOUT = $"{EXERCISES}/exercise-from-workout";
             public const string COMPLETE_SET = $"{EXERCISES}/complete-set";

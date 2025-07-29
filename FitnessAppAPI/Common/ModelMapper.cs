@@ -8,6 +8,7 @@ using FitnessAppAPI.Data.Services.UserProfile.Models;
 using Microsoft.EntityFrameworkCore;
 using FitnessAppAPI.Data.Services.Teams.Models;
 using FitnessAppAPI.Data.Services.Notifications.Models;
+using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Common
 {
@@ -38,7 +39,8 @@ namespace FitnessAppAPI.Common
                                                  .Select(e => MapToExerciseModel(e, DBAccess))
                                                  .ToListAsync(),
                     DurationSeconds = workout.DurationSeconds,
-                    Notes = workout.Notes
+                    Notes = workout.Notes,
+                    WeightUnit = workout.WeightUnit
                 };
             } 
             else
@@ -54,7 +56,8 @@ namespace FitnessAppAPI.Common
                                                                  .Select(e => MapToExerciseModel(e, DBAccess))
                                                                  .ToListAsync(),
                     DurationSeconds = workout.DurationSeconds,
-                    Notes = workout.Notes
+                    Notes = workout.Notes,
+                    WeightUnit = workout.WeightUnit
                 };
             }
         }
@@ -152,17 +155,11 @@ namespace FitnessAppAPI.Common
         /// <summary>
         ///     Map the provided to to UserModel
         /// </summary>
-        public static UserModel MapToUserModel(User user, UserDefaultValue? defaultValues, WeightUnit? weightUnit, UserProfile? profile)
+        public static UserModel MapToUserModel(User user, UserDefaultValue? defaultValues, UserProfile? profile)
         {
             var defaultValuesModel = GetEmptyUserDefaultValuesModel();
-            var weightUnitModel = GetEmptyWeightUnitModel();
             var fullName = "";
             var profileImage = "";
-
-            if (weightUnit != null)
-            {
-                weightUnitModel = MapToWeightUnitModel(weightUnit);
-            }
 
             if (defaultValues != null) {
                 defaultValuesModel.Id = defaultValues.Id;
@@ -171,7 +168,7 @@ namespace FitnessAppAPI.Common
                 defaultValuesModel.Rest = defaultValues.Rest;
                 defaultValuesModel.Completed = defaultValues.Completed;
                 defaultValuesModel.Weight = defaultValues.Weight;
-                defaultValuesModel.WeightUnit = weightUnitModel;
+                defaultValuesModel.WeightUnit = defaultValues.WeightUnit;
                 defaultValuesModel.MGExerciseId = defaultValues.MGExeciseId;
             }
 
@@ -194,19 +191,11 @@ namespace FitnessAppAPI.Common
         /// <summary>
         ///     Map the UserDefaultValue to UserDefaultValuesModel
         /// </summary>
-        public async static Task<UserDefaultValuesModel> MapToUserDefaultValuesModel(UserDefaultValue? defaultValues, FitnessAppAPIContext DBAccess)
+        public static UserDefaultValuesModel MapToUserDefaultValuesModel(UserDefaultValue? defaultValues, FitnessAppAPIContext DBAccess)
         {
             if (defaultValues == null)
             {
                 return GetEmptyUserDefaultValuesModel();
-            }
-
-            var unit = await DBAccess.WeightUnits.Where(w => w.Id == defaultValues.WeightUnitId).FirstOrDefaultAsync();
-            var unitModel = GetEmptyWeightUnitModel();
-
-            if (unit != null)
-            {
-                unitModel = MapToWeightUnitModel(unit);
             }
 
             return new UserDefaultValuesModel
@@ -217,17 +206,9 @@ namespace FitnessAppAPI.Common
                 Weight = defaultValues.Weight,
                 Rest = defaultValues.Rest,
                 Completed = defaultValues.Completed,
-                WeightUnit = unitModel,
+                WeightUnit = defaultValues.WeightUnit,
                 MGExerciseId = defaultValues.MGExeciseId
             };
-        }
-
-        /// <summary>
-        ///     Map the weightUnit to WeightUnitModel
-        /// </summary>
-        public static WeightUnitModel MapToWeightUnitModel(WeightUnit weightUnit)
-        {
-            return new WeightUnitModel { Id = weightUnit.Id, Text = weightUnit.Text };
         }
 
         /// <summary>
@@ -240,14 +221,6 @@ namespace FitnessAppAPI.Common
                 FullName = profile.FullName,
                 Image = Utils.EncodeByteArrayToBase64Image(profile.ProfileImage)
             };
-        }
-
-        /// <summary>
-        ///    Return empty WeightUnitModel
-        /// </summary>
-        public static WeightUnitModel GetEmptyWeightUnitModel()
-        {
-            return new WeightUnitModel { Id = 0, Text = "" };
         }
 
         /// <summary>
@@ -524,7 +497,8 @@ namespace FitnessAppAPI.Common
                 StartDateTime = DateTime.UtcNow,
                 Template = false,
                 Exercises = { },
-                Notes = ""
+                Notes = "",
+                WeightUnit = ""
             };
         }
 
@@ -541,7 +515,7 @@ namespace FitnessAppAPI.Common
                 Weight = 0,
                 Rest = 0,
                 Completed = false,
-                WeightUnit = GetEmptyWeightUnitModel(),
+                WeightUnit = "",
                 MGExerciseId = 0,
             };
         }

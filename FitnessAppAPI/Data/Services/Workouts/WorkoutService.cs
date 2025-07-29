@@ -50,7 +50,8 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 FinishDateTime = null,
                 Template = "N",
                 DurationSeconds = 0,
-                Notes = workoutData.Notes
+                Notes = workoutData.Notes,
+                WeightUnit = workoutData.WeightUnit
             };
 
             // Add the workout to make sure id is generated
@@ -103,6 +104,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
             // Validation passed, update the workout
             workout.Name = workoutData.Name;
             workout.Notes = workoutData.Notes;
+            workout.WeightUnit = workoutData.WeightUnit;
 
             DBAccess.Entry(workout).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();
@@ -187,18 +189,6 @@ namespace FitnessAppAPI.Data.Services.Workouts
             }
 
             return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, workoutModels);
-        }
-
-        public async Task<ServiceActionResult<WeightUnitModel>> GetWeightUnits()
-        {
-            var units = await DBAccess.WeightUnits.Select(w => ModelMapper.MapToWeightUnitModel(w)).ToListAsync();
-
-            if (units.Count == 0)
-            {
-                return new ServiceActionResult<WeightUnitModel>(HttpStatusCode.NotFound, MSG_FAILED_TO_FETCH_WEIGHT_UNITS);
-            }
-
-            return new ServiceActionResult<WeightUnitModel>(HttpStatusCode.OK, MSG_SUCCESS, units);
         }
 
         /// <summary>

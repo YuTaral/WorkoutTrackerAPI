@@ -75,10 +75,5 @@ namespace FitnessAppAPI.Data.Services.Workouts
         ///     The user id
         /// </param>
         public Task<ServiceActionResult<WorkoutModel>> GetLatestWorkouts(string startDate, string userId);
-
-        /// <summary>
-        ///     Fetch the weight units
-        /// </summary>
-        public Task<ServiceActionResult<WeightUnitModel>> GetWeightUnits();
     }
 }

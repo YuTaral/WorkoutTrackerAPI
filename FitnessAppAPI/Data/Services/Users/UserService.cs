@@ -228,10 +228,9 @@ namespace FitnessAppAPI.Data
 
             if (defaultValues != null)
             {
-                var weightUnit = await DBAccess.WeightUnits.Where(w => w.Id == defaultValues.WeightUnitId).FirstOrDefaultAsync();
                 var profile = await DBAccess.UserProfiles.Where(p => p.UserId == user.Id).FirstOrDefaultAsync();
 
-                return ModelMapper.MapToUserModel(user, defaultValues, weightUnit, profile);
+                return ModelMapper.MapToUserModel(user, defaultValues, profile);
             }
 
             return ModelMapper.GetEmptyUserModel();

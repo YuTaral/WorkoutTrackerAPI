@@ -42,7 +42,8 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
                 FinishDateTime = null,
                 Template = "Y",
                 DurationSeconds = null,
-                Notes = workoutData.Notes
+                Notes = workoutData.Notes,
+                WeightUnit = workoutData.WeightUnit
             };
 
             await DBAccess.Workouts.AddAsync(template);
@@ -88,6 +89,7 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
 
             template.Name = workoutData.Name;
             template.Notes = workoutData.Notes;
+            template.WeightUnit = workoutData.WeightUnit;
 
             DBAccess.Entry(template).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();

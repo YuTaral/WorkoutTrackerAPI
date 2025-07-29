@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services.UserProfile.Models;
 
 namespace FitnessAppAPI.Data.Services.Workouts.Models
 {
@@ -27,5 +28,7 @@ namespace FitnessAppAPI.Data.Services.Workouts.Models
 
         [MaxLength(Constants.DBConstants.Len4000, ErrorMessage = Constants.ValidationErrors.DESCRIPTION_MAX_LEN_4000)]
         public required string Notes { get; set; }
+
+        public required string WeightUnit { get; set; }
     }
 }
