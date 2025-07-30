@@ -156,6 +156,7 @@
             public const string JOINED_TEAM_MEMBERS = $"{TEAMS}/joined-team-members";
             public const string ASSIGN_WORKOUT = $"{TEAMS}/assign-workout";
             public const string ASSIGNED_WORKOUTS = $"{TEAMS}/assigned-workouts";
+            public const string ASSIGNED_WORKOUT = $"{TEAMS}/assigned-workout";
 
             public const string JOIN_TEAM_NOTIFICATION_DETAILS = $"{NOTIFICATIONS}/join-team-notification-details";
             public const string REFRESH_NOTIFICATIONS = $"{NOTIFICATIONS}/refresh-notifications";

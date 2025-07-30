@@ -14,7 +14,7 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "api",
-      "applicationUrl": "http://192.168.0.3:5176",
+      "applicationUrl": "http://192.168.0.5:5176",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

@@ -615,6 +615,23 @@ namespace FitnessAppAPI.Data.Services.Teams
             return new ServiceActionResult<AssignedWorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, assignedWorkoutModels);
         }
 
+        public async Task<ServiceActionResult<AssignedWorkoutModel>> GetAssignedWorkout(long assignedWorkoutId)
+        {
+            // Check if the neccessary data is provided
+            if (assignedWorkoutId <= 0)
+            {
+                return new ServiceActionResult<AssignedWorkoutModel>(HttpStatusCode.BadRequest, MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            var assignedWorkout = await DBAccess.AssignedWorkouts.Where(a => a.Id == assignedWorkoutId).FirstOrDefaultAsync();
+            if (assignedWorkout == null)
+            {
+                return new ServiceActionResult<AssignedWorkoutModel>(HttpStatusCode.NotFound, MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            return new ServiceActionResult<AssignedWorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, [await ModelMapper.MapToAssignedWorkoutModel(assignedWorkout, DBAccess)]);
+        }
+
         /// <summary>
         ///    After processing accept / decline invite, update the notification to mark it as inactive
         ///    and send notification to the invite sender for accept / invite. Return updated notifications

@@ -174,13 +174,23 @@ namespace FitnessAppAPI.Controllers
         }
 
         /// <summary>
-        //      POST request to assign the workout
+        //      Get request to fetch the assigned workouts the specified start date and team id
         /// </summary>
         [HttpGet(RequestEndPoints.ASSIGNED_WORKOUTS)]
         [Authorize]
         public async Task<ActionResult> GetAssignedWorkouts([FromQuery] string startDate, [FromQuery] long teamId)
         {
             return SendResponse(await service.GetAssignedWorkouts(startDate, teamId, GetUserId()));
+        }
+
+        /// <summary>
+        //      Get request to fetch the assigned workout by the specified assigned workout id
+        /// </summary>
+        [HttpGet(RequestEndPoints.ASSIGNED_WORKOUT)]
+        [Authorize]
+        public async Task<ActionResult> GetAssignedWorkout([FromQuery] long assignedWorkoutId)
+        {
+            return SendResponse(await service.GetAssignedWorkout(assignedWorkoutId));
         }
 
         /// <summary>
