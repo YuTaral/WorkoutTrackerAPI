@@ -45,6 +45,24 @@ namespace FitnessAppAPI.Controllers
             return SendResponse(await service.Register(requestData));
         }
 
+
+        /// <summary>
+        //      POST request to sign in the user with google id token
+        /// </summary>
+        [HttpPost(RequestEndPoints.GOOGLE_SIGN_IN)]
+        public async Task<ActionResult> GoogleSignIn([FromBody] Dictionary<string, string> requestData)
+        {
+            TokenResponseModel model = await service.GoogleSignIn(requestData);
+
+            // Success check
+            if (!model.Result.IsSuccess())
+            {
+                return SendResponse((HttpStatusCode)model.Result.Code, model.Result.Message);
+            }
+
+            return SendResponse((HttpStatusCode)model.Result.Code, model.Result.Message, model);
+        }
+
         /// <summary>
         //      POST request to logout the user
         /// </summary>

@@ -1,15 +1,20 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Azure.Core;
+using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services;
 using FitnessAppAPI.Data.Services.User.Models;
-using FitnessAppAPI.Common;
+using FitnessAppAPI.Data.Services.UserProfile;
+using Google.Apis.Auth;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.SqlServer.Server;
+using NuGet.Protocol;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
-using FitnessAppAPI.Data.Services.UserProfile;
-using Microsoft.EntityFrameworkCore;
-using System.Net;
+using System.Threading;
 using static FitnessAppAPI.Common.Constants;
 
 
@@ -26,7 +31,6 @@ namespace FitnessAppAPI.Data
         private readonly SignInManager<User> singInManager;
         private readonly IConfiguration configuration;
         private readonly IUserProfileService userProfileService;
-
         public UserService(UserManager<User> userManagerObj, IUserStore<User> userStoreObj, SignInManager<User> signInManagerObj,
                        IConfiguration configurationObj, FitnessAppAPIContext DB,
                        IUserProfileService userProfileS) : base(DB)
@@ -125,6 +129,43 @@ namespace FitnessAppAPI.Data
 
             return new TokenResponseModel(token, serviceActionResult);
         }
+
+        public async Task<TokenResponseModel> GoogleSignIn(Dictionary<string, string> requestData)
+        {
+            ServiceActionResult<UserModel> serviceActionResult;
+            try
+            {
+                /// Check if username and password are provided
+                if (!requestData.TryGetValue("idToken", out string? idToken))
+                {
+                    serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
+                    return new TokenResponseModel("", serviceActionResult);
+                }
+
+                // Validate the token
+                var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = [configuration["Authentication:Google:ClientId"]]
+                });
+
+                if (payload.JwtId == null || payload.Email == null)
+                {
+                    serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
+                    return new TokenResponseModel("", serviceActionResult);
+                }
+
+                // TODO: Register the user and auto log in
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
+                return new TokenResponseModel("", serviceActionResult);
+
+            }
+            catch (InvalidJwtException)
+            {
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
+                return new TokenResponseModel("", serviceActionResult);
+            }
+        }
+
         public async Task<ServiceActionResult<BaseModel>> Logout()
         {
             await singInManager.SignOutAsync();

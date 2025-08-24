@@ -20,7 +20,8 @@
         public const string MSG_REG_FAIL = "Email or password not provided";
         public const string MSG_LOGIN_FAIL = "Email or password not provided";
         public const string MSG_REG_FAIL_EMAIL = "Invalid email";
-        public const string MSG_LOGIN_FAILED = "Invalid email or password.";
+        public const string MSG_LOGIN_FAILED = "Invalid email or password";
+        public const string GOOGLE_SIGN_IN_FAILED = "Unexpected error occurred while using Google Sign-In. Please try again";
         public const string MSG_WORKOUT_ADD_FAIL_NO_DATA = "Workout data not provided";
         public const string MSG_EXERCISE_ADD_FAIL_NO_DATA = "Workout id or exercise data not provided";
         public const string MSG_EXERCISE_FAIL_NO_DATA = "Exercise data not provided";
@@ -135,6 +136,7 @@
             public const string LOGOUT = $"{USERS}/logout";
             public const string CHANGE_PASSWORD = $"{USERS}/change-password";
             public const string VALIDATE_TOKEN = $"{USERS}/validate-token";
+            public const string GOOGLE_SIGN_IN = $"{USERS}/google-sign-in";
 
             public const string TO_WORKOUT = $"{EXERCISES}/to-workout";
             public const string EXERCISE_FROM_WORKOUT = $"{EXERCISES}/exercise-from-workout";

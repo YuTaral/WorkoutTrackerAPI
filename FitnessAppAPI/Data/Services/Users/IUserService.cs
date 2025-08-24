@@ -25,6 +25,14 @@ namespace FitnessAppAPI.Data.Services
         public Task<TokenResponseModel> Login(Dictionary<string, string> requestData);
 
         /// <summary>
+        ///     Sign in the user with google id token
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data (google sign in token)
+        /// </param>
+        public Task<TokenResponseModel> GoogleSignIn(Dictionary<string, string> requestData);
+
+        /// <summary>
         ///     Log Out the User
         /// </summary>
         /// <param name="userId">
