@@ -130,6 +130,7 @@
             public const string NOTIFICATIONS = $"{API}/notifications";
             public const string WORKOUTS = $"{API}/workouts";
             public const string MUSCLE_GROUPS = $"{API}/muscle-groups";
+            public const string SYSTEM_LOGS = $"{API}/system-logs";
 
             public const string REGISTER = $"{USERS}/register";
             public const string LOGIN = $"{USERS}/login";

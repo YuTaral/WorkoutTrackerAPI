@@ -29,7 +29,7 @@ namespace FitnessAppAPI.Controllers
         [HttpPatch(RequestEndPoints.DEFAULT_VALUES)]
         public async Task<ActionResult> UpdateUserDefaultValues([FromBody] Dictionary<string, string> requestData)
         {
-            return SendResponse(await service.UpdateUserDefaultValues(requestData, GetUserId()));
+            return await SendResponse(await service.UpdateUserDefaultValues(requestData, GetUserId()));
         }
 
         /// <summary>
@@ -42,17 +42,17 @@ namespace FitnessAppAPI.Controllers
 
             if (!result.IsSuccess())
             {
-                return SendResponse(result);
+                return await SendResponse(result);
             }
 
             // Get the updated user
             var updatedUserResult = await userService.GetUserModel(result.Data[0].Email);
 
             if (updatedUserResult.Id == "") {
-                return SendResponse(HttpStatusCode.NotFound, MSG_USER_DOES_NOT_EXISTS);
+                return await SendResponse(HttpStatusCode.NotFound, MSG_USER_DOES_NOT_EXISTS);
             }
 
-            return SendResponse((HttpStatusCode) result.Code, result.Message, [updatedUserResult]);
+            return await SendResponse((HttpStatusCode)result.Code, result.Message, [updatedUserResult]);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace FitnessAppAPI.Controllers
         [HttpGet(RequestEndPoints.DEFAULT_VALUES)]
         public async Task<ActionResult> Get([FromQuery] long mgExerciseId)
         {
-            return SendResponse(await service.GetExerciseOrUserDefaultValues(mgExerciseId, GetUserId()));   
+            return await SendResponse(await service.GetExerciseOrUserDefaultValues(mgExerciseId, GetUserId()));   
         }
     }
 }

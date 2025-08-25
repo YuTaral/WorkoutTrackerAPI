@@ -14,6 +14,17 @@
         /// <param name="userId">
         ///     User id, may be empty if not logged in
         /// </param>
-        public Task Add(Exception exception, string userId);
+        public void Add(Exception exception, string userId);
+
+        /// <summary>
+        ///     Add record in the Systems logs table when error occured in the client
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data (exception description and stack trace)
+        /// </param>
+        /// <param name="userId">
+        ///     User id, may be empty if not logged in
+        /// </param>
+        public ServiceActionResult<string> Add(Dictionary<string, string> requestData, string userId);
     }
 }

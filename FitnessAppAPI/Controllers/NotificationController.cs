@@ -23,7 +23,7 @@ namespace FitnessAppAPI.Controllers
         [HttpPatch]
         public async Task<ActionResult> NotificationReviewed([FromBody] Dictionary<string, string> requestData)
         {
-            return SendResponse(await service.UpdateNotification(requestData, false));
+            return await SendResponse(await service.UpdateNotification(requestData, false));
         }
 
         /// <summary>
@@ -37,11 +37,11 @@ namespace FitnessAppAPI.Controllers
             var result = await service.DeleteNotification(notificationId, userId);
             if (!result.IsSuccess())
             {
-                return SendResponse(result);
+                return await SendResponse(result);
             }
 
             // Return the notifications on success
-            return SendResponse(await service.GetNotifications(userId, showReviewed));
+            return await SendResponse(await service.GetNotifications(userId, showReviewed));
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace FitnessAppAPI.Controllers
         [HttpGet]
         public async Task<ActionResult> GetNotifications([FromQuery] bool showReviewed)
         {
-            return SendResponse(await service.GetNotifications(GetUserId(), showReviewed));
+            return await SendResponse(await service.GetNotifications(GetUserId(), showReviewed));
         }
 
         /// <summary>
@@ -59,17 +59,17 @@ namespace FitnessAppAPI.Controllers
         [HttpGet(RequestEndPoints.JOIN_TEAM_NOTIFICATION_DETAILS)]
         public async Task<ActionResult> GetJoinTeamNotificationDetails([FromQuery] long notificationId)
         {
-            return SendResponse(await service.GetJoinTeamNotificationDetails(notificationId));
+            return await SendResponse(await service.GetJoinTeamNotificationDetails(notificationId));
         }
 
         /// <summary>
         //      Get request to refresh notifications
         /// </summary>
         [HttpGet(RequestEndPoints.REFRESH_NOTIFICATIONS)]
-        public ActionResult RefreshNotifications()
+        public async Task<ActionResult> RefreshNotifications()
         {
             // Just return custom response, it will automatically refresh the notification
-            return SendResponse(HttpStatusCode.OK);
+            return await SendResponse(HttpStatusCode.OK);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FitnessAppAPI.Data.Models;
+using System.Net;
 
 namespace FitnessAppAPI.Data.Services.SystemLogs
 {
@@ -7,7 +8,7 @@ namespace FitnessAppAPI.Data.Services.SystemLogs
     /// </summary>
     public class SystemLogService(FitnessAppAPIContext DB) : BaseService(DB), ISystemLogService
     {
-        public async Task Add(Exception exception, string userId)
+        public void Add(Exception exception, string userId)
         {
             string stackTrace = "";
 
@@ -15,7 +16,39 @@ namespace FitnessAppAPI.Data.Services.SystemLogs
                 stackTrace = exception.StackTrace;
             }
 
-            // Sometimes the stack trace is too long to be stored in the db
+            AddError(exception.Message, stackTrace, userId);
+        }
+
+        public ServiceActionResult<string> Add(Dictionary<string, string> requestData, string userId)
+        {
+
+            if (!requestData.TryGetValue("message", out string? message) || !requestData.TryGetValue("stackTrace", out string? stackTrace))
+            {
+                // Do not show error, just return with OK status
+                return new ServiceActionResult<string>(HttpStatusCode.OK);
+            }
+
+            AddError(message, stackTrace, userId);
+
+            return new ServiceActionResult<string>(HttpStatusCode.OK);
+        }
+
+
+        /// <summary>
+        ///     Store the error in the DB
+        /// </summary>
+        /// <param name="message">
+        ///     The error message
+        /// </param>
+        /// <param name="stackTrace">
+        ///     The error stack trace
+        /// </param>
+        /// <param name="userId">
+        ///     The user id, may be empty if not logged in
+        /// </param>
+        private async void AddError(string message, string stackTrace, string userId)
+        {
+            // Sometimes the stack trace is too long to be stored in the DB, truncate if needed
             if (stackTrace.Length > 4000)
             {
                 stackTrace = stackTrace[..4000];
@@ -23,7 +56,7 @@ namespace FitnessAppAPI.Data.Services.SystemLogs
 
             var systemLog = new SystemLog
             {
-                ExceptionDescription = exception.Message,
+                ExceptionDescription = message,
                 ExceptionStackTrace = stackTrace,
                 Date = DateTime.UtcNow,
                 UserId = userId

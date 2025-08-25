@@ -29,10 +29,10 @@ namespace FitnessAppAPI.Controllers
 
             if (!result.IsSuccess())
             {
-                return SendResponse(result);
+                return await SendResponse(result);
             }
 
-             return SendResponse(await service.GetWorkoutTemplates(userId));
+             return await SendResponse(await service.GetWorkoutTemplates(userId));
         }
 
         /// <summary>
@@ -47,10 +47,10 @@ namespace FitnessAppAPI.Controllers
 
             if (!result.IsSuccess())
             {
-                return SendResponse(result);
+                return await SendResponse(result);
             }
 
-            return SendResponse(await service.GetWorkoutTemplates(userId));
+            return await SendResponse(await service.GetWorkoutTemplates(userId));
         }
 
         /// <summary>
@@ -64,10 +64,10 @@ namespace FitnessAppAPI.Controllers
 
             if (!result.IsSuccess())
             {
-                return SendResponse(result);
+                return await SendResponse(result);
             }
 
-            return SendResponse(await service.GetWorkoutTemplates(GetUserId()));
+            return await SendResponse(await service.GetWorkoutTemplates(GetUserId()));
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> GetTemplates()
         {
-            return SendResponse(await service.GetWorkoutTemplates(GetUserId()));
+            return await SendResponse(await service.GetWorkoutTemplates(GetUserId()));
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> GetWorkoutTemplate([FromQuery] long assignedWorkoutId)
         {
-            return SendResponse(await service.GetWorkoutTemplate(assignedWorkoutId));
+            return await SendResponse(await service.GetWorkoutTemplate(assignedWorkoutId));
         }
     }
 }

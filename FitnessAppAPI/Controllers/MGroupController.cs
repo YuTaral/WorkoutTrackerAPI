@@ -26,7 +26,7 @@ namespace FitnessAppAPI.Controllers
         public async Task<ActionResult> GetMuscleGroups()
         {
             // Fetch the default and user defined muscle groups
-            return SendResponse(await service.GetMuscleGroups(GetUserId()));
+            return await SendResponse(await service.GetMuscleGroups(GetUserId()));
         }
     }
 }

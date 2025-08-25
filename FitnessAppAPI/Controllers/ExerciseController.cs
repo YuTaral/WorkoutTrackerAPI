@@ -44,7 +44,7 @@ namespace FitnessAppAPI.Controllers
                 return await GetUpdatedWorkout(result.Data[0], result);
             }
 
-            return SendResponse(result);
+            return await SendResponse(result);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace FitnessAppAPI.Controllers
                 return await GetUpdatedWorkout(result.Data[0], result);
             }
 
-            return SendResponse(result);
+            return await SendResponse(result);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace FitnessAppAPI.Controllers
                 return await GetUpdatedWorkout(result.Data[0], result);
             }
 
-            return SendResponse(result);
+            return await SendResponse(result);
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace FitnessAppAPI.Controllers
 
             if (!result.IsSuccess())
             {
-                return SendResponse(result);
+                return await SendResponse(result);
             }
 
             // If workout id is provided add the exercise to the workout and return the updated workout
@@ -137,7 +137,7 @@ namespace FitnessAppAPI.Controllers
             var result = await service.UpdateExercise(requestData);
             if (!result.IsSuccess())
             {
-                return SendResponse(result);
+                return await SendResponse(result);
             }
 
             // Check if we need to return all exercises or only the user defined
@@ -160,7 +160,7 @@ namespace FitnessAppAPI.Controllers
             var result = await service.DeleteExercise(MGExerciseId, GetUserId());
             if (!result.IsSuccess())
             {
-                return SendResponse(result);
+                return await SendResponse(result);
             }
 
             // Return the updated exercises for this muscle group,
@@ -170,11 +170,11 @@ namespace FitnessAppAPI.Controllers
             if (getExercisesForMgResult.IsSuccess())
             {
                 // Return the exercises for this muscle group
-                return SendResponse(getExercisesForMgResult);
+                return await SendResponse(getExercisesForMgResult);
             }
 
             // Return the response from Delete Exercise
-            return SendResponse(result);
+            return await SendResponse(result);
         }
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace FitnessAppAPI.Controllers
             var result = await service.CompleteSet(requestData);
             if (!result.IsSuccess())
             {
-                return SendResponse(result);
+                return await SendResponse(result);
             }
 
             // Return the updated workout where the set is completed
@@ -196,11 +196,11 @@ namespace FitnessAppAPI.Controllers
             {
                 if (long.TryParse(workoutIdString, out long workoutId))
                 {
-                    return SendResponse(await workoutService.GetWorkout(workoutId, GetUserId()));
+                    return await SendResponse(await workoutService.GetWorkout(workoutId, GetUserId()));
                 }
             }
 
-            return SendResponse(HttpStatusCode.OK);
+            return await SendResponse(HttpStatusCode.OK);
         }
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> GetExercisesForMuscleGroup([FromQuery] long muscleGroupId, [FromQuery] string onlyForUser)
         {
-            return SendResponse(await service.GetExercisesForMG(muscleGroupId, onlyForUser, GetUserId()));
+            return await SendResponse(await service.GetExercisesForMG(muscleGroupId, onlyForUser, GetUserId()));
         }
 
         /// <summary>
@@ -220,7 +220,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> GetMGExercise([FromQuery] long mGExerciseId)
         {
-            return SendResponse(await service.GetMGExercise(mGExerciseId));
+            return await SendResponse(await service.GetMGExercise(mGExerciseId));
         }
 
         /// <summary>
@@ -242,11 +242,11 @@ namespace FitnessAppAPI.Controllers
             if (getWorkoutResult.IsSuccess())
             {
                 // Combine the response and message from the previous action result with the updated workout
-                return SendResponse((HttpStatusCode) previousActionResult.Code, previousActionResult.Message, getWorkoutResult.Data);
+                return await SendResponse((HttpStatusCode)previousActionResult.Code, previousActionResult.Message, getWorkoutResult.Data);
             }
 
             // If get workout failed, return the previous result
-            return SendResponse(previousActionResult);
+            return await SendResponse(previousActionResult);
         }
 
         /// <summary>
@@ -271,10 +271,10 @@ namespace FitnessAppAPI.Controllers
 
             if (getExercisesForMGResult.IsSuccess())
             {
-                return SendResponse((HttpStatusCode) previousActionResult.Code, previousActionResult.Message, getExercisesForMGResult.Data);
+                return await SendResponse((HttpStatusCode)previousActionResult.Code, previousActionResult.Message, getExercisesForMGResult.Data);
             }
 
-            return SendResponse(previousActionResult);
+            return await SendResponse(previousActionResult);
         }
     }
 }

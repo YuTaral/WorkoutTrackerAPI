@@ -30,10 +30,10 @@ namespace FitnessAppAPI.Controllers
             // Success check
             if (!model.Result.IsSuccess())
             {
-                return SendResponse((HttpStatusCode) model.Result.Code, model.Result.Message);
+                return await SendResponse((HttpStatusCode) model.Result.Code, model.Result.Message);
             }
 
-            return SendResponse((HttpStatusCode) model.Result.Code, model.Result.Message, model);
+            return await SendResponse((HttpStatusCode)model.Result.Code, model.Result.Message, model);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace FitnessAppAPI.Controllers
         [HttpPost(RequestEndPoints.REGISTER)]
         public async Task<ActionResult> Register([FromBody] Dictionary<string, string> requestData)
         {
-            return SendResponse(await service.Register(requestData));
+            return await SendResponse(await service.Register(requestData));
         }
 
 
@@ -57,10 +57,10 @@ namespace FitnessAppAPI.Controllers
             // Success check
             if (!model.Result.IsSuccess())
             {
-                return SendResponse((HttpStatusCode)model.Result.Code, model.Result.Message);
+                return await SendResponse((HttpStatusCode)model.Result.Code, model.Result.Message);
             }
 
-            return SendResponse((HttpStatusCode)model.Result.Code, model.Result.Message, model);
+            return await SendResponse((HttpStatusCode)model.Result.Code, model.Result.Message, model);
         }
 
         /// <summary>
@@ -76,10 +76,10 @@ namespace FitnessAppAPI.Controllers
             var loggedOut = GetUserId() != "";
 
             if (loggedOut) { 
-                return SendResponse(HttpStatusCode.OK);
+                return await SendResponse(HttpStatusCode.OK);
             }
 
-            return SendResponse(HttpStatusCode.InternalServerError, Constants.MSG_UNEXPECTED_ERROR);
+            return await SendResponse(HttpStatusCode.InternalServerError, Constants.MSG_UNEXPECTED_ERROR);
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace FitnessAppAPI.Controllers
         [HttpPut(RequestEndPoints.CHANGE_PASSWORD)]
         public async Task<ActionResult> ChangePassword([FromBody] Dictionary<string, string> requestData)
         {
-            return SendResponse(await service.ChangePassword(requestData, GetUserId()));
+            return await SendResponse(await service.ChangePassword(requestData, GetUserId()));
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace FitnessAppAPI.Controllers
             /// Check if new pass is provided
             if (!requestData.TryGetValue("token", out string? token))
             {
-                return SendResponse(HttpStatusCode.BadRequest, MSG_TOKEN_VALIDATION_FAILED);
+                return await SendResponse(HttpStatusCode.BadRequest, MSG_TOKEN_VALIDATION_FAILED);
             }
 
             var tokenResponseModel = await service.ValidateToken(token, GetUserId());
@@ -108,17 +108,17 @@ namespace FitnessAppAPI.Controllers
             if (tokenResponseModel.Result.IsSuccess())
             {
                 // Token validation is successfull
-                return SendResponse(HttpStatusCode.OK);
+                return await SendResponse(HttpStatusCode.OK);
 
             } 
             else if (tokenResponseModel.Result.Code == (int) HttpStatusCode.Unauthorized && tokenResponseModel.Token != "")
             {
                 // Need to refresh the token on the client side, return the token
-                return SendResponse(HttpStatusCode.Unauthorized, MSG_SUCCESS, [tokenResponseModel.Token]);
+                return await SendResponse(HttpStatusCode.Unauthorized, MSG_SUCCESS, [tokenResponseModel.Token]);
             }
 
             // Token validation failed, probably token expired
-            return SendResponse((HttpStatusCode) tokenResponseModel.Result.Code, tokenResponseModel.Result.Message);
+            return await SendResponse((HttpStatusCode)tokenResponseModel.Result.Code, tokenResponseModel.Result.Message);
         }
     }
 }

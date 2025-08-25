@@ -23,7 +23,7 @@ namespace FitnessAppAPI.Controllers
         ///         - Message
         ///         - Data
         /// </summary>
-        private ObjectResult SendResponse(int Code, string Message, List<string> Data)
+        private async Task<ObjectResult> SendResponse(int Code, string Message, List<string> Data)
         {
             var hasNotification = false;
 
@@ -31,23 +31,23 @@ namespace FitnessAppAPI.Controllers
 
             if (notificationService != null)
             {
-                hasNotification = notificationService.HasNotification(GetUserId()).Result;
+                hasNotification = await notificationService.HasNotification(GetUserId());
             }
 
             return Utils.CreateResponseObject(Code, Message, Data, hasNotification);
         }
 
-        public ObjectResult SendResponse(HttpStatusCode Code)
+        public async Task<ObjectResult> SendResponse(HttpStatusCode Code)
         {
-            return SendResponse((int) Code, Constants.MSG_SUCCESS, []);
+            return await SendResponse((int) Code, Constants.MSG_SUCCESS, []);
         }
 
-        public ObjectResult SendResponse(HttpStatusCode Code, string Message)
+        public async Task<ObjectResult> SendResponse(HttpStatusCode Code, string Message)
         {
-            return SendResponse((int) Code, Message, []);
+            return await SendResponse((int) Code, Message, []);
         }
 
-        public ObjectResult SendResponse(HttpStatusCode Code, string Message, TokenResponseModel tokenRespModel)
+        public async Task<ObjectResult> SendResponse(HttpStatusCode Code, string Message, TokenResponseModel tokenRespModel)
         {
             var Data = new List<String>
             {
@@ -55,10 +55,10 @@ namespace FitnessAppAPI.Controllers
                 tokenRespModel.Token
             };
 
-            return SendResponse((int)Code, Message, Data);
+            return await SendResponse((int)Code, Message, Data);
         }
 
-        public ObjectResult SendResponse<T>(HttpStatusCode Code, string Message, List<T> DataVal)
+        public async Task<ObjectResult> SendResponse<T>(HttpStatusCode Code, string Message, List<T> DataVal)
         {
             var Data = new List<String>();
 
@@ -67,10 +67,10 @@ namespace FitnessAppAPI.Controllers
                 Data.AddRange(DataVal.Select(m => m.ToJson()));
             }
 
-            return SendResponse((int) Code, Message, Data);
+            return await SendResponse((int) Code, Message, Data);
         }
 
-        public ObjectResult SendResponse<T>(ServiceActionResult<T> result)
+        public async Task<ObjectResult> SendResponse<T>(ServiceActionResult<T> result)
         {
             var ResponseData = new List<String>();
 
@@ -78,7 +78,7 @@ namespace FitnessAppAPI.Controllers
                 ResponseData.AddRange(result.Data.Select(m => m.ToJson()));
             }
 
-            return SendResponse(result.Code, result.Message, ResponseData);
+            return await SendResponse(result.Code, result.Message, ResponseData);
         }
 
 

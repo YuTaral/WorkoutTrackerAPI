@@ -26,7 +26,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> Add([FromBody] Dictionary<string, string> requestData)
         {
-            return SendResponse(await service.AddWorkout(requestData, GetUserId()));
+            return await SendResponse(await service.AddWorkout(requestData, GetUserId()));
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> Update([FromBody] Dictionary<string, string> requestData)
         {
-            return SendResponse(await service.UpdateWorkout(requestData, GetUserId()));
+            return await SendResponse(await service.UpdateWorkout(requestData, GetUserId()));
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> FinishWorkout([FromQuery] long workoutId)
         {
-            return SendResponse(await service.FinishWorkout(workoutId, GetUserId()));
+            return await SendResponse(await service.FinishWorkout(workoutId, GetUserId()));
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> Delete([FromQuery] long workoutId)
         {
-            return SendResponse(await service.DeleteWorkout(workoutId, GetUserId()));
+            return await SendResponse(await service.DeleteWorkout(workoutId, GetUserId()));
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> GetLatestWorkouts([FromQuery] string startDate)
         {
-            return SendResponse(await service.GetLatestWorkouts(startDate, GetUserId()));
+            return await SendResponse(await service.GetLatestWorkouts(startDate, GetUserId()));
         }
     }
 }

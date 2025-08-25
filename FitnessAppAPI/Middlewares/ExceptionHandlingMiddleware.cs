@@ -38,13 +38,13 @@ namespace FitnessAppAPI.Middlewares
                 // User fire and forget technique, getting the service form the service provider. If we inject
                 // the systemLogService through the constructor, in some cases it is already disposed when 
                 // OnException is reached and adding the record to system logs is impossible
-                _ = Task.Run(async () =>
+                _ = Task.Run(() =>
                 {
                     var systemLogService = serviceProvider.CreateScope().ServiceProvider.GetRequiredService<ISystemLogService>();
 
                     try
                     {
-                        await systemLogService.Add(ex, userId);
+                        systemLogService.Add(ex, userId);
                     }
                     catch (Exception) { }
                 });

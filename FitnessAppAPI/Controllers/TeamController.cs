@@ -26,7 +26,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> Add([FromBody] Dictionary<string, string> requestData)
         {
-            return SendResponse(await service.AddTeam(requestData, GetUserId()));
+            return await SendResponse(await service.AddTeam(requestData, GetUserId()));
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> Update([FromBody] Dictionary<string, string> requestData)
         {
-            return SendResponse(await service.UpdateTeam(requestData, GetUserId()));
+            return await SendResponse(await service.UpdateTeam(requestData, GetUserId()));
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> Delete([FromQuery] long teamId)
         {
-            return SendResponse(await service.DeleteTeam(teamId, GetUserId()));
+            return await SendResponse(await service.DeleteTeam(teamId, GetUserId()));
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> Leave([FromBody] Dictionary<string, string> requestData)
         {
-            return SendResponse(await service.LeaveTeam(requestData, GetUserId()));
+            return await SendResponse(await service.LeaveTeam(requestData, GetUserId()));
         }
 
         /// <summary>
@@ -69,11 +69,11 @@ namespace FitnessAppAPI.Controllers
             var result = await service.InviteMember(requestData, GetUserId());
             if (!result.IsSuccess())
             {
-                return SendResponse(result);
+                return await SendResponse(result);
             }
 
             // InviteMember team id on success, Get the updated list of team members
-            return SendResponse(await service.GetMyTeamMembers(result.Data[0]));
+            return await SendResponse(await service.GetMyTeamMembers(result.Data[0]));
         }
 
         /// <summary>
@@ -86,11 +86,11 @@ namespace FitnessAppAPI.Controllers
             var result = await service.RemoveMember(requestData);
             if (!result.IsSuccess())
             {
-                return SendResponse(result);
+                return await SendResponse(result);
             }
 
             // Get the updated list of team members
-            return SendResponse(await service.GetMyTeamMembers(result.Data[0].TeamId));
+            return await SendResponse(await service.GetMyTeamMembers(result.Data[0].TeamId));
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> GetMyTeams([FromQuery] string teamType)
         {
-            return SendResponse(await service.GetMyTeams(teamType, GetUserId()));
+            return await SendResponse(await service.GetMyTeams(teamType, GetUserId()));
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> GetMyTeamsWithMembers()
         {
-            return SendResponse(await service.GetMyTeamsWithMembers(GetUserId()));
+            return await SendResponse(await service.GetMyTeamsWithMembers(GetUserId()));
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> GetUsersToInvite([FromQuery] string name, [FromQuery] long teamId)
         {
-            return SendResponse(await service.GetUsersToInvite(name, teamId, GetUserId()));
+            return await SendResponse(await service.GetUsersToInvite(name, teamId, GetUserId()));
         }
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> GetTeamMembers([FromQuery] long teamId)
         {
-            return SendResponse(await service.GetMyTeamMembers(teamId));
+            return await SendResponse(await service.GetMyTeamMembers(teamId));
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> GetJoinedTeamMembers([FromQuery] long teamId)
         {
-            return SendResponse(await service.GetJoinedTeamMembers(teamId, GetUserId()));
+            return await SendResponse(await service.GetJoinedTeamMembers(teamId, GetUserId()));
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> AssignWorkout([FromBody] Dictionary<string, string> requestData)
         {
-            return SendResponse(await service.AssignWorkout(requestData, GetUserId()));
+            return await SendResponse(await service.AssignWorkout(requestData, GetUserId()));
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> GetAssignedWorkouts([FromQuery] string startDate, [FromQuery] long teamId)
         {
-            return SendResponse(await service.GetAssignedWorkouts(startDate, teamId, GetUserId()));
+            return await SendResponse(await service.GetAssignedWorkouts(startDate, teamId, GetUserId()));
         }
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> GetAssignedWorkout([FromQuery] long assignedWorkoutId)
         {
-            return SendResponse(await service.GetAssignedWorkout(assignedWorkoutId));
+            return await SendResponse(await service.GetAssignedWorkout(assignedWorkoutId));
         }
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace FitnessAppAPI.Controllers
         /// </param>
         private async Task<ActionResult> ProcessAcceptDeclineInvitationRequest(Dictionary<string, string> requestData, string newState)
         {
-            return SendResponse(await service.AcceptDeclineInvite(requestData, newState));
+            return await SendResponse(await service.AcceptDeclineInvite(requestData, newState));
         }
         
     }
