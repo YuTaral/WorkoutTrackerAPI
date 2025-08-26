@@ -1,8 +1,6 @@
-﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Models;
+﻿using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Notifications.Models;
 using FitnessAppAPI.Data.Services.Teams.Models;
-using Microsoft.AspNetCore.Mvc;
 
 namespace FitnessAppAPI.Data.Services.Teams
 {

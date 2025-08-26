@@ -1,5 +1,5 @@
-﻿using FitnessAppAPI.Data.Services;
-using FitnessAppAPI.Data.Services.UserProfile;
+﻿using FitnessAppAPI.Data.Services.UserProfiles;
+using FitnessAppAPI.Data.Services.Users;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using static FitnessAppAPI.Common.Constants;

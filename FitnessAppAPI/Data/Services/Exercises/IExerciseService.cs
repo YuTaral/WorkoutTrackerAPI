@@ -1,6 +1,5 @@
 ﻿using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Exercises.Models;
-using Microsoft.AspNetCore.Mvc;
 
 namespace FitnessAppAPI.Data.Services.Exercises
 {

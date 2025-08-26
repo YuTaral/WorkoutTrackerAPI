@@ -1,7 +1,7 @@
 ﻿using FitnessAppAPI.Data.Models;
-using FitnessAppAPI.Data.Services.User.Models;
+using FitnessAppAPI.Data.Services.Users.Models;
 
-namespace FitnessAppAPI.Data.Services
+namespace FitnessAppAPI.Data.Services.Users
 {
     /// <summary>
     ///     User service interface to define the logic for Login / Register.

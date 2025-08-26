@@ -1,5 +1,4 @@
 ﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Models;
 using System.Net;
 
 namespace FitnessAppAPI.Data.Services

@@ -3,12 +3,12 @@ using FitnessAppAPI.Data.Services.Exercises.Models;
 using FitnessAppAPI.Data.Services.MuscleGroups.Models;
 using FitnessAppAPI.Data;
 using FitnessAppAPI.Data.Services.Workouts.Models;
-using FitnessAppAPI.Data.Services.User.Models;
-using FitnessAppAPI.Data.Services.UserProfile.Models;
 using Microsoft.EntityFrameworkCore;
 using FitnessAppAPI.Data.Services.Teams.Models;
 using FitnessAppAPI.Data.Services.Notifications.Models;
 using static FitnessAppAPI.Common.Constants;
+using FitnessAppAPI.Data.Services.UserProfiles.Models;
+using FitnessAppAPI.Data.Services.Users.Models;
 
 namespace FitnessAppAPI.Common
 {

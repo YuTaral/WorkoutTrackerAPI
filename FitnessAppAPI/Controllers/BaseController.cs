@@ -1,12 +1,11 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Services;
-using FitnessAppAPI.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol;
 using System.Security.Claims;
 using FitnessAppAPI.Data.Services.Notifications;
 using System.Net;
-using FitnessAppAPI.Data.Services.User.Models;
+using FitnessAppAPI.Data.Services.Users.Models;
 
 namespace FitnessAppAPI.Controllers
 {

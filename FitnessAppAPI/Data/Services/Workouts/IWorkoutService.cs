@@ -1,5 +1,4 @@
 ﻿using FitnessAppAPI.Data.Models;
-using FitnessAppAPI.Data.Services.UserProfile.Models;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 
 namespace FitnessAppAPI.Data.Services.Workouts

@@ -1,6 +1,4 @@
 ﻿using FitnessAppAPI.Data.Services.SystemLogs;
-using FitnessAppAPI.Data.Services.Workouts;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static FitnessAppAPI.Common.Constants;
 

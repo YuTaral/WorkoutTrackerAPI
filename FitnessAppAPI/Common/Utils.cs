@@ -1,5 +1,5 @@
 ﻿using FitnessAppAPI.Data.Models;
-using FitnessAppAPI.Data.Services.User.Models;
+using FitnessAppAPI.Data.Services.Users.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;

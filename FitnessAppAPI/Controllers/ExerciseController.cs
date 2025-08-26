@@ -1,6 +1,5 @@
 ﻿using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services.Exercises.Models;
-using FitnessAppAPI.Common;
 using Microsoft.AspNetCore.Mvc;
 using FitnessAppAPI.Data.Services.Workouts;
 using Microsoft.AspNetCore.Authorization;

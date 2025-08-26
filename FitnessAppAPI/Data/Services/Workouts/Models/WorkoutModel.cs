@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
-using FitnessAppAPI.Data.Services.UserProfile.Models;
 
 namespace FitnessAppAPI.Data.Services.Workouts.Models
 {

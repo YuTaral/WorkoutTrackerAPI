@@ -1,13 +1,13 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
-using FitnessAppAPI.Data.Services.User.Models;
-using FitnessAppAPI.Data.Services.UserProfile.Models;
+using FitnessAppAPI.Data.Services.UserProfiles.Models;
+using FitnessAppAPI.Data.Services.Users.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Net;
 using static FitnessAppAPI.Common.Constants;
 
-namespace FitnessAppAPI.Data.Services.UserProfile
+namespace FitnessAppAPI.Data.Services.UserProfiles
 {
     public class UserProfileService(FitnessAppAPIContext DB): BaseService(DB), IUserProfileService
     {
@@ -93,7 +93,7 @@ namespace FitnessAppAPI.Data.Services.UserProfile
         public async Task<ServiceActionResult<BaseModel>> CreateUserProfile(string userId, string email)
         {
 
-            var profile = new Data.Models.UserProfile
+            var profile = new UserProfile
             {
                 FullName = email.Substring(0, email.IndexOf("@")),
                 ProfileImage = [],

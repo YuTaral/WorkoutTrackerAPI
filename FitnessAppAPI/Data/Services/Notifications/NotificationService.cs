@@ -2,12 +2,9 @@
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Notifications.Models;
 using FitnessAppAPI.Data.Services.Teams.Models;
-using FitnessAppAPI.Data.Services.User.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Net;
 using static FitnessAppAPI.Common.Constants;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FitnessAppAPI.Data.Services.Notifications
 {

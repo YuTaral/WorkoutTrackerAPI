@@ -1,5 +1,5 @@
 ﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Services;
+using FitnessAppAPI.Data.Services.Users;
 using System.Net;
 
 namespace FitnessAppAPI.Middlewares

@@ -1,6 +1,6 @@
 ﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Services;
-using FitnessAppAPI.Data.Services.User.Models;
+using FitnessAppAPI.Data.Services.Users;
+using FitnessAppAPI.Data.Services.Users.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;

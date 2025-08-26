@@ -2,8 +2,7 @@
 using FitnessAppAPI.Data.Models;
 using System.ComponentModel.DataAnnotations;
 
-
-namespace FitnessAppAPI.Data.Services.UserProfile.Models
+namespace FitnessAppAPI.Data.Services.UserProfiles.Models
 {
     /// <summary>
     ///     UserDefaultValuesModel class representing the user default values

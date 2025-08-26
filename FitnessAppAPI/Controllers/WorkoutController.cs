@@ -1,8 +1,6 @@
-﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Services.Workouts;
+﻿using FitnessAppAPI.Data.Services.Workouts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Controllers

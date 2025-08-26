@@ -3,7 +3,6 @@ using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services.Exercises.Models;
 using FitnessAppAPI.Data.Services.Teams;
-using FitnessAppAPI.Data.Services.UserProfile.Models;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;

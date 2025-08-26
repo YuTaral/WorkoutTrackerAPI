@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
 
 namespace FitnessAppAPI.Data.Services

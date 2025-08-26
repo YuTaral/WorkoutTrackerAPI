@@ -1,8 +1,8 @@
 ﻿using FitnessAppAPI.Data.Models;
-using FitnessAppAPI.Data.Services.User.Models;
-using FitnessAppAPI.Data.Services.UserProfile.Models;
+using FitnessAppAPI.Data.Services.UserProfiles.Models;
+using FitnessAppAPI.Data.Services.Users.Models;
 
-namespace FitnessAppAPI.Data.Services.UserProfile
+namespace FitnessAppAPI.Data.Services.UserProfiles
 {
     /// <summary>
     ///     User profile service interface to define the logic for managing user profile.

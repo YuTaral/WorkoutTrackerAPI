@@ -1,8 +1,8 @@
 ﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Services.UserProfile.Models;
+using FitnessAppAPI.Data.Services.UserProfiles.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace FitnessAppAPI.Data.Services.User.Models
+namespace FitnessAppAPI.Data.Services.Users.Models
 {
     /// <summary>
     ///     UserModel class representing the logged in user.

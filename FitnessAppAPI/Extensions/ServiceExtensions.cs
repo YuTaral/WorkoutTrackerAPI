@@ -1,15 +1,12 @@
-﻿using FitnessAppAPI.Data.Services;
-using FitnessAppAPI.Data.Services.Workouts;
+﻿using FitnessAppAPI.Data.Services.Workouts;
 using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services.MuscleGroups;
-using FitnessAppAPI.Data;
 using FitnessAppAPI.Data.Services.WorkoutTemplates;
-using FitnessAppAPI.Data.Services.UserProfile;
 using FitnessAppAPI.Data.Services.SystemLogs;
-using Microsoft.AspNetCore.Identity;
-using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Teams;
 using FitnessAppAPI.Data.Services.Notifications;
+using FitnessAppAPI.Data.Services.UserProfiles;
+using FitnessAppAPI.Data.Services.Users;
 
 namespace FitnessAppAPI.Extensions
 {

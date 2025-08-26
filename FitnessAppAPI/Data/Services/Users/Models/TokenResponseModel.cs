@@ -1,4 +1,4 @@
-﻿namespace FitnessAppAPI.Data.Services.User.Models
+﻿namespace FitnessAppAPI.Data.Services.Users.Models
 {
     /// <summary>
     ///     TokenResponseModel user to return UserModel and JWT Token

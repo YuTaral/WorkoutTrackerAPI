@@ -1,6 +1,4 @@
-﻿using FitnessAppAPI.Data.Models;
-using FitnessAppAPI.Data.Services.Workouts.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using FitnessAppAPI.Data.Services.Workouts.Models;
 
 namespace FitnessAppAPI.Data.Services.WorkoutTemplates
 {

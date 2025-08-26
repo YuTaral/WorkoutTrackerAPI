@@ -4,10 +4,8 @@ using FitnessAppAPI.Data.Services.Notifications;
 using FitnessAppAPI.Data.Services.Notifications.Models;
 using FitnessAppAPI.Data.Services.Teams.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using Newtonsoft.Json;
 using System.Net;
-using System.Runtime.InteropServices;
 using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Data.Services.Teams

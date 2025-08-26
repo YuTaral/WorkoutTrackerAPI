@@ -1,24 +1,19 @@
-﻿using Azure.Core;
-using FitnessAppAPI.Common;
+﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services;
-using FitnessAppAPI.Data.Services.User.Models;
-using FitnessAppAPI.Data.Services.UserProfile;
+using FitnessAppAPI.Data.Services.UserProfiles;
+using FitnessAppAPI.Data.Services.Users.Models;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.SqlServer.Server;
-using NuGet.Protocol;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
-using System.Threading;
 using static FitnessAppAPI.Common.Constants;
 
-
-namespace FitnessAppAPI.Data
+namespace FitnessAppAPI.Data.Services.Users
 {
     /// <summary>
     ///     User service class to implement IUserService interface.

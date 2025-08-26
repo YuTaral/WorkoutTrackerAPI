@@ -1,5 +1,4 @@
-﻿using FitnessAppAPI.Common;
-using FitnessAppAPI.Data.Services.Teams;
+﻿using FitnessAppAPI.Data.Services.Teams;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static FitnessAppAPI.Common.Constants;
