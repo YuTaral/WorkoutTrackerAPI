@@ -92,6 +92,15 @@ namespace FitnessAppAPI.Controllers
         }
 
         /// <summary>
+        //      POST request to reset password
+        /// </summary>
+        [HttpPut(RequestEndPoints.RESET_PASSWORD)]
+        public async Task<ActionResult> ResetPassword([FromBody] Dictionary<string, string> requestData)
+        {
+            return await SendResponse(await service.ResetPassword(requestData));
+        }
+
+        /// <summary>
         //      POST request to validate token
         /// </summary>
         [HttpPost(RequestEndPoints.VALIDATE_TOKEN)]
@@ -119,6 +128,24 @@ namespace FitnessAppAPI.Controllers
 
             // Token validation failed, probably token expired
             return await SendResponse((HttpStatusCode)tokenResponseModel.Result.Code, tokenResponseModel.Result.Message);
+        }
+
+        /// <summary>
+        //      POST request to send code to user email for password reset
+        /// </summary>
+        [HttpPost(RequestEndPoints.SEND_CODE)]
+        public async Task<ActionResult> SendCode([FromBody] Dictionary<string, string> requestData)
+        {
+            return await SendResponse(await service.SendCode(requestData));
+        }
+
+        /// <summary>
+        //      POST request to send code to user email for password reset
+        /// </summary>
+        [HttpPost(RequestEndPoints.VERIFY_CODE)]
+        public async Task<ActionResult> VerifyCode([FromBody] Dictionary<string, string> requestData)
+        {
+            return await SendResponse(await service.VerifyCode(requestData));
         }
     }
 }

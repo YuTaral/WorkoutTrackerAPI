@@ -85,6 +85,12 @@ namespace FitnessAppAPI.Middlewares
                                     || path.Equals(Constants.RequestEndPoints.GOOGLE_SIGN_IN,
                                                 StringComparison.CurrentCultureIgnoreCase) 
                                     || path.Equals(Constants.RequestEndPoints.SYSTEM_LOGS,
+                                                StringComparison.CurrentCultureIgnoreCase)
+                                    || path.Equals(Constants.RequestEndPoints.SEND_CODE,
+                                                StringComparison.CurrentCultureIgnoreCase)
+                                    || path.Equals(Constants.RequestEndPoints.VERIFY_CODE,
+                                                StringComparison.CurrentCultureIgnoreCase)
+                                    || path.Equals(Constants.RequestEndPoints.RESET_PASSWORD,
                                                 StringComparison.CurrentCultureIgnoreCase));
         }
     }

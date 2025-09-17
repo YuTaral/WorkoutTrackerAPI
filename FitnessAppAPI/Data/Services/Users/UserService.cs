@@ -1,6 +1,8 @@
-﻿using FitnessAppAPI.Common;
+﻿using Azure;
+using Azure.Communication.Email;
+using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
-using FitnessAppAPI.Data.Services;
+using FitnessAppAPI.Data.Services.SystemLogs;
 using FitnessAppAPI.Data.Services.UserProfiles;
 using FitnessAppAPI.Data.Services.Users.Models;
 using Google.Apis.Auth;
@@ -10,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using static FitnessAppAPI.Common.Constants;
 
@@ -26,9 +29,11 @@ namespace FitnessAppAPI.Data.Services.Users
         private readonly SignInManager<User> singInManager;
         private readonly IConfiguration configuration;
         private readonly IUserProfileService userProfileService;
+        private readonly ISystemLogService systemLogService;
+
         public UserService(UserManager<User> userManagerObj, IUserStore<User> userStoreObj, SignInManager<User> signInManagerObj,
                        IConfiguration configurationObj, FitnessAppAPIContext DB,
-                       IUserProfileService userProfileS) : base(DB)
+                       IUserProfileService userProfileS, ISystemLogService systemLogS) : base(DB)
         {
             userManager = userManagerObj;
             userStore = userStoreObj;
@@ -36,6 +41,7 @@ namespace FitnessAppAPI.Data.Services.Users
             singInManager = signInManagerObj;
             configuration = configurationObj;
             userProfileService = userProfileS;
+            systemLogService = systemLogS;
         }
 
         public async Task<ServiceActionResult<BaseModel>> Register(Dictionary<string, string> requestData)
@@ -49,7 +55,7 @@ namespace FitnessAppAPI.Data.Services.Users
             // Validate
             if (!Utils.IsValidEmail(email))
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_REG_FAIL_EMAIL);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_EMAIL);
             }
 
             // Create the user
@@ -172,7 +178,7 @@ namespace FitnessAppAPI.Data.Services.Users
             /// Check if new pass is provided
             if (!requestData.TryGetValue("oldPassword", out string? oldPassword) || !requestData.TryGetValue("password", out string? password))
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_CHANGE_PASS_FAIL);
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_PASSWORD_NOT_PROVIDED);
             }
 
             // Find the user by id
@@ -190,7 +196,44 @@ namespace FitnessAppAPI.Data.Services.Users
                 return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Utils.UserErrorsToString(result.Errors));
             }
 
-            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, MSG_PASSWORD_RESET_SUCCESS);
+        }
+
+        public async Task<ServiceActionResult<BaseModel>> ResetPassword(Dictionary<string, string> requestData)
+        {
+            // Check if email is provided
+            if (!requestData.TryGetValue("email", out string? email))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_EMAIL);
+            }
+
+            // Check if new pass is provided
+            if (!requestData.TryGetValue("password", out string? password))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_PASSWORD_NOT_PROVIDED);
+            }
+
+
+            // Find the user by id
+            var user = await userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, MSG_USER_DOES_NOT_EXISTS);
+            }
+
+            // Change the password
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await userManager.ResetPasswordAsync(user, token, password);
+
+            if (!result.Succeeded)
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Utils.UserErrorsToString(result.Errors));
+            }
+
+            // Delete any reset password codes for this user
+            await DeleteResetPasswordRecords(user.Id);
+
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, MSG_PASSWORD_RESET_SUCCESS);
         }
 
         public async Task<TokenResponseModel> ValidateToken(string token, string userId)
@@ -270,6 +313,81 @@ namespace FitnessAppAPI.Data.Services.Users
             }
 
             return ModelMapper.GetEmptyUserModel();
+        }
+
+        public async Task<ServiceActionResult<BaseModel>> SendCode(Dictionary<string, string> requestData)
+        {
+            /// Validate email
+            if (!requestData.TryGetValue("email", out string? email) || !Utils.IsValidEmail(email))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_EMAIL);
+            }
+
+            string code = new Random().Next(100000, 1000000).ToString();
+            var user = await userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                // Although the user with this email does not exist, return success message to avoid email enumeration
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, MSG_CHECK_EMAIL);
+            }
+
+            if (! await SendEmail(code, email))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.InternalServerError, MSG_UNEXPECTED_ERROR_WHILE_SENDING_EMAIL);
+            }
+
+            // Create new record
+            var record = new PasswordResetCode
+            {
+                UserId = user.Id,
+                HashedCode = HashCode(code),
+                ExpirationDate = DateTime.UtcNow.AddMinutes(10)
+            };
+
+            await DBAccess.PasswordResetCodes.AddAsync(record);
+            await DBAccess.SaveChangesAsync();
+
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, MSG_CHECK_EMAIL);
+        }
+
+        public async Task<ServiceActionResult<BaseModel>> VerifyCode(Dictionary<string, string> requestData)
+        {
+            /// Validate
+            if (!requestData.TryGetValue("code", out string? code))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_CODE);
+            }
+
+            if (!requestData.TryGetValue("email", out string? email))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_EMAIL);
+            }
+
+            var user = await userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                // Return invalid code message to avoid email enumeration
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_CODE);
+            }
+
+            var record = await DBAccess.PasswordResetCodes
+                .Where(r => r.UserId == user.Id && r.ExpirationDate > DateTime.UtcNow)
+                .OrderByDescending(r => r.ExpirationDate)
+                .FirstOrDefaultAsync();
+
+            if (record == null)
+            {
+                // Return invalid code message
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_CODE);
+            }
+
+            if (CompareCodeHash(code, record.HashedCode))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
+            }
+
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_CODE);
         }
 
         /// <summary>
@@ -372,6 +490,140 @@ namespace FitnessAppAPI.Data.Services.Users
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
             return (IUserEmailStore<User>)userStore;
+        }
+
+        /// <summary>
+        ///     Hash the 6 digits code for password reset
+        /// </summary>
+        /// <param name="code">
+        ///     The 6 digits code to hash
+        /// </param>
+        public static string HashCode(string code)
+        {
+            using var deriveBytes = new Rfc2898DeriveBytes(
+                password: Encoding.UTF8.GetBytes(code),
+                salt: RandomNumberGenerator.GetBytes(16),
+                iterations: 100_000,
+                hashAlgorithm: HashAlgorithmName.SHA256
+            );
+
+            var salt = deriveBytes.Salt;
+            var key = deriveBytes.GetBytes(32); 
+            return Convert.ToBase64String(salt.Concat(key).ToArray());
+        }
+
+        /// <summary>
+        ///     Compare the code against the specified hash code
+        /// </summary>
+        /// <param name="inputCode">
+        ///     The non hashed code
+        /// </param>
+        /// <param name="hashedCode">
+        ///     The hashed code
+        /// </param>
+        public bool CompareCodeHash(string inputCode, string hashedCode)
+        {
+            byte[] hashBytes = Convert.FromBase64String(hashedCode);
+            byte[] salt = hashBytes[..16];       
+            byte[] key = hashBytes[16..];       
+
+            using var deriveBytes = new Rfc2898DeriveBytes(
+                Encoding.UTF8.GetBytes(inputCode),
+                salt,
+                100_000,
+                HashAlgorithmName.SHA256
+            );
+            byte[] inputKey = deriveBytes.GetBytes(32);
+
+            return inputKey.SequenceEqual(key);
+        }
+
+        /// <summary>
+        ///     Send email with the code to the recipient and return true if it was successfull
+        /// </summary>
+        /// <param name="code">
+        ///     The code to send
+        /// </param>
+        /// <param name="recipient">
+        ///     The recipient email
+        /// </param>
+        private async Task<bool> SendEmail(string code, string recipient)
+        {
+            string? connectionString = configuration["Email:ConnectionString"];
+            string? sender = configuration["Email:Sender"];
+
+            if (connectionString == null || sender == null)
+            {
+                await systemLogService.Add(new Exception("Email connection string or sender not configured"), "");
+                return false;
+            }
+
+            var emailClient = new EmailClient(connectionString);
+            var subject = "WorkoutTracker - Password Reset Code";
+            var message = $@"
+                            <html>
+                              <body style='font-family: Arial, sans-serif;'>
+                                <h2 style='color:#2E86C1;'>WorkoutTracker Password Reset</h2>
+                                <p>Hello,</p>
+                                <p>We received a request to reset your password for your <strong>WorkoutTracker</strong> account.</p>
+                                <p>Please use the following code to reset your password:</p>
+                                <h1 style='color:#D35400;'>{code}</h1>
+                                <p>This code will expire in 5 minutes. If you did not request a password reset, please ignore this email.</p>
+                                <br />
+                                <p>Stay strong,</p>
+                                <p><em>The WorkoutTracker Team</em></p>
+                              </body>
+                            </html>";
+
+            var emailMessage = new EmailMessage(
+                senderAddress: sender,
+                content: new EmailContent(subject)
+                {
+                    PlainText = $"Your WorkoutTracker password reset code is: {code}\nThis code will expire in 5 minutes.",
+                    Html = message
+                },
+                recipients: new EmailRecipients(
+                [
+                    new EmailAddress(recipient)
+                ])
+            );
+
+            try
+            {
+                EmailSendOperation emailSendOperation = await emailClient.SendAsync(WaitUntil.Completed, emailMessage);
+
+                if (emailSendOperation.Value.Status == EmailSendStatus.Failed)
+                {
+                    if (emailSendOperation.Value.Status == EmailSendStatus.Failed)
+                    {
+                        await systemLogService.Add(new Exception($"Failed to send code to email: {recipient}"), "");
+                        return false;
+                    }
+                }
+                 
+            }
+            catch (Exception e)
+            {
+                await systemLogService.Add(e, "");
+                return false;
+            }
+           
+            return true;
+        }
+
+        /// <summary>
+        ///     Delete any password reset records for this user
+        /// </summary>
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
+        private async Task<bool> DeleteResetPasswordRecords(string userId)
+        {
+            var previous = await DBAccess.PasswordResetCodes.Where(c => c.UserId == userId).ToListAsync();
+            DBAccess.PasswordResetCodes.RemoveRange(previous);
+            await DBAccess.SaveChangesAsync();
+
+            return true;
         }
     }
 }

@@ -22,6 +22,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
     public required DbSet<TeamMember> TeamMembers { get; init; }
     public required DbSet<Notification> Notifications { get; init; }
     public required DbSet<AssignedWorkout> AssignedWorkouts { get; init; }
+    public required DbSet<PasswordResetCode> PasswordResetCodes { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -185,6 +186,13 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .HasOne<TeamMember>()
                .WithMany()
                .HasForeignKey(w => w.TeamMemberId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+        // PasswordResetCode -> User relation via PasswordResetCode.UserId
+        modelBuilder.Entity<PasswordResetCode>()
+               .HasOne<User>()
+               .WithMany()
+               .HasForeignKey(w => w.UserId)
                .OnDelete(DeleteBehavior.Cascade);
     }
 

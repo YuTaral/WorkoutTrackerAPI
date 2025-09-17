@@ -22,7 +22,7 @@ namespace FitnessAppAPI.Controllers
         [HttpPost]
         public async Task<ActionResult> Add([FromBody] Dictionary<string, string> requestData)
         {
-            return await SendResponse(service.Add(requestData, GetUserId()));
+            return await SendResponse(await service.Add(requestData, GetUserId()));
         }
     }
 }

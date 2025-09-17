@@ -52,6 +52,17 @@ namespace FitnessAppAPI.Data.Services.Users
         public Task<ServiceActionResult<BaseModel>> ChangePassword(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
+        ///     Change user passowrd
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data (user email and new password)
+        /// </param>
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
+        public Task<ServiceActionResult<BaseModel>> ResetPassword(Dictionary<string, string> requestData);
+
+        /// <summary>
         ///     Validate the token
         /// </summary>
         /// <param name="token">
@@ -69,5 +80,21 @@ namespace FitnessAppAPI.Data.Services.Users
         ///     The user email
         /// </param> 
         public Task<UserModel> GetUserModel(string email);
+
+        /// <summary>
+        ///     Send code to email for password reset
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data (email)
+        /// </param>
+        public Task<ServiceActionResult<BaseModel>> SendCode(Dictionary<string, string> requestData);
+
+        /// <summary>
+        ///     Verify the code user entered for password reset
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data (email, code, password)
+        /// </param>
+        public Task<ServiceActionResult<BaseModel>> VerifyCode(Dictionary<string, string> requestData);
     }
 }

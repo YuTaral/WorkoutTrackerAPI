@@ -19,7 +19,7 @@
         public const string MSG_SUCCESS = "Success";
         public const string MSG_REG_FAIL = "Email or password not provided";
         public const string MSG_LOGIN_FAIL = "Email or password not provided";
-        public const string MSG_REG_FAIL_EMAIL = "Invalid email";
+        public const string MSG_INVALID_EMAIL = "Invalid email";
         public const string MSG_LOGIN_FAILED = "Invalid email or password";
         public const string GOOGLE_SIGN_IN_FAILED = "Unexpected error occurred while using Google Sign-In. Please try again";
         public const string MSG_WORKOUT_ADD_FAIL_NO_DATA = "Workout data not provided";
@@ -37,7 +37,7 @@
         public const string MSG_NO_MUSCLE_GROUPS_FOUND = "No muscle groups found";
         public const string MSG_TEMPLATE_DOES_NOT_EXIST = "Template does not exist";
         public const string MSG_EX_ALREADY_EXISTS = "Exercise with the same name already exists";
-        public const string MSG_CHANGE_PASS_FAIL = "Password not provided";
+        public const string MSG_PASSWORD_NOT_PROVIDED = "Password not provided";
         public const string MSG_CHANGE_USER_DEF_VALUES = "User default values not provided";
         public const string MSG_FAILED_TO_FETCH_WEIGHT_UNITS = "Failed to fetch weight units";
         public const string MSG_FAILED_TO_FETCH_DEFAULT_VALUES = "Failed to fetch default values";
@@ -68,6 +68,11 @@
         public const string MSG_NO_TEAMS = "You don't have any teams";
         public const string MSG_NO_TEAM_MEMBERS = "You don't have any members in your teams";
         public const string MSG_WORKOUT_ASSIGNMENTS = "You don't have any assigned workouts with the selected filters";
+        public const string MSG_CHECK_EMAIL = "Verification code has been sent to the email";
+        public const string MSG_INVALID_CODE = "Invalid code";
+        public const string MSG_PASSWORD_RESET_SUCCESS = "Your password has been updated succesfully";
+        public const string MSG_UNEXPECTED_ERROR_WHILE_SENDING_EMAIL = "Unexpected error occurred while sending code to email. Please try again";
+
 
         /// <summary>
         ///     Class containing the DB constants
@@ -136,8 +141,11 @@
             public const string LOGIN = $"{USERS}/login";
             public const string LOGOUT = $"{USERS}/logout";
             public const string CHANGE_PASSWORD = $"{USERS}/change-password";
+            public const string RESET_PASSWORD = $"{USERS}/reset-password";
             public const string VALIDATE_TOKEN = $"{USERS}/validate-token";
             public const string GOOGLE_SIGN_IN = $"{USERS}/google-sign-in";
+            public const string SEND_CODE = $"{USERS}/send-code";
+            public const string VERIFY_CODE = $"{USERS}/verify-code";
 
             public const string TO_WORKOUT = $"{EXERCISES}/to-workout";
             public const string EXERCISE_FROM_WORKOUT = $"{EXERCISES}/exercise-from-workout";

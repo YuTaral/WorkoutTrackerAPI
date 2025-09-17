@@ -8,7 +8,7 @@ namespace FitnessAppAPI.Data.Services.SystemLogs
     /// </summary>
     public class SystemLogService(FitnessAppAPIContext DB) : BaseService(DB), ISystemLogService
     {
-        public void Add(Exception exception, string userId)
+        public async Task<bool> Add(Exception exception, string userId)
         {
             string stackTrace = "";
 
@@ -16,10 +16,12 @@ namespace FitnessAppAPI.Data.Services.SystemLogs
                 stackTrace = exception.StackTrace;
             }
 
-            AddError(exception.Message, stackTrace, userId);
+            await AddError(exception.Message, stackTrace, userId);
+
+            return true;
         }
 
-        public ServiceActionResult<string> Add(Dictionary<string, string> requestData, string userId)
+        public async Task<ServiceActionResult<string>> Add(Dictionary<string, string> requestData, string userId)
         {
 
             if (!requestData.TryGetValue("message", out string? message) || !requestData.TryGetValue("stackTrace", out string? stackTrace))
@@ -28,7 +30,7 @@ namespace FitnessAppAPI.Data.Services.SystemLogs
                 return new ServiceActionResult<string>(HttpStatusCode.OK);
             }
 
-            AddError(message, stackTrace, userId);
+            await AddError(message, stackTrace, userId);
 
             return new ServiceActionResult<string>(HttpStatusCode.OK);
         }
@@ -46,7 +48,7 @@ namespace FitnessAppAPI.Data.Services.SystemLogs
         /// <param name="userId">
         ///     The user id, may be empty if not logged in
         /// </param>
-        private async void AddError(string message, string stackTrace, string userId)
+        private async Task<bool> AddError(string message, string stackTrace, string userId)
         {
             // Sometimes the stack trace is too long to be stored in the DB, truncate if needed
             if (stackTrace.Length > 4000)
@@ -64,6 +66,8 @@ namespace FitnessAppAPI.Data.Services.SystemLogs
 
             await DBAccess.SystemLogs.AddAsync(systemLog);
             await DBAccess.SaveChangesAsync();
+
+            return true;
         }
     }
 }
