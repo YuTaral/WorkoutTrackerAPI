@@ -76,8 +76,11 @@ namespace FitnessAppAPI.Data.Services.Users
                 return new ServiceActionResult<BaseModel>((HttpStatusCode)createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
             }
 
+            requestData.TryGetValue("name", out string? name);
+            requestData.TryGetValue("imageURL", out string? imageURL);
+
             // Create the user profile
-            var createUserProfile = await userProfileService.CreateUserProfile(user.Id, email);
+            var createUserProfile = await userProfileService.CreateUserProfile(user.Id, email, name, imageURL);
             if (!createUserProfile.IsSuccess())
             {
                 return new ServiceActionResult<BaseModel>((HttpStatusCode)createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
@@ -136,7 +139,7 @@ namespace FitnessAppAPI.Data.Services.Users
             ServiceActionResult<UserModel> serviceActionResult;
             try
             {
-                /// Check if username and password are provided
+                /// Check if token is provided
                 if (!requestData.TryGetValue("idToken", out string? idToken))
                 {
                     serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
@@ -146,18 +149,26 @@ namespace FitnessAppAPI.Data.Services.Users
                 // Validate the token
                 var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, new GoogleJsonWebSignature.ValidationSettings
                 {
-                    Audience = [configuration["Authentication:Google:ClientId"]]
+                    Audience = [configuration["Google:ClientId"]]
                 });
 
-                if (payload.JwtId == null || payload.Email == null)
+                if (payload.Email == null)
                 {
                     serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
                     return new TokenResponseModel("", serviceActionResult);
                 }
 
-                // TODO: Register the user and auto log in
-                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
-                return new TokenResponseModel("", serviceActionResult);
+                // Register / login the user
+                var user = await userManager.FindByEmailAsync(payload.Email);
+
+                if (user == null)
+                {
+                    return await GoogleSignInUserNotExist(payload);
+                } 
+                else
+                {
+                    return await GoogleSignInUserExist(user);
+                }
 
             }
             catch (InvalidJwtException)
@@ -624,6 +635,87 @@ namespace FitnessAppAPI.Data.Services.Users
             await DBAccess.SaveChangesAsync();
 
             return true;
+        }
+
+        /// <summary>
+        ///     Sign in the user that already exists in the database
+        /// </summary>
+        /// <param name="user">
+        ///     The user to sign in
+        /// </param>
+        private async Task<TokenResponseModel> GoogleSignInUserExist(User user)
+        {
+            ServiceActionResult<UserModel> serviceActionResult;
+
+            // User exists, log in
+            await singInManager.SignInAsync(user, isPersistent: true);
+
+            // Generate JwtToken
+            var token = GenerateJwtToken(user);
+
+            if (token == "")
+            {
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
+            }
+            else
+            {
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.OK, MSG_SUCCESS, [await GetUserModel(user.Email!)]);
+            }
+
+            return new TokenResponseModel(token, serviceActionResult);
+        }
+
+        /// <summary>
+        ///     Register and sign in the user that does not exist in the database
+        /// </summary>
+        /// <param name="payload">
+        ///     The google payload information
+        /// </param>
+        private async Task<TokenResponseModel> GoogleSignInUserNotExist(GoogleJsonWebSignature.Payload payload)
+        {
+            ServiceActionResult<UserModel> serviceActionResult;
+
+            var registerData = new Dictionary<string, string>
+                    {
+                        { "email", payload.Email },
+                        { "password", Utils.GenerateRandomString(12) },
+                        { "name", payload.Name },
+                        { "imageURL", payload.Picture }
+                    };
+
+            var registerResult = await Register(registerData);
+
+            if (!registerResult.IsSuccess())
+            {
+                serviceActionResult = new ServiceActionResult<UserModel>((HttpStatusCode) registerResult.Code, registerResult.Message);
+                return new TokenResponseModel("", serviceActionResult);
+            }
+
+            // Retrieve the newly created user
+            var user = await userManager.FindByEmailAsync(payload.Email);
+
+            if (user == null)
+            {
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
+                return new TokenResponseModel("", serviceActionResult);
+            }
+
+            // Log in the user
+            await singInManager.SignInAsync(user, isPersistent: true);
+
+            // Generate JwtToken
+            var token = GenerateJwtToken(user);
+
+            if (token == "")
+            {
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
+            }
+            else
+            {
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.OK, MSG_SUCCESS, [await GetUserModel(payload.Email)]);
+            }
+
+            return new TokenResponseModel(token, serviceActionResult);
         }
     }
 }

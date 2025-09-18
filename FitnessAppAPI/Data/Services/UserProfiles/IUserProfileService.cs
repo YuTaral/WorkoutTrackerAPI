@@ -37,7 +37,13 @@ namespace FitnessAppAPI.Data.Services.UserProfiles
         /// <param name="email">
         ///     The user email
         /// </param
-        public Task<ServiceActionResult<BaseModel>> CreateUserProfile(string userId, string email);
+        /// <param name="name">
+        ///     The user name (may be null
+        /// </param
+        /// <param name="imageURL">
+        ///     The user image URL (may be null)
+        /// </param
+        public Task<ServiceActionResult<BaseModel>> CreateUserProfile(string userId, string email, string? name, string? imageURL);
 
         /// <summary>
         ///     Update user profile

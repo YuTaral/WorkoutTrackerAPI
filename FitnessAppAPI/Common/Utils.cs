@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mail;
+using System.Security.Cryptography;
 
 namespace FitnessAppAPI.Common
 {
@@ -185,6 +186,40 @@ namespace FitnessAppAPI.Common
         /// </param>
         public static string FormatDefaultDateTime(DateTime dateTime) {
             return dateTime.ToString("dd MMM yyyy");
+        }
+
+        /// <summary>
+        ///     Genereate a random alphanumeric string of specified length
+        /// </summary>
+        /// <param name="length">
+        ///     The length of the string
+        /// </param>
+        public static string GenerateRandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            using var rng = RandomNumberGenerator.Create();
+            var data = new byte[length];
+            rng.GetBytes(data);
+
+            var result = new char[length];
+            for (int i = 0; i < length; i++)
+            {
+                result[i] = chars[data[i] % chars.Length];
+            }
+
+            return new string(result);
+        }
+
+        /// <summary>
+        ///     Download image from URL and return it as byte array
+        /// </summary>
+        /// <param name="url">
+        ///     The URL of the image
+        /// </param>
+        public static async Task<byte[]> DownloadImageAsBytesAsync(string url)
+        {
+            using var httpClient = new HttpClient();
+            return await httpClient.GetByteArrayAsync(url);
         }
     }
 }

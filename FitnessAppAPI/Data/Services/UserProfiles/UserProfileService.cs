@@ -90,13 +90,31 @@ namespace FitnessAppAPI.Data.Services.UserProfiles
 
         }
 
-        public async Task<ServiceActionResult<BaseModel>> CreateUserProfile(string userId, string email)
+        public async Task<ServiceActionResult<BaseModel>> CreateUserProfile(string userId, string email, string? name, string? imageURL)
         {
+            // Set the full name to the part before @ in email if name is not provided
+            string fullname;
+            byte[] profileImage = [];
+
+            if (string.IsNullOrEmpty(name)) {
+                fullname = email[..email.IndexOf("@")];
+            } else {
+                fullname = name; 
+            }
+
+            if (fullname.Length > 100) {
+                fullname = fullname[..100];
+            }
+
+            if (!string.IsNullOrEmpty(imageURL))
+            {
+                profileImage = await Utils.DownloadImageAsBytesAsync(imageURL);
+            }
 
             var profile = new UserProfile
             {
-                FullName = email.Substring(0, email.IndexOf("@")),
-                ProfileImage = [],
+                FullName = fullname,
+                ProfileImage = profileImage,
                 UserId = userId
             };
 
