@@ -10,6 +10,7 @@
         /// </summary>
         public class CustomHttpStatusCode
         {
+            public const int ACCOUNT_NOT_VERIFIED = 498;
             public const int EXERCISE_ALREADY_EXISTS = 499;
         }
 
@@ -21,7 +22,7 @@
         public const string MSG_LOGIN_FAIL = "Email or password not provided";
         public const string MSG_INVALID_EMAIL = "Invalid email";
         public const string MSG_LOGIN_FAILED = "Invalid email or password";
-        public const string GOOGLE_SIGN_IN_FAILED = "Unexpected error occurred while using Google Sign-In. Please try again";
+        public const string MSG_GOOGLE_SIGN_IN_FAILED = "Unexpected error occurred while using Google Sign-In. Please try again";
         public const string MSG_WORKOUT_ADD_FAIL_NO_DATA = "Workout data not provided";
         public const string MSG_EXERCISE_ADD_FAIL_NO_DATA = "Workout id or exercise data not provided";
         public const string MSG_EXERCISE_FAIL_NO_DATA = "Exercise data not provided";
@@ -72,7 +73,9 @@
         public const string MSG_INVALID_CODE = "Invalid code";
         public const string MSG_PASSWORD_RESET_SUCCESS = "Your password has been updated succesfully";
         public const string MSG_UNEXPECTED_ERROR_WHILE_SENDING_EMAIL = "Unexpected error occurred while sending code to email. Please try again";
-
+        public const string MSG_ACC_NOT_VERIFILED = "Please verify your email";
+        public const string MSG_ACC_VERIFICATIO_FAILED = "Email verification failed. Please try again";
+        public const string MSG_ACC_VERIFILED = "Email verification successful";
 
         /// <summary>
         ///     Class containing the DB constants

@@ -14,7 +14,7 @@ namespace FitnessAppAPI.Data.Services.Users
         /// <param name="requestData">
         ///     The request data (user email and password)
         /// </param>
-        public Task<ServiceActionResult<BaseModel>> Register(Dictionary<string, string> requestData);
+        public Task<ServiceActionResult<string>> Register(Dictionary<string, string> requestData);
 
         /// <summary>
         ///     Login the user
@@ -87,10 +87,10 @@ namespace FitnessAppAPI.Data.Services.Users
         /// <param name="requestData">
         ///     The request data (email)
         /// </param>
-        public Task<ServiceActionResult<BaseModel>> SendCode(Dictionary<string, string> requestData);
+        public Task<ServiceActionResult<BaseModel>> SendResetPasswordCode(Dictionary<string, string> requestData);
 
         /// <summary>
-        ///     Verify the code user entered for password reset
+        ///     Verify the code user entered for password reset / email verification
         /// </summary>
         /// <param name="requestData">
         ///     The request data (email, code, password)

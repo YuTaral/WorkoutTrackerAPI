@@ -30,7 +30,7 @@ namespace FitnessAppAPI.Controllers
             // Success check
             if (!model.Result.IsSuccess())
             {
-                return await SendResponse((HttpStatusCode) model.Result.Code, model.Result.Message);
+                return await SendResponse((HttpStatusCode) model.Result.Code, model.Result.Message, model.Result.Data);
             }
 
             return await SendResponse((HttpStatusCode)model.Result.Code, model.Result.Message, model);
@@ -44,7 +44,6 @@ namespace FitnessAppAPI.Controllers
         {
             return await SendResponse(await service.Register(requestData));
         }
-
 
         /// <summary>
         //      POST request to sign in the user with google id token
@@ -136,11 +135,11 @@ namespace FitnessAppAPI.Controllers
         [HttpPost(RequestEndPoints.SEND_CODE)]
         public async Task<ActionResult> SendCode([FromBody] Dictionary<string, string> requestData)
         {
-            return await SendResponse(await service.SendCode(requestData));
+            return await SendResponse(await service.SendResetPasswordCode(requestData));
         }
 
         /// <summary>
-        //      POST request to send code to user email for password reset
+        //      POST request to validate the code for for password reset / email verification
         /// </summary>
         [HttpPost(RequestEndPoints.VERIFY_CODE)]
         public async Task<ActionResult> VerifyCode([FromBody] Dictionary<string, string> requestData)

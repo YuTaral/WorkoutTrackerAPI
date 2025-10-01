@@ -189,6 +189,21 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
+        ///     Map the provided to to UserModel
+        /// </summary>
+        public static UserModel MapToUserModel(string email)
+        { 
+            return new UserModel
+            {
+                Id = "",
+                Email = email,
+                FullName = "",
+                ProfileImage = "",
+                DefaultValues = GetEmptyUserDefaultValuesModel()
+            };
+        }
+
+        /// <summary>
         ///     Map the UserDefaultValue to UserDefaultValuesModel
         /// </summary>
         public static UserDefaultValuesModel MapToUserDefaultValuesModel(UserDefaultValue? defaultValues, FitnessAppAPIContext DBAccess)

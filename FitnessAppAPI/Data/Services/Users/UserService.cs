@@ -9,7 +9,9 @@ using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -44,18 +46,20 @@ namespace FitnessAppAPI.Data.Services.Users
             systemLogService = systemLogS;
         }
 
-        public async Task<ServiceActionResult<BaseModel>> Register(Dictionary<string, string> requestData)
+        public async Task<ServiceActionResult<string>> Register(Dictionary<string, string> requestData)
         {
+            var emailVerificationSuccess = false;
+
             /// Check if username and password are provided
             if (!requestData.TryGetValue("email", out string? email) || !requestData.TryGetValue("password", out string? password))
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_REG_FAIL);
+                return new ServiceActionResult<string>(HttpStatusCode.BadRequest, MSG_REG_FAIL);
             }
 
             // Validate
             if (!Utils.IsValidEmail(email))
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_EMAIL);
+                return new ServiceActionResult<string>(HttpStatusCode.BadRequest, MSG_INVALID_EMAIL);
             }
 
             // Create the user
@@ -66,14 +70,26 @@ namespace FitnessAppAPI.Data.Services.Users
 
             if (!result.Succeeded)
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, Utils.UserErrorsToString(result.Errors));
+                return new ServiceActionResult<string>(HttpStatusCode.BadRequest, Utils.UserErrorsToString(result.Errors));
+            }
+
+            requestData.TryGetValue("verified", out string? verified);
+
+            // Try to confirm the email if the verified flag is set to "Y" (Google sign in)
+            if (verified != null && verified == "Y")
+            {
+                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                var verifiedResult = await userManager.ConfirmEmailAsync(user, token);
+
+                // Save the result for later
+                emailVerificationSuccess = verifiedResult.Succeeded;
             }
 
             // Create the default values for the user
             var createUserDefaultValuesResult = await userProfileService.AddUserDefaultValues(user.Id);
             if (!createUserDefaultValuesResult.IsSuccess())
             {
-                return new ServiceActionResult<BaseModel>((HttpStatusCode)createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
+                return new ServiceActionResult<string>((HttpStatusCode)createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
             }
 
             requestData.TryGetValue("name", out string? name);
@@ -83,10 +99,17 @@ namespace FitnessAppAPI.Data.Services.Users
             var createUserProfile = await userProfileService.CreateUserProfile(user.Id, email, name, imageURL);
             if (!createUserProfile.IsSuccess())
             {
-                return new ServiceActionResult<BaseModel>((HttpStatusCode)createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
+                return new ServiceActionResult<string>((HttpStatusCode) createUserDefaultValuesResult.Code, createUserDefaultValuesResult.Message);
             }
 
-            return new ServiceActionResult<BaseModel>(HttpStatusCode.Created);
+            // If the email is not verified, send verification email
+            if (!emailVerificationSuccess)
+            {
+                await SaveEmailVerificationRecord(email, user.Id);
+                return new ServiceActionResult<string>(CustomHttpStatusCode.ACCOUNT_NOT_VERIFIED, MSG_ACC_NOT_VERIFILED, [email]);
+            }
+
+            return new ServiceActionResult<string>(HttpStatusCode.Created);
 
         }
 
@@ -120,6 +143,14 @@ namespace FitnessAppAPI.Data.Services.Users
                 return new TokenResponseModel("", serviceActionResult);
             }
 
+            if (!user.EmailConfirmed)
+            {
+                await SaveEmailVerificationRecord(email, user.Id);
+                
+                serviceActionResult = new ServiceActionResult<UserModel>(CustomHttpStatusCode.ACCOUNT_NOT_VERIFIED, MSG_ACC_NOT_VERIFILED, [ModelMapper.MapToUserModel(email)]);
+                return new TokenResponseModel("", serviceActionResult);
+            }
+
             // Generate JwtToken
             var token = GenerateJwtToken(user);
             if (token == "")
@@ -142,7 +173,7 @@ namespace FitnessAppAPI.Data.Services.Users
                 /// Check if token is provided
                 if (!requestData.TryGetValue("idToken", out string? idToken))
                 {
-                    serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
+                    serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, MSG_GOOGLE_SIGN_IN_FAILED);
                     return new TokenResponseModel("", serviceActionResult);
                 }
 
@@ -154,7 +185,7 @@ namespace FitnessAppAPI.Data.Services.Users
 
                 if (payload.Email == null)
                 {
-                    serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
+                    serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, MSG_GOOGLE_SIGN_IN_FAILED);
                     return new TokenResponseModel("", serviceActionResult);
                 }
 
@@ -173,7 +204,7 @@ namespace FitnessAppAPI.Data.Services.Users
             }
             catch (InvalidJwtException)
             {
-                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, MSG_GOOGLE_SIGN_IN_FAILED);
                 return new TokenResponseModel("", serviceActionResult);
             }
         }
@@ -326,7 +357,7 @@ namespace FitnessAppAPI.Data.Services.Users
             return ModelMapper.GetEmptyUserModel();
         }
 
-        public async Task<ServiceActionResult<BaseModel>> SendCode(Dictionary<string, string> requestData)
+        public async Task<ServiceActionResult<BaseModel>> SendResetPasswordCode(Dictionary<string, string> requestData)
         {
             /// Validate email
             if (!requestData.TryGetValue("email", out string? email) || !Utils.IsValidEmail(email))
@@ -343,7 +374,7 @@ namespace FitnessAppAPI.Data.Services.Users
                 return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, MSG_CHECK_EMAIL);
             }
 
-            if (! await SendEmail(code, email))
+            if (! await SendResetPasswordEmail(code, email))
             {
                 return new ServiceActionResult<BaseModel>(HttpStatusCode.InternalServerError, MSG_UNEXPECTED_ERROR_WHILE_SENDING_EMAIL);
             }
@@ -364,7 +395,12 @@ namespace FitnessAppAPI.Data.Services.Users
 
         public async Task<ServiceActionResult<BaseModel>> VerifyCode(Dictionary<string, string> requestData)
         {
-            /// Validate
+            // Validate
+            if (!requestData.TryGetValue("codeType", out string? codeType))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_CODE);
+            }
+
             if (!requestData.TryGetValue("code", out string? code))
             {
                 return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_CODE);
@@ -382,20 +418,49 @@ namespace FitnessAppAPI.Data.Services.Users
                 return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_CODE);
             }
 
-            var record = await DBAccess.PasswordResetCodes
-                .Where(r => r.UserId == user.Id && r.ExpirationDate > DateTime.UtcNow)
-                .OrderByDescending(r => r.ExpirationDate)
-                .FirstOrDefaultAsync();
-
-            if (record == null)
+            if (codeType == "RESET_PASSWORD")
             {
-                // Return invalid code message
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_CODE);
+                var record = await DBAccess.PasswordResetCodes.Where(r => r.UserId == user.Id && r.ExpirationDate > DateTime.UtcNow).OrderByDescending(r => r.ExpirationDate).FirstOrDefaultAsync();
+                if (record == null)
+                {
+                    // Return invalid code message
+                    return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_CODE);
+                }
+
+                if (CompareCodeHash(code, record.HashedCode))
+                {
+                    return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, MSG_PASSWORD_RESET_SUCCESS);
+                }
             }
-
-            if (CompareCodeHash(code, record.HashedCode))
+            else
             {
-                return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
+                var record = await DBAccess.EmailVerificationCodes.Where(r => r.UserId == user.Id).OrderByDescending(r => r.Id).FirstOrDefaultAsync();
+                if (record == null)
+                {
+                    // Return invalid code message
+                    return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_CODE);
+                }
+
+                if (CompareCodeHash(code, record.HashedCode))
+                {
+
+                    var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var verifiedResult = await userManager.ConfirmEmailAsync(user, token);
+
+                    if (verifiedResult.Succeeded)
+                    {
+                        // Delete any email verification records for this user
+                        var previous = await DBAccess.EmailVerificationCodes.Where(c => c.UserId == user.Id).ToListAsync();
+                        DBAccess.EmailVerificationCodes.RemoveRange(previous);
+                        await DBAccess.SaveChangesAsync();
+
+                        return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, MSG_ACC_VERIFILED);
+                    }
+                    else
+                    {
+                        return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_ACC_VERIFICATIO_FAILED);
+                    }
+                }
             }
 
             return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_CODE);
@@ -550,7 +615,7 @@ namespace FitnessAppAPI.Data.Services.Users
         }
 
         /// <summary>
-        ///     Send email with the code to the recipient and return true if it was successfull
+        ///     Send password reset email with the code to the recipient and return true if it was successfull
         /// </summary>
         /// <param name="code">
         ///     The code to send
@@ -558,18 +623,8 @@ namespace FitnessAppAPI.Data.Services.Users
         /// <param name="recipient">
         ///     The recipient email
         /// </param>
-        private async Task<bool> SendEmail(string code, string recipient)
+        private async Task<bool> SendResetPasswordEmail(string code, string recipient)
         {
-            string? connectionString = configuration["Email:ConnectionString"];
-            string? sender = configuration["Email:Sender"];
-
-            if (connectionString == null || sender == null)
-            {
-                await systemLogService.Add(new Exception("Email connection string or sender not configured"), "");
-                return false;
-            }
-
-            var emailClient = new EmailClient(connectionString);
             var subject = "WorkoutTracker - Password Reset Code";
             var message = $@"
                             <html>
@@ -585,18 +640,80 @@ namespace FitnessAppAPI.Data.Services.Users
                                 <p><em>The WorkoutTracker Team</em></p>
                               </body>
                             </html>";
+            var plainText = $"Your WorkoutTracker password reset code is: {code}\nThis code will expire in 5 minutes.";
 
+            return await SendEmail(subject, message, plainText, recipient);
+        }
+
+        /// <summary>
+        ///     Send account verification email with the code to the recipient and return true if it was successfull
+        /// </summary>
+        /// <param name="code">
+        ///     The code to send
+        /// </param>
+        /// <param name="recipient">
+        ///     The recipient email
+        /// </param>
+        private async Task<bool> SendEmailVerificationEmail(string code, string recipient)
+        {
+            var subject = "WorkoutTracker - Account Verification";
+            var message = $@"
+                    <html>
+                      <body style='font-family: Arial, sans-serif;'>
+                        <h2 style='color:#2E86C1;'>WorkoutTracker Account Verification</h2>
+                        <p>Hello,</p>
+                        <p>Thank you for signing up for <strong>WorkoutTracker</strong>.</p>
+                        <p>Please use the following code to verify your account:</p>
+                        <h1 style='color:#27AE60;'>{code}</h1>
+                        <br />
+                        <p>Stay strong,</p>
+                        <p><em>The WorkoutTracker Team</em></p>
+                      </body>
+                    </html>";
+            var plainText = $"Your WorkoutTracker verification code is: {code}";
+
+            return await SendEmail(subject, message, plainText, recipient);
+        }
+
+        /// <summary>
+        ///     Send the specified email to the recipient and return true if it was successfull
+        /// </summary>
+        /// <param name="subject">
+        ///     The email subject
+        /// </param>
+        /// <param name="message">
+        ///     The email message in HTML format
+        /// </param>
+        /// <param name="plainText">
+        ///     The email message in plain text format
+        /// </param>
+        /// <param name="recipient">
+        ///     The recipient email
+        /// </param>
+        /// <returns></returns>
+        private async Task<bool> SendEmail(string subject, string message, string plainText, string recipient)
+        {
+            string? connectionString = configuration["Email:ConnectionString"];
+            string? sender = configuration["Email:Sender"];
+
+            if (connectionString == null || sender == null)
+            {
+                await systemLogService.Add(new Exception("Email connection string or sender not configured"), "");
+                return false;
+            }
+
+            var emailClient = new EmailClient(connectionString);
             var emailMessage = new EmailMessage(
-                senderAddress: sender,
-                content: new EmailContent(subject)
-                {
-                    PlainText = $"Your WorkoutTracker password reset code is: {code}\nThis code will expire in 5 minutes.",
-                    Html = message
-                },
-                recipients: new EmailRecipients(
-                [
-                    new EmailAddress(recipient)
-                ])
+               senderAddress: sender,
+               content: new EmailContent(subject)
+               {
+                   PlainText = plainText,
+                   Html = message
+               },
+               recipients: new EmailRecipients(
+               [
+                   new EmailAddress(recipient)
+               ])
             );
 
             try
@@ -611,14 +728,14 @@ namespace FitnessAppAPI.Data.Services.Users
                         return false;
                     }
                 }
-                 
+
             }
             catch (Exception e)
             {
                 await systemLogService.Add(e, "");
                 return false;
             }
-           
+
             return true;
         }
 
@@ -655,7 +772,7 @@ namespace FitnessAppAPI.Data.Services.Users
 
             if (token == "")
             {
-                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, MSG_GOOGLE_SIGN_IN_FAILED);
             }
             else
             {
@@ -680,7 +797,8 @@ namespace FitnessAppAPI.Data.Services.Users
                         { "email", payload.Email },
                         { "password", Utils.GenerateRandomString(12) },
                         { "name", payload.Name },
-                        { "imageURL", payload.Picture }
+                        { "imageURL", payload.Picture },
+                        {  "verified", "Y" }
                     };
 
             var registerResult = await Register(registerData);
@@ -696,7 +814,7 @@ namespace FitnessAppAPI.Data.Services.Users
 
             if (user == null)
             {
-                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, MSG_GOOGLE_SIGN_IN_FAILED);
                 return new TokenResponseModel("", serviceActionResult);
             }
 
@@ -708,7 +826,7 @@ namespace FitnessAppAPI.Data.Services.Users
 
             if (token == "")
             {
-                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, GOOGLE_SIGN_IN_FAILED);
+                serviceActionResult = new ServiceActionResult<UserModel>(HttpStatusCode.BadRequest, MSG_GOOGLE_SIGN_IN_FAILED);
             }
             else
             {
@@ -716,6 +834,37 @@ namespace FitnessAppAPI.Data.Services.Users
             }
 
             return new TokenResponseModel(token, serviceActionResult);
+        }
+
+        /// <summary>
+        ///     Save email verification record and send the email
+        /// </summary>
+        /// <param name="email">
+        ///     The user email
+        /// </param>
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
+        private async Task<Boolean> SaveEmailVerificationRecord(string email, string userId)
+        {
+            string code = new Random().Next(100000, 1000000).ToString();
+            var emailSent = await SendEmailVerificationEmail(code, email);
+
+            if (emailSent)
+            {
+                var record = new EmailVerificationCode
+                {
+                    UserId = userId,
+                    HashedCode = HashCode(code),
+                };
+
+                await DBAccess.EmailVerificationCodes.AddAsync(record);
+                await DBAccess.SaveChangesAsync();
+
+                return true;
+            }
+
+            return false;
         }
     }
 }
