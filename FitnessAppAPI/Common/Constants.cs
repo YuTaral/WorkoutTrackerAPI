@@ -1,4 +1,6 @@
-﻿namespace FitnessAppAPI.Common
+﻿using System.CodeDom;
+
+namespace FitnessAppAPI.Common
 {
     /// <summary>
     ///     Constant class with all constants used on the server-side.
@@ -76,6 +78,11 @@
         public const string MSG_ACC_NOT_VERIFILED = "Please verify your email";
         public const string MSG_ACC_VERIFICATIO_FAILED = "Email verification failed. Please try again";
         public const string MSG_ACC_VERIFILED = "Email verification successful";
+        public const string MSG_TRAINING_DATA_ADD_FAIL_NO_DATA = "Training program data not provided";
+        public const string MSG_TRAINING_PROGRAM_NOT_FOUND = "Training program not found";
+        public const string MSG_TRAINING_DAY_ADD_FAIL_NO_DATA = "Training day data not provided";
+        public const string MSG_TRAINING_DAY_NOT_FOUND = "Training day not found";
+
 
         /// <summary>
         ///     Class containing the DB constants
@@ -139,6 +146,7 @@
             public const string WORKOUTS = $"{API}/workouts";
             public const string MUSCLE_GROUPS = $"{API}/muscle-groups";
             public const string SYSTEM_LOGS = $"{API}/system-logs";
+            public const string TRAINING_PROGRAMS = $"{API}/training-programs";
 
             public const string REGISTER = $"{USERS}/register";
             public const string LOGIN = $"{USERS}/login";
@@ -178,6 +186,8 @@
             public const string GET_WORKOUT_TEMPLATE = $"{WORKOUT_TEMPLATES}/get-template-by-assigned-workout";
 
             public const string FINISH_WORKOUT = $"{WORKOUTS}/finish";
+
+            public const string TRAINING_DAYS = $"{TRAINING_PROGRAMS}/days";
         }
 
         /// <summary>

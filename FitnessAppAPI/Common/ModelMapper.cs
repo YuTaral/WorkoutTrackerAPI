@@ -9,6 +9,7 @@ using FitnessAppAPI.Data.Services.Notifications.Models;
 using static FitnessAppAPI.Common.Constants;
 using FitnessAppAPI.Data.Services.UserProfiles.Models;
 using FitnessAppAPI.Data.Services.Users.Models;
+using FitnessAppAPI.Data.Services.TrainingPrograms.Models;
 
 namespace FitnessAppAPI.Common
 {
@@ -206,7 +207,7 @@ namespace FitnessAppAPI.Common
         /// <summary>
         ///     Map the UserDefaultValue to UserDefaultValuesModel
         /// </summary>
-        public static UserDefaultValuesModel MapToUserDefaultValuesModel(UserDefaultValue? defaultValues, FitnessAppAPIContext DBAccess)
+        public static UserDefaultValuesModel MapToUserDefaultValuesModel(UserDefaultValue? defaultValues)
         {
             if (defaultValues == null)
             {
@@ -443,6 +444,59 @@ namespace FitnessAppAPI.Common
         }
 
         /// <summary>
+        ///     Map the TrainingProgram to TrainingProgramModel
+        /// </summary>
+        public async static Task<TrainingPlanModel> MapToTrainingProgramModel(TrainingPlan? trainingProgram, FitnessAppAPIContext DBAccess)
+        {
+            if (trainingProgram == null)
+            {
+                return GetEmptyTrainingProgramModel();
+            }
+
+            // Find all training days for the program
+            var trainingDays = await DBAccess.TrainingDays.Where(td => td.TrainingProgramId == trainingProgram.Id).ToListAsync();
+            var trainingDayModels = new List<TrainingDayModel>();
+
+            // Go through each training day
+            foreach (var day in trainingDays)
+            {
+                // Find each workout in the day
+                var workoutsInDay = await DBAccess.WorkoutToTrainingDays.Where(w => w.TrainingDayId == day.Id).ToListAsync();
+                var workoutModels = new List<WorkoutModel>();
+
+                // Map each workout to workout model
+                foreach (var workout in workoutsInDay)
+                {
+                    var workoutData = await DBAccess.Workouts.Where(w => w.Id == workout.WorkoutId).FirstOrDefaultAsync();
+                    if (workoutData == null)
+                    {
+                        continue;
+                    }
+                    workoutModels.Add(await MapToWorkoutModel(workoutData, DBAccess));
+                }
+
+                // Add the training day model to the list
+                trainingDayModels.Add(
+                    new TrainingDayModel
+                    {
+                        Id = day.Id,
+                        ProgramId = day.TrainingProgramId,
+                        Workouts = workoutModels
+                    }
+                );
+            }
+
+
+            return new TrainingPlanModel
+            {
+                Id = trainingProgram.Id,
+                Name = trainingProgram.Name,
+                Description = trainingProgram.Description,
+                TrainingDays = trainingDayModels,
+            };
+        }
+
+        /// <summary>
         ///    Return empty TeamWithMembersModel
         /// </summary>
         private static TeamWithMembersModel GetEmptyTeamWithMembersModelModel()
@@ -499,6 +553,21 @@ namespace FitnessAppAPI.Common
                 Completed = false
             };
         }
+
+        /// <summary>
+        ///    Return empty TrainingProgramModel
+        /// </summary>
+        private static TrainingPlanModel GetEmptyTrainingProgramModel()
+        {
+            return new TrainingPlanModel
+            {
+                Id = 0,
+                Name = "",
+                Description = "",
+                TrainingDays = []
+            };
+        }
+
 
         /// <summary>
         ///    Return empty WorkoutModel

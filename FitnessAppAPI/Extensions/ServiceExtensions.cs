@@ -7,6 +7,7 @@ using FitnessAppAPI.Data.Services.Teams;
 using FitnessAppAPI.Data.Services.Notifications;
 using FitnessAppAPI.Data.Services.UserProfiles;
 using FitnessAppAPI.Data.Services.Users;
+using FitnessAppAPI.Data.Services.TrainingPrograms;
 
 namespace FitnessAppAPI.Extensions
 {
@@ -34,6 +35,7 @@ namespace FitnessAppAPI.Extensions
             services.AddScoped<ISystemLogService, SystemLogService>();
             services.AddScoped<ITeamService, TeamService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<ITrainingPlanService, TrainingPlanService>();
 
             return services;
         }

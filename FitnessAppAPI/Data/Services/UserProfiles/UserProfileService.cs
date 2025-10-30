@@ -86,7 +86,7 @@ namespace FitnessAppAPI.Data.Services.UserProfiles
             DBAccess.Entry(existing).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.OK, MSG_SUCCESS, [ModelMapper.MapToUserDefaultValuesModel(existing, DBAccess)]);
+            return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.OK, MSG_SUCCESS, [ModelMapper.MapToUserDefaultValuesModel(existing)]);
 
         }
 
@@ -176,7 +176,7 @@ namespace FitnessAppAPI.Data.Services.UserProfiles
             // because there are no exercise specific values yet
             values.MGExeciseId = mgExerciseId;
 
-            return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.OK, MSG_SUCCESS, [ModelMapper.MapToUserDefaultValuesModel(values, DBAccess)]);
+            return new ServiceActionResult<UserDefaultValuesModel>(HttpStatusCode.OK, MSG_SUCCESS, [ModelMapper.MapToUserDefaultValuesModel(values)]);
         }
 
         /// <summary>

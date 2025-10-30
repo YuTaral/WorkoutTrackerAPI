@@ -24,7 +24,9 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
     public required DbSet<AssignedWorkout> AssignedWorkouts { get; init; }
     public required DbSet<PasswordResetCode> PasswordResetCodes { get; init; }
     public required DbSet<EmailVerificationCode> EmailVerificationCodes { get; init; }
-
+    public required DbSet<TrainingPlan> TrainingPlans { get; init; }
+    public required DbSet<TrainingDay> TrainingDays { get; init; }
+    public required DbSet<WorkoutToTrainingDay> WorkoutToTrainingDays { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -203,6 +205,35 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .WithMany()
                .HasForeignKey(w => w.UserId)
                .OnDelete(DeleteBehavior.Cascade);
+
+        // TrainingPlan -> User relation via TrainingPlan.UserId
+        modelBuilder.Entity<TrainingPlan>()
+               .HasOne<User>()
+               .WithMany()
+               .HasForeignKey(w => w.UserId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+        // TrainingDay -> TrainingPlan relation via TrainingDay.TrainingProgramId
+        modelBuilder.Entity<TrainingDay>()
+               .HasOne<TrainingPlan>()
+               .WithMany()
+               .HasForeignKey(d => d.TrainingProgramId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+        // WorkoutToTrainingDay -> TrainingDay relation via WorkoutToTrainingDay.TrainingDayId
+        modelBuilder.Entity<WorkoutToTrainingDay>()
+               .HasOne<TrainingDay>()
+               .WithMany()
+               .HasForeignKey(d => d.TrainingDayId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+        // WorkoutToTrainingDay -> Workout relation via WorkoutToTrainingDay.WorkoutId
+        // Manually delete WorkoutToTrainingDay when Workout is deleted to avoid constraint issues
+        modelBuilder.Entity<WorkoutToTrainingDay>()
+               .HasOne<Workout>()
+               .WithMany()
+               .HasForeignKey(d => d.WorkoutId)
+               .OnDelete(DeleteBehavior.NoAction);
     }
 
     /// <summary>

@@ -1,0 +1,93 @@
+﻿using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services.TrainingPrograms.Models;
+
+namespace FitnessAppAPI.Data.Services.TrainingPrograms
+{
+    /// <summary>
+    ///     Training plan service interface to define the logic for training plans CRUD operations.
+    /// </summary>
+    public interface ITrainingPlanService
+    {
+        /// <summary>
+        ///     Add new training program from the provided TrainingProgramModel data
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data (training program)
+        /// </param>
+        /// <param name="userId">
+        ///     The user who is adding the training program
+        /// </param>
+        public Task<ServiceActionResult<TrainingPlanModel>> AddTrainingProgram(Dictionary<string, string> requestData, string userId);
+
+        /// <summary>
+        ///     Edit the training program from the provided TrainingProgramModel data
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data (training program)
+        /// </param>
+        /// <param name="userId">
+        ///     The user who is updating the training program
+        /// </param>
+        public Task<ServiceActionResult<TrainingPlanModel>> UpdateTrainingProgram(Dictionary<string, string> requestData, string userId);
+
+        /// <summary>
+        ///     Delete the training program with the provided id
+        /// </summary>
+        /// <param name="trainingProgramId">
+        ///     The training program id
+        /// </param>
+        /// <param name="userId">
+        ///     The user who is deleting the training program
+        /// </param>
+        public Task<ServiceActionResult<TrainingPlanModel>> DeleteTrainingProgram(long trainingProgramId, string userId);
+
+        /// <summary>
+        ///     Fetch the training programs for the user and returns TrainingProgramModel list
+        /// </summary>
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
+        public Task<ServiceActionResult<TrainingPlanModel>> GetTrainingPrograms(string userId);
+
+        /// <summary>
+        ///     Add new training day to the program program from the provided TrainingDayModel model
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data (training day model)
+        /// </param>
+        /// <param name="userId">
+        ///     The user who is adding the day
+        /// </param>
+        public Task<ServiceActionResult<TrainingPlanModel>> AddTrainingDayToProgram(Dictionary<string, string> requestData, string userId);
+
+        /// <summary>
+        ///     Add update the training day from the provided TrainingDayModel model
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data (training day model)
+        /// </param>
+        /// <param name="userId">
+        ///     The user who is adding the day
+        /// </param>
+        public Task<ServiceActionResult<TrainingPlanModel>> UpdateTrainingDayToProgram(Dictionary<string, string> requestData, string userId);
+
+        /// <summary>
+        ///     Delete the training day with the provided id
+        /// </summary>
+        /// <param name="trainingDayId">
+        ///     The training day id
+        /// </param>
+        /// <param name="userId">
+        ///     The user who is deleting the training day
+        /// </param>
+        public Task<ServiceActionResult<TrainingPlanModel>> DeleteTrainingDay(long trainingDayId, string userId);
+
+        /// <summary>
+        ///     Delete all workout to training day records for the provided template id
+        /// </summary>
+        /// <param name="templateId">
+        ///     The template id
+        /// </param>
+        public Task<ServiceActionResult<BaseModel>> DeleteWorkoutToTrainingDayRecs(long templateId);
+    }
+}
