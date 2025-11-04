@@ -89,5 +89,16 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
         ///     The template id
         /// </param>
         public Task<ServiceActionResult<BaseModel>> DeleteWorkoutToTrainingDayRecs(long templateId);
+
+        /// <summary>
+        ///     Assign the training plan to the members
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data (training plan id and member ids)
+        /// </param>
+        /// <param name="coachId">
+        ///     The coach id
+        /// </param>
+        public Task<ServiceActionResult<BaseModel>> AssignTrainingPlan(Dictionary<string, string> requestData, string coachId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services.Teams.Models;
 
 namespace FitnessAppAPI.Data.Services.Notifications.Models
 {
@@ -22,6 +23,6 @@ namespace FitnessAppAPI.Data.Services.Notifications.Models
 
         public required bool ClickDisabled{ get; set; }
 
-        public required long? AssignedWorkoutId { get; set; }
+        public required AssignedWorkoutModel? AssignedWorkout { get; set; }
     }
 }

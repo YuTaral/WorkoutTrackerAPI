@@ -5,8 +5,8 @@ using FitnessAppAPI.Data.Models;
 namespace FitnessAppAPI.Data.Services.TrainingPrograms.Models
 {
     /// <summary>
-    ///     TrainingProgramModel class representing a training program.
-    ///     Must correspond with client-side TrainingProgramModel class
+    ///     TrainingPlanModel class representing a training program.
+    ///     Must correspond with client-side TrainingPlanModel class
     /// </summary>
     public class TrainingPlanModel : BaseModel
     {

@@ -12,7 +12,7 @@ namespace FitnessAppAPI.Data.Models
         [Key]
         public long Id { get; set; }
 
-        [ForeignKey("TrainingProgram")]
-        public required long TrainingProgramId { get; set; }
+        [ForeignKey("TrainingPlan")]
+        public required long TrainingPlanId { get; set; }
     }
 }

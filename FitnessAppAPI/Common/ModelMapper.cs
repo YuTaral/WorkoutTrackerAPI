@@ -6,7 +6,6 @@ using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.EntityFrameworkCore;
 using FitnessAppAPI.Data.Services.Teams.Models;
 using FitnessAppAPI.Data.Services.Notifications.Models;
-using static FitnessAppAPI.Common.Constants;
 using FitnessAppAPI.Data.Services.UserProfiles.Models;
 using FitnessAppAPI.Data.Services.Users.Models;
 using FitnessAppAPI.Data.Services.TrainingPrograms.Models;
@@ -350,7 +349,14 @@ namespace FitnessAppAPI.Common
                     img = Utils.EncodeByteArrayToBase64Image(user.ProfileImage);
                 }
 
-            } 
+            }
+
+            AssignedWorkoutModel? assignedWorkoutModel = null;
+            var assignedWorkout = await DBAccess.AssignedWorkouts.Where(aw => aw.Id == notification.AssignedWorkoutId).FirstOrDefaultAsync();
+            if (assignedWorkout != null)
+            {
+                assignedWorkoutModel = await MapToAssignedWorkoutModel(assignedWorkout, DBAccess);
+            }
 
             return new NotificationModel
             {
@@ -362,7 +368,7 @@ namespace FitnessAppAPI.Common
                 Image = img,
                 TeamId = notification.TeamId,
                 ClickDisabled = NotificationNotClickable(notification.IsActive, notification.NotificationType),
-                AssignedWorkoutId = notification.AssignedWorkoutId,
+                AssignedWorkout = assignedWorkoutModel,
             };
         }
 
@@ -370,8 +376,13 @@ namespace FitnessAppAPI.Common
         /// <summary>
         ///     Map the assigned workout to assigned workout model
         /// </summary>
-        public static async Task<AssignedWorkoutModel> MapToAssignedWorkoutModel(AssignedWorkout assignedWorkout, FitnessAppAPIContext DBAccess)
+        public static async Task<AssignedWorkoutModel> MapToAssignedWorkoutModel(AssignedWorkout? assignedWorkout, FitnessAppAPIContext DBAccess)
         {
+            if (assignedWorkout == null)
+            {
+                return GetEmptyAssignedWorkoutModell();
+            }
+
             var teamMemberRecord = await DBAccess.TeamMembers.Where(t => t.Id == assignedWorkout.TeamMemberId).FirstOrDefaultAsync();
             if (teamMemberRecord == null)
             {
@@ -424,7 +435,7 @@ namespace FitnessAppAPI.Common
                 TeamId = team.Id,
                 UserFullName = user.FullName,
                 
-                DateTimeAssigned = DateTime.SpecifyKind(assignedWorkout.DateAssigned, DateTimeKind.Utc)
+                ScheduledForDate = DateTime.SpecifyKind(assignedWorkout.ScheduledForDate, DateTimeKind.Utc)
             };
         }
 
@@ -454,7 +465,7 @@ namespace FitnessAppAPI.Common
             }
 
             // Find all training days for the program
-            var trainingDays = await DBAccess.TrainingDays.Where(td => td.TrainingProgramId == trainingProgram.Id).ToListAsync();
+            var trainingDays = await DBAccess.TrainingDays.Where(td => td.TrainingPlanId == trainingProgram.Id).ToListAsync();
             var trainingDayModels = new List<TrainingDayModel>();
 
             // Go through each training day
@@ -480,7 +491,7 @@ namespace FitnessAppAPI.Common
                     new TrainingDayModel
                     {
                         Id = day.Id,
-                        ProgramId = day.TrainingProgramId,
+                        ProgramId = day.TrainingPlanId,
                         Workouts = workoutModels
                     }
                 );
@@ -649,7 +660,7 @@ namespace FitnessAppAPI.Common
                 TeamImage = "",
                 TeamId = 0L,
                 UserFullName = "",
-                DateTimeAssigned = DateTime.UtcNow,
+                ScheduledForDate = DateTime.UtcNow,
             };
         }
     } 

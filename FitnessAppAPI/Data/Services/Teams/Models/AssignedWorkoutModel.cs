@@ -14,7 +14,7 @@ namespace FitnessAppAPI.Data.Services.Teams.Models
         public required string TeamImage { get; set; }
         public required long TeamId { get; set; }
         public required string UserFullName { get; set; }
-        public required DateTime DateTimeAssigned { get; set; }
+        public required DateTime ScheduledForDate { get; set; }
         public DateTime? DateTimeCompleted { get; set; }
     }
 }

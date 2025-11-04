@@ -12,7 +12,7 @@ namespace FitnessAppAPI.Data.Models
         [Key]
         public long Id { get; set; }
 
-        public required DateTime DateAssigned { get; set; }
+        public required DateTime ScheduledForDate { get; set; }
 
         [ForeignKey("Workout")]
         public required long TemplateId { get; set; }

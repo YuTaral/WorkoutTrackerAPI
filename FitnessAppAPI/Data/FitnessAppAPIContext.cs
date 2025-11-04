@@ -213,11 +213,11 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .HasForeignKey(w => w.UserId)
                .OnDelete(DeleteBehavior.Cascade);
 
-        // TrainingDay -> TrainingPlan relation via TrainingDay.TrainingProgramId
+        // TrainingDay -> TrainingPlan relation via TrainingDay.TrainingPlanId
         modelBuilder.Entity<TrainingDay>()
                .HasOne<TrainingPlan>()
                .WithMany()
-               .HasForeignKey(d => d.TrainingProgramId)
+               .HasForeignKey(d => d.TrainingPlanId)
                .OnDelete(DeleteBehavior.Cascade);
 
         // WorkoutToTrainingDay -> TrainingDay relation via WorkoutToTrainingDay.TrainingDayId

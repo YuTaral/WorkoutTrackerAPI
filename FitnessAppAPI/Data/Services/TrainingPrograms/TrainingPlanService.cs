@@ -118,7 +118,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
 
             var trainingDay = new TrainingDay
             {
-                TrainingProgramId = trainingDayData.ProgramId,
+                TrainingPlanId = trainingDayData.ProgramId,
             };
 
             await DBAccess.TrainingDays.AddAsync(trainingDay);
@@ -141,7 +141,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
                 await DBAccess.SaveChangesAsync();
             }
 
-            var trainingProgram = await CheckTrainingProgramExists(trainingDay.TrainingProgramId, userId);
+            var trainingProgram = await CheckTrainingProgramExists(trainingDay.TrainingPlanId, userId);
             return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.Created, MSG_SUCCESS, [await ModelMapper.MapToTrainingProgramModel(trainingProgram, DBAccess)]);
         }
 
@@ -206,7 +206,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
             DBAccess.TrainingDays.Remove(trainingDay);
             await DBAccess.SaveChangesAsync();
 
-            var trainingProgram = await CheckTrainingProgramExists(trainingDay.TrainingProgramId, userId);
+            var trainingProgram = await CheckTrainingProgramExists(trainingDay.TrainingPlanId, userId);
             return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.Created, MSG_SUCCESS,
                 [await ModelMapper.MapToTrainingProgramModel(trainingProgram, DBAccess)]);
         }
@@ -216,6 +216,29 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
             var records = DBAccess.WorkoutToTrainingDays.Where(wt => wt.WorkoutId == templateId);
             DBAccess.WorkoutToTrainingDays.RemoveRange(records);
             await DBAccess.SaveChangesAsync();
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
+        }
+
+        public async Task<ServiceActionResult<BaseModel>> AssignTrainingPlan(Dictionary<string, string> requestData, string coachId)
+        {
+            // Check if the neccessary data is provided
+            if (!requestData.TryGetValue("trainingPlanId", out string? trainingPlanIdString))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_TRAINING_PROGRAM_ID_NOT_PROVIDED);
+            }
+
+            if (!long.TryParse(trainingPlanIdString, out long trainingPlanId))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_TRAINING_PROGRAM_ID_NOT_PROVIDED);
+            }
+
+            if (!requestData.TryGetValue("memberIds", out string? memberIdsString))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_MEMBER_IDS_NOT_PROVIDED);
+            }
+
+            List<long> teamMemberIds = JsonConvert.DeserializeObject<List<long>>(memberIdsString!)!;
+
             return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
         }
 

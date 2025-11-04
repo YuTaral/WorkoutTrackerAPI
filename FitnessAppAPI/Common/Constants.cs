@@ -78,10 +78,12 @@ namespace FitnessAppAPI.Common
         public const string MSG_ACC_NOT_VERIFILED = "Please verify your email";
         public const string MSG_ACC_VERIFICATIO_FAILED = "Email verification failed. Please try again";
         public const string MSG_ACC_VERIFILED = "Email verification successful";
-        public const string MSG_TRAINING_DATA_ADD_FAIL_NO_DATA = "Training program data not provided";
-        public const string MSG_TRAINING_PROGRAM_NOT_FOUND = "Training program not found";
+        public const string MSG_TRAINING_DATA_ADD_FAIL_NO_DATA = "Training plan data not provided";
+        public const string MSG_TRAINING_PROGRAM_NOT_FOUND = "Training plan not found";
         public const string MSG_TRAINING_DAY_ADD_FAIL_NO_DATA = "Training day data not provided";
         public const string MSG_TRAINING_DAY_NOT_FOUND = "Training day not found";
+        public const string MSG_TRAINING_PROGRAM_ID_NOT_PROVIDED = "Training plan id not provided";
+
 
 
         /// <summary>
@@ -146,7 +148,7 @@ namespace FitnessAppAPI.Common
             public const string WORKOUTS = $"{API}/workouts";
             public const string MUSCLE_GROUPS = $"{API}/muscle-groups";
             public const string SYSTEM_LOGS = $"{API}/system-logs";
-            public const string TRAINING_PROGRAMS = $"{API}/training-programs";
+            public const string TRAINING_PLANS = $"{API}/training-plans";
 
             public const string REGISTER = $"{USERS}/register";
             public const string LOGIN = $"{USERS}/login";
@@ -187,7 +189,8 @@ namespace FitnessAppAPI.Common
 
             public const string FINISH_WORKOUT = $"{WORKOUTS}/finish";
 
-            public const string TRAINING_DAYS = $"{TRAINING_PROGRAMS}/days";
+            public const string TRAINING_DAYS = $"{TRAINING_PLANS}/days";
+            public const string TRAINING_PLANS_ASSIGN = $"{TRAINING_PLANS}/assign";
         }
 
         /// <summary>

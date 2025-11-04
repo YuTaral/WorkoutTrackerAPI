@@ -3,6 +3,7 @@ using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Notifications;
 using FitnessAppAPI.Data.Services.Notifications.Models;
 using FitnessAppAPI.Data.Services.Teams.Models;
+using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Net;
@@ -459,31 +460,21 @@ namespace FitnessAppAPI.Data.Services.Teams
                 return new ServiceActionResult<long>(HttpStatusCode.BadRequest, MSG_MEMBER_IDS_NOT_PROVIDED);
             }
 
+            if (!requestData.TryGetValue("startDate", out string? startDateString))
+            {
+                return new ServiceActionResult<long>(HttpStatusCode.BadRequest, MSG_INVALID_DATE_FORMAT);
+            }
+
+            if (!DateTime.TryParse(startDateString, out DateTime startDate))
+            {
+                return new ServiceActionResult<long>(HttpStatusCode.BadRequest, MSG_INVALID_DATE_FORMAT);
+            }
+
             List<long> teamMemberIds = JsonConvert.DeserializeObject<List<long>>(memberIdsString!)!;
 
             foreach (long id in teamMemberIds)
             {
-                // Find the TeamMember record
-                var teamMemberRecord = DBAccess.TeamMembers.Where(tm => tm.Id == id).FirstOrDefault();
-
-                if (teamMemberRecord == null)
-                {
-                    continue;
-                }
-
-                var record = new AssignedWorkout
-                {
-                    DateAssigned = DateTime.UtcNow,
-                    TemplateId = workoutId,
-                    TeamMemberId = id,
-                    State = AssignedWorkoutState.ASSIGNED.ToString(),
-                };
-
-                await DBAccess.AssignedWorkouts.AddAsync(record);
-                await DBAccess.SaveChangesAsync();
-
-                // Send notification
-                await notificationService.AddWorkoutAssignedNotification(coachId, teamMemberRecord.TeamId, teamMemberRecord.UserId, record.Id);
+                await AssingWorkoutToMember(id, workoutId, coachId, startDate);
             }
 
             return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_WORKOUT_ASSIGNED);
@@ -596,8 +587,8 @@ namespace FitnessAppAPI.Data.Services.Teams
             var teamMemberUsedIds = teamMembers.Select(tm => tm.UserId).ToList();
 
             var assignedWorkouts = await DBAccess.AssignedWorkouts
-                    .Where(a => a.DateAssigned >= date && teamMemberIds.Contains(a.TeamMemberId))
-                    .OrderByDescending(a => a.DateAssigned)
+                    .Where(a => a.ScheduledForDate >= date && teamMemberIds.Contains(a.TeamMemberId))
+                    .OrderByDescending(a => a.ScheduledForDate)
                     .ToListAsync();
 
             if (assignedWorkouts.Count == 0) {
@@ -628,6 +619,32 @@ namespace FitnessAppAPI.Data.Services.Teams
             }
 
             return new ServiceActionResult<AssignedWorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, [await ModelMapper.MapToAssignedWorkoutModel(assignedWorkout, DBAccess)]);
+        }
+
+        private async Task<ServiceActionResult<long>> AssingWorkoutToMember(long teamMemberId, long workoutId, string coachId, DateTime dateAssigned)
+        {
+            // Find the TeamMember record
+            var teamMemberRecord = DBAccess.TeamMembers.Where(tm => tm.Id == teamMemberId).FirstOrDefault();
+            if (teamMemberRecord == null)
+            {
+                return new ServiceActionResult<long>(HttpStatusCode.NotFound, MSG_MEMBER_IS_NOT_IN_TEAM);
+            }
+
+            var record = new AssignedWorkout
+            {
+                ScheduledForDate = dateAssigned,
+                TemplateId = workoutId,
+                TeamMemberId = teamMemberId,
+                State = AssignedWorkoutState.ASSIGNED.ToString(),
+            };
+
+            await DBAccess.AssignedWorkouts.AddAsync(record);
+            await DBAccess.SaveChangesAsync();
+
+            // Send notification
+            await notificationService.AddWorkoutAssignedNotification(coachId, teamMemberRecord.TeamId, teamMemberRecord.UserId, record.Id);
+
+            return new ServiceActionResult<long>(HttpStatusCode.OK);
         }
 
         /// <summary>

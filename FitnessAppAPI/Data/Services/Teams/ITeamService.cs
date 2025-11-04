@@ -139,7 +139,7 @@ namespace FitnessAppAPI.Data.Services.Teams
         ///     Assign the workout to the members
         /// </summary>
         /// <param name="requestData">
-        ///     The request data (workout id and member ids)
+        ///     The request data (workout id, member ids and workout start date)
         /// </param>
         /// <param name="coachId">
         ///     The coach id

@@ -9,7 +9,7 @@ namespace FitnessAppAPI.Controllers
     ///     Training program Controller
     /// </summary>
     [ApiController]
-    [Route(RequestEndPoints.TRAINING_PROGRAMS)]
+    [Route(RequestEndPoints.TRAINING_PLANS)]
     public class TrainingPlanController(ITrainingPlanService s) : BaseController
     {
         /// <summary>
@@ -88,7 +88,14 @@ namespace FitnessAppAPI.Controllers
             return await SendResponse(await service.DeleteTrainingDay(trainingDayId, GetUserId()));
         }
 
-
-
+        /// <summary>
+        //      POST request to assign the training plan
+        /// </summary>
+        [HttpPost(RequestEndPoints.TRAINING_PLANS_ASSIGN)]
+        [Authorize]
+        public async Task<ActionResult> AssignTrainingPlan([FromBody] Dictionary<string, string> requestData)
+        {
+            return await SendResponse(await service.AssignTrainingPlan(requestData, GetUserId()));
+        }
     }
 }
