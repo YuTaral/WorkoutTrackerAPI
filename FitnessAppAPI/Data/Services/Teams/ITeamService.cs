@@ -181,8 +181,8 @@ namespace FitnessAppAPI.Data.Services.Teams
         /// <summary>
         ///     Get the assigned workouts
         /// </summary>
-        /// <param name="coachId">
-        ///     The coach id who assigned the workouts
+        /// <param name="userId">
+        ///     The coach id who assigned the workouts or member id to whom the workouts were assigned
         /// </param>
         /// <param name="startDate">
         ///     The start date filter
@@ -190,7 +190,10 @@ namespace FitnessAppAPI.Data.Services.Teams
         /// <param name="teamId">
         ///     The team id filter (0 if not applied)
         /// </param>
-        public Task<ServiceActionResult<AssignedWorkoutModel>> GetAssignedWorkouts(string startDate, long teamId, string coachId);
+        /// <param name="teamType">
+        ///     The team type
+        /// </param>
+        public Task<ServiceActionResult<AssignedWorkoutModel>> GetAssignedWorkouts(string startDate, long teamId, string teamType, string userId);
 
         /// <summary>
         ///     Fetch the assigned workout with the specified id

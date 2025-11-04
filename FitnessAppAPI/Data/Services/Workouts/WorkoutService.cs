@@ -2,6 +2,7 @@
 using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Exercises;
 using FitnessAppAPI.Data.Services.Exercises.Models;
+using FitnessAppAPI.Data.Services.Notifications;
 using FitnessAppAPI.Data.Services.Teams;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,8 @@ namespace FitnessAppAPI.Data.Services.Workouts
     ///     Workout service class to implement IWorkoutService interface.
     /// </summary>
 
-    public class WorkoutService(FitnessAppAPIContext DB, IExerciseService eService, ITeamService tService) : BaseService(DB), IWorkoutService
+    public class WorkoutService(FitnessAppAPIContext DB, IExerciseService eService, 
+                                ITeamService tService, INotificationService nService) : BaseService(DB), IWorkoutService
     {
 
         /// <summary>
@@ -27,6 +29,11 @@ namespace FitnessAppAPI.Data.Services.Workouts
         //      TeamService instance
         /// </summary>
         private readonly ITeamService teamService = tService;
+
+        /// <summary>
+        //      NotificationService instance
+        /// </summary>
+        private readonly INotificationService notificationService = nService;
 
         public async Task<ServiceActionResult<WorkoutModel>> AddWorkout(Dictionary<string, string> requestData, string userId)
         {
@@ -76,6 +83,7 @@ namespace FitnessAppAPI.Data.Services.Workouts
                 if (long.TryParse(assignedWorkoutIdString, out long assignedWorkoutId))
                 {
                     await teamService.UpdateAssignedWorkoutStarted(assignedWorkoutId, workout.Id);
+                    await notificationService.UpdateAssignedWorkoutNotificationToInactive(assignedWorkoutId);
                 }
             }
 

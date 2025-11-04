@@ -69,8 +69,8 @@ namespace FitnessAppAPI.Common
         public const string MSG_WORKOUT_ASSIGNED = "Workout assigned to members";
         public const string MSG_ASSIGNED_WORKOUT_ID_NOT_PROVIDED = "Assigned workout id not provided";
         public const string MSG_NO_TEAMS = "You don't have any teams";
-        public const string MSG_NO_TEAM_MEMBERS = "You don't have any members in your teams";
-        public const string MSG_WORKOUT_ASSIGNMENTS = "You don't have any assigned workouts with the selected filters";
+        public const string MSG_NO_TEAM_MEMBERS = "There is no members in this team";
+        public const string MSG_WORKOUT_ASSIGNMENTS = "There are no any assigned workouts with the selected filters";
         public const string MSG_CHECK_EMAIL = "Verification code has been sent to the email";
         public const string MSG_INVALID_CODE = "Invalid code";
         public const string MSG_PASSWORD_RESET_SUCCESS = "Your password has been updated succesfully";

@@ -156,5 +156,13 @@ namespace FitnessAppAPI.Data.Services.Notifications
         /// </param>
         /// 
         public Task<ServiceActionResult<BaseModel>> AssignedWorkoutFinishedNotification(string senderUserId, string receiverUserId, long teamId, long assignedWorkoutRecId);
+
+        /// <summary>
+        ///     Update the notification related to this assigned workout and mark it as inactive
+        /// </summary>
+        /// <param name="assignedWorkoutId">
+        ///     The assigned workout id
+        /// </param>
+        public Task<ServiceActionResult<BaseModel>> UpdateAssignedWorkoutNotificationToInactive(long assignedWorkoutId);
     }
 }

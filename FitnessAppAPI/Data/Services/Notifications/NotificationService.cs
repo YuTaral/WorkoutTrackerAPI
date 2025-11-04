@@ -325,7 +325,19 @@ namespace FitnessAppAPI.Data.Services.Notifications
             return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
         }
 
-        public async Task<ServiceActionResult<BaseModel>> AddWorkoutAssignmentDeclinedNotification(string senderUserId, long teamId, string receiverUserId)
+        public async Task<ServiceActionResult<BaseModel>> UpdateAssignedWorkoutNotificationToInactive(long assignedWorkoutId)
+        {
+            // Find the notification for this assignedWorkoutId
+            var notification = await DBAccess.Notifications.Where(n => n.AssignedWorkoutId == assignedWorkoutId).FirstOrDefaultAsync();
+            if (notification == null)
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound);
+            }
+
+            return await UpdateNotification(notification.Id, false);
+        }
+
+        private async Task<ServiceActionResult<BaseModel>> AddWorkoutAssignmentDeclinedNotification(string senderUserId, long teamId, string receiverUserId)
         {
             var senderName = await DBAccess.UserProfiles.Where(u => u.UserId == senderUserId).Select(t => t.FullName).FirstOrDefaultAsync();
             

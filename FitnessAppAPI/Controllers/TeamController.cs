@@ -177,9 +177,9 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpGet(RequestEndPoints.ASSIGNED_WORKOUTS)]
         [Authorize]
-        public async Task<ActionResult> GetAssignedWorkouts([FromQuery] string startDate, [FromQuery] long teamId)
+        public async Task<ActionResult> GetAssignedWorkouts([FromQuery] string startDate, [FromQuery] long teamId, [FromQuery] string teamType)
         {
-            return await SendResponse(await service.GetAssignedWorkouts(startDate, teamId, GetUserId()));
+            return await SendResponse(await service.GetAssignedWorkouts(startDate, teamId, teamType, GetUserId()));
         }
 
         /// <summary>
