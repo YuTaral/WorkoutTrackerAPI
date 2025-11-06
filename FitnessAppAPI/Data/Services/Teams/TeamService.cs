@@ -673,7 +673,7 @@ namespace FitnessAppAPI.Data.Services.Teams
             var teamMemberUsedIds = teamMembers.Select(tm => tm.UserId).ToList();
 
             var assignedWorkouts = await DBAccess.AssignedWorkouts
-                    .Where(a => a.ScheduledForDate >= date && teamMemberIds.Contains(a.TeamMemberId))
+                    .Where(a => teamMemberIds.Contains(a.TeamMemberId) && a.ScheduledForDate >= date)
                     .OrderByDescending(a => a.ScheduledForDate)
                     .ToListAsync();
 
@@ -724,7 +724,7 @@ namespace FitnessAppAPI.Data.Services.Teams
             var teamMemberUsedIds = teamMembers.Select(tm => tm.UserId).ToList();
 
             var assignedWorkouts = await DBAccess.AssignedWorkouts
-                    .Where(a => a.ScheduledForDate >= date && teamMemberIds.Contains(a.TeamMemberId))
+                    .Where(a => teamMemberIds.Contains(a.TeamMemberId) && a.ScheduledForDate >= date)
                     .OrderByDescending(a => a.ScheduledForDate)
                     .ToListAsync();
 
