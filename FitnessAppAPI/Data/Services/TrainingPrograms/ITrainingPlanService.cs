@@ -17,7 +17,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
         /// <param name="userId">
         ///     The user who is adding the training program
         /// </param>
-        public Task<ServiceActionResult<TrainingPlanModel>> AddTrainingProgram(Dictionary<string, string> requestData, string userId);
+        public Task<ServiceActionResult<TrainingPlanModel>> AddTrainingPlan(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
         ///     Edit the training program from the provided TrainingProgramModel data
@@ -28,7 +28,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
         /// <param name="userId">
         ///     The user who is updating the training program
         /// </param>
-        public Task<ServiceActionResult<TrainingPlanModel>> UpdateTrainingProgram(Dictionary<string, string> requestData, string userId);
+        public Task<ServiceActionResult<TrainingPlanModel>> UpdateTrainingPlan(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
         ///     Delete the training program with the provided id
@@ -39,7 +39,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
         /// <param name="userId">
         ///     The user who is deleting the training program
         /// </param>
-        public Task<ServiceActionResult<TrainingPlanModel>> DeleteTrainingProgram(long trainingProgramId, string userId);
+        public Task<ServiceActionResult<TrainingPlanModel>> DeleteTrainingPlan(long trainingProgramId, string userId);
 
         /// <summary>
         ///     Fetch the training programs for the user and returns TrainingProgramModel list
@@ -47,7 +47,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public Task<ServiceActionResult<TrainingPlanModel>> GetTrainingPrograms(string userId);
+        public Task<ServiceActionResult<TrainingPlanModel>> GetTrainingPlans(string userId);
 
         /// <summary>
         ///     Add new training day to the program program from the provided TrainingDayModel model
@@ -58,7 +58,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
         /// <param name="userId">
         ///     The user who is adding the day
         /// </param>
-        public Task<ServiceActionResult<TrainingPlanModel>> AddTrainingDayToProgram(Dictionary<string, string> requestData, string userId);
+        public Task<ServiceActionResult<TrainingPlanModel>> AddTrainingDayToPlan(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
         ///     Add update the training day from the provided TrainingDayModel model
@@ -69,7 +69,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
         /// <param name="userId">
         ///     The user who is adding the day
         /// </param>
-        public Task<ServiceActionResult<TrainingPlanModel>> UpdateTrainingDayToProgram(Dictionary<string, string> requestData, string userId);
+        public Task<ServiceActionResult<TrainingPlanModel>> UpdateTrainingDayToPlan(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
         ///     Delete the training day with the provided id
@@ -100,5 +100,24 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
         ///     The coach id
         /// </param>
         public Task<ServiceActionResult<BaseModel>> AssignTrainingPlan(Dictionary<string, string> requestData, string coachId);
+
+        /// <summary>
+        ///     Get the training plan by the provided assigned training plan id
+        /// </summary>
+        /// <param name="assignedTrainingPlanId">
+        ///     The assigned training plan id
+        /// </param>
+        public Task<ServiceActionResult<TrainingPlanModel>> GetTrainingPlan(long assignedTrainingPlanId);
+
+        /// <summary>
+        ///     Start the training plan
+        /// </summary>
+        /// <param name="requestData">
+        ///     The request data
+        /// </param>
+        /// <param name="userId">
+        ///     The user id
+        /// </param>
+        public Task<ServiceActionResult<TrainingPlanModel>> StartTrainingPlan(Dictionary<string, string> requestData, string userId);
     }
 }

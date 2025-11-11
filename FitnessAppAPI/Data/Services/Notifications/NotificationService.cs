@@ -358,6 +358,24 @@ namespace FitnessAppAPI.Data.Services.Notifications
             return await AddNotification(notification);
         }
 
+        public async Task<ServiceActionResult<BaseModel>> AddTrainingPlanAssignedNotification(string senderUserId, long teamId, string receiverUserId, long assignedTrainingPlanId)
+        {
+            var notification = new Notification
+            {
+                NotificationType = NotificationType.TRAINING_PLAN_ASSIGNED.ToString(),
+                ReceiverUserId = receiverUserId,
+                SenderUserId = senderUserId,
+                NotificationText = DBConstants.TrainingPlanAssigned,
+                DateTime = DateTime.UtcNow,
+                IsActive = true,
+                TeamId = teamId,
+                AssignedTrainingPlanId = assignedTrainingPlanId
+            };
+
+            return await AddNotification(notification);
+        }
+
+
         private async Task<ServiceActionResult<BaseModel>> DeleteNotifications(List<Notification> notifications)
         {
             DBAccess.RemoveRange(notifications);

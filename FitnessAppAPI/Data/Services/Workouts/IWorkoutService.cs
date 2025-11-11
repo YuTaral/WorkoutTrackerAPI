@@ -20,6 +20,23 @@ namespace FitnessAppAPI.Data.Services.Workouts
         public Task<ServiceActionResult<WorkoutModel>> AddWorkout(Dictionary<string, string> requestData, string userId);
 
         /// <summary>
+        ///     Add new workout from the provided WorkoutModel data
+        /// </summary>
+        /// <param name="workoutData">
+        ///     The workout data
+        /// </param>
+        /// <param name="scheduledDateTime">
+        ///     The scheduled date time (may be null when the workout is not assigned)
+        /// </param>
+        /// <param name="assignedWorkoutId">
+        ///     The assigned workout id (may be 0)
+        /// </param>
+        /// <param name="userId">
+        ///     The user who is adding the workout
+        /// </param>
+        public Task<ServiceActionResult<WorkoutModel>> AddWorkout(WorkoutModel workoutData, DateTime? scheduledDateTime, long assignedWorkoutId, string userId);
+
+        /// <summary>
         ///     Edit the workout from the provided WorkoutModel data
         /// </summary>
         /// <param name="requestData">

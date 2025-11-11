@@ -83,8 +83,9 @@ namespace FitnessAppAPI.Common
         public const string MSG_TRAINING_DAY_ADD_FAIL_NO_DATA = "Training day data not provided";
         public const string MSG_TRAINING_DAY_NOT_FOUND = "Training day not found";
         public const string MSG_TRAINING_PROGRAM_ID_NOT_PROVIDED = "Training plan id not provided";
-
-
+        public const string MSG_TRAINING_PLAN_ASSIGNED = "Training plan assigned to members";
+        public const string MSG_MEMBER_NOT_FOUND = "Team member not found";
+        public const string MSG_ASSIGNED_TRAINING_PLAN_NOT_FOUND = "Assigned training plan not found";
 
         /// <summary>
         ///     Class containing the DB constants
@@ -104,6 +105,7 @@ namespace FitnessAppAPI.Common
             public const string DeclineTeamInvitationNotification = "{0} declined your request to join team {1}";
             public const string WorkoutAssigned = "You have new workout assignment";
             public const string WorkoutAssignmentDeclined = "{0} declined your workout assignment";
+            public const string TrainingPlanAssigned = "You have new training plan assignment";
         }
 
         /// <summary>
@@ -191,6 +193,8 @@ namespace FitnessAppAPI.Common
 
             public const string TRAINING_DAYS = $"{TRAINING_PLANS}/days";
             public const string TRAINING_PLANS_ASSIGN = $"{TRAINING_PLANS}/assign";
+            public const string TRAINING_PLANS_START = $"{TRAINING_PLANS}/start";
+            public const string TRAINING_PLAN_BY_ASSIGNED_ID = $"{TRAINING_PLANS}/get-by-assigned-id";
         }
 
         /// <summary>
@@ -215,6 +219,7 @@ namespace FitnessAppAPI.Common
             WORKOUT_ASSIGNED,
             WORKOUT_ASSIGNMENT_COMPLETED,
             WORKOUT_ASSIGNMENT_DECLINED,
+            TRAINING_PLAN_ASSIGNED,
         }
 
         /// <summary>

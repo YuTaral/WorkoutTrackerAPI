@@ -23,6 +23,8 @@ namespace FitnessAppAPI.Data.Services.Notifications.Models
 
         public required bool ClickDisabled{ get; set; }
 
-        public required AssignedWorkoutModel? AssignedWorkout { get; set; }
+        public required long? AssignedWorkoutId { get; set; }
+
+        public required long? AssignedTrainingPlanId { get; set; }
     }
 }

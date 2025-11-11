@@ -47,17 +47,57 @@ namespace FitnessAppAPI.Data.Services.Workouts
 
             // Validation passed, create the workout
             var workoutData = validationResult.Data[0];
+            var assignedWorkoutId = 0L;
+
+            if (requestData.TryGetValue("assignedWorkoutId", out string? assignedWorkoutIdString))
+            {
+                if (long.TryParse(assignedWorkoutIdString, out long value))
+                {
+                    assignedWorkoutId = value;
+                }
+            }
+
+            if (assignedWorkoutId > 0 && workoutData.Id > 0)
+            {
+                // It is workout assigned from training plan, the record is already created, mark it as started
+                return await StartAssignedWorkout(workoutData.Id, assignedWorkoutId, userId);
+            } 
+            else
+            {
+                // Add new workout
+                return await AddWorkout(workoutData, null, assignedWorkoutId, userId);
+            }
+        }
+
+        public async Task<ServiceActionResult<WorkoutModel>> AddWorkout(WorkoutModel workoutData, DateTime? scheduledDateTime, long assignedWorkoutId, string userId)
+        {
+            DateTime? startDateTime = DateTime.UtcNow.AddSeconds(-20); // Subtract 20s, sometimes there is difference between device and server's time
+
+            if (scheduledDateTime != null) {
+                // When scheduled is not null, set the start to null,
+                // This is workout created from training plan,
+                // It is scheduled, but the user will decide when to start it
+                startDateTime = null;
+            } 
+            else
+            {
+                // When scheduled is null, the workout is started manually,
+                // match the two columns
+                scheduledDateTime = startDateTime;
+            }
 
             var workout = new Workout
             {
                 Name = workoutData.Name,
                 UserId = userId,
-                StartDateTime = DateTime.UtcNow.AddSeconds(-20), // Subtract 20s, sometimes there is difference between device and server's time
+                StartDateTime = startDateTime,
                 FinishDateTime = null,
                 Template = "N",
                 DurationSeconds = 0,
                 Notes = workoutData.Notes,
-                WeightUnit = workoutData.WeightUnit
+                WeightUnit = workoutData.WeightUnit,
+                ScheduledDateTime = scheduledDateTime,
+                AssignedFromWorkoutId = assignedWorkoutId,
             };
 
             // Add the workout to make sure id is generated
@@ -73,18 +113,15 @@ namespace FitnessAppAPI.Data.Services.Workouts
 
                     if (!addExerciseResult.IsSuccess())
                     {
-                        return new ServiceActionResult<WorkoutModel>((HttpStatusCode) addExerciseResult.Code, addExerciseResult.Message);
+                        return new ServiceActionResult<WorkoutModel>((HttpStatusCode)addExerciseResult.Code, addExerciseResult.Message);
                     }
                 }
             }
-
-            if (requestData.TryGetValue("assignedWorkoutId", out string? assignedWorkoutIdString))
+           
+            if (assignedWorkoutId > 0)
             {
-                if (long.TryParse(assignedWorkoutIdString, out long assignedWorkoutId))
-                {
-                    await teamService.UpdateAssignedWorkoutStarted(assignedWorkoutId, workout.Id);
-                    await notificationService.UpdateAssignedWorkoutNotificationToInactive(assignedWorkoutId);
-                }
+                await teamService.UpdateAssignedWorkoutStarted(assignedWorkoutId, workout.Id);
+                await notificationService.UpdateAssignedWorkoutNotificationToInactive(assignedWorkoutId);
             }
 
             return new ServiceActionResult<WorkoutModel>(HttpStatusCode.Created, MSG_SUCCESS, [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
@@ -183,8 +220,8 @@ namespace FitnessAppAPI.Data.Services.Workouts
             }
 
             // Start the query
-            var workouts = await DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "N" && w.StartDateTime >= date)
-                                                    .OrderByDescending(w => w.StartDateTime)
+            var workouts = await DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "N" && w.ScheduledDateTime >= date)
+                                                    .OrderByDescending(w => w.ScheduledDateTime)
                                                     .ToListAsync();
 
             // Create the list asynchonously
@@ -197,6 +234,34 @@ namespace FitnessAppAPI.Data.Services.Workouts
 
             return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, workoutModels);
         }
+
+        /// <summary>
+        ///    Start the assigned workout
+        /// </summary>
+        /// <param name="workoutId">
+        ///     The workout id
+        /// </param>
+        /// <param name="userId">
+        ///     The userId owner of the workout
+        /// </param>
+        private async Task<ServiceActionResult<WorkoutModel>> StartAssignedWorkout(long workoutId, long assignedWorkoutId, string userId)
+        {
+            var workout = await CheckWorkoutExists(workoutId, userId);
+            if (workout == null)
+            {
+                return new ServiceActionResult<WorkoutModel>(HttpStatusCode.NotFound, MSG_WORKOUT_DOES_NOT_EXIST);
+            }
+
+            workout.StartDateTime = DateTime.UtcNow.AddSeconds(-20); // Subtract 20s, sometimes there is difference between device and server's time
+            DBAccess.Entry(workout).State = EntityState.Modified;
+            await DBAccess.SaveChangesAsync();
+
+            await teamService.UpdateAssignedWorkoutStarted(assignedWorkoutId, workout.Id);
+
+            return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, 
+                [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
+        }
+
 
         /// <summary>
         ///     Perform a check whether the workout exists, returns workout object if it exists,

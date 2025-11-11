@@ -40,16 +40,32 @@ namespace FitnessAppAPI.Common
                                                  .ToListAsync(),
                     DurationSeconds = workout.DurationSeconds,
                     Notes = workout.Notes,
-                    WeightUnit = workout.WeightUnit
+                    WeightUnit = workout.WeightUnit,
+                    AssignedWorkoutId = 0
                 };
             } 
             else
             {
+                DateTime? startDateTime = null;
+
+                if (workout.StartDateTime != null)
+                {
+                    startDateTime = DateTime.SpecifyKind(workout.StartDateTime.Value, DateTimeKind.Utc);
+                }
+
+                long assignedWorkoutId = 0L;
+
+                if (workout.AssignedFromWorkoutId != null)
+                {
+                    assignedWorkoutId = workout.AssignedFromWorkoutId.Value;
+                }
+
                 return new WorkoutModel
                 {
                     Id = workout.Id,
                     Name = workout.Name,
-                    StartDateTime = DateTime.SpecifyKind(workout.StartDateTime.GetValueOrDefault(), DateTimeKind.Utc),
+                    StartDateTime = startDateTime,
+                    ScheduledDateTime = workout.ScheduledDateTime,
                     FinishDateTime = workout.FinishDateTime.HasValue ? DateTime.SpecifyKind(workout.FinishDateTime.Value, DateTimeKind.Utc) : null,
                     Template = workout.Template == "Y",
                     Exercises = await DBAccess.Exercises.Where(e => e.WorkoutId == workout.Id)
@@ -57,7 +73,8 @@ namespace FitnessAppAPI.Common
                                                                  .ToListAsync(),
                     DurationSeconds = workout.DurationSeconds,
                     Notes = workout.Notes,
-                    WeightUnit = workout.WeightUnit
+                    WeightUnit = workout.WeightUnit,
+                    AssignedWorkoutId = assignedWorkoutId
                 };
             }
         }
@@ -351,13 +368,6 @@ namespace FitnessAppAPI.Common
 
             }
 
-            AssignedWorkoutModel? assignedWorkoutModel = null;
-            var assignedWorkout = await DBAccess.AssignedWorkouts.Where(aw => aw.Id == notification.AssignedWorkoutId).FirstOrDefaultAsync();
-            if (assignedWorkout != null)
-            {
-                assignedWorkoutModel = await MapToAssignedWorkoutModel(assignedWorkout, DBAccess);
-            }
-
             return new NotificationModel
             {
                 Id = notification.Id,
@@ -368,7 +378,8 @@ namespace FitnessAppAPI.Common
                 Image = img,
                 TeamId = notification.TeamId,
                 ClickDisabled = NotificationNotClickable(notification.IsActive, notification.NotificationType),
-                AssignedWorkout = assignedWorkoutModel,
+                AssignedWorkoutId = notification.AssignedWorkoutId,
+                AssignedTrainingPlanId = notification.AssignedTrainingPlanId
             };
         }
 
@@ -457,15 +468,15 @@ namespace FitnessAppAPI.Common
         /// <summary>
         ///     Map the TrainingProgram to TrainingProgramModel
         /// </summary>
-        public async static Task<TrainingPlanModel> MapToTrainingProgramModel(TrainingPlan? trainingProgram, FitnessAppAPIContext DBAccess)
+        public async static Task<TrainingPlanModel> MapToTrainingPlanModel(TrainingPlan? trainingPlan, DateTime? startDate, long? assignedTrainingPlanId, FitnessAppAPIContext DBAccess)
         {
-            if (trainingProgram == null)
+            if (trainingPlan == null)
             {
                 return GetEmptyTrainingProgramModel();
             }
 
             // Find all training days for the program
-            var trainingDays = await DBAccess.TrainingDays.Where(td => td.TrainingPlanId == trainingProgram.Id).ToListAsync();
+            var trainingDays = await DBAccess.TrainingDays.Where(td => td.TrainingPlanId == trainingPlan.Id).ToListAsync();
             var trainingDayModels = new List<TrainingDayModel>();
 
             // Go through each training day
@@ -491,7 +502,7 @@ namespace FitnessAppAPI.Common
                     new TrainingDayModel
                     {
                         Id = day.Id,
-                        ProgramId = day.TrainingPlanId,
+                        TrainingPlanId = day.TrainingPlanId,
                         Workouts = workoutModels
                     }
                 );
@@ -500,10 +511,12 @@ namespace FitnessAppAPI.Common
 
             return new TrainingPlanModel
             {
-                Id = trainingProgram.Id,
-                Name = trainingProgram.Name,
-                Description = trainingProgram.Description,
+                Id = trainingPlan.Id,
+                Name = trainingPlan.Name,
+                Description = trainingPlan.Description,
                 TrainingDays = trainingDayModels,
+                ScheduledStartDate = startDate,
+                AssignedTrainingPlanId = assignedTrainingPlanId
             };
         }
 
@@ -575,7 +588,9 @@ namespace FitnessAppAPI.Common
                 Id = 0,
                 Name = "",
                 Description = "",
-                TrainingDays = []
+                TrainingDays = [],
+                ScheduledStartDate = null,
+                AssignedTrainingPlanId = null
             };
         }
 
@@ -590,10 +605,12 @@ namespace FitnessAppAPI.Common
                 Name = "",
                 DurationSeconds = 0,
                 StartDateTime = DateTime.UtcNow,
+                ScheduledDateTime = null,
                 Template = false,
                 Exercises = { },
                 Notes = "",
-                WeightUnit = ""
+                WeightUnit = "",
+                AssignedWorkoutId = 0
             };
         }
 

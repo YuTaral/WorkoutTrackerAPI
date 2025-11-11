@@ -9,7 +9,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms.Models
     /// </summary>
     public class TrainingDayModel : BaseModel
     {
-        public required long ProgramId { get; set; }
+        public required long TrainingPlanId { get; set; }
 
         public required List<WorkoutModel> Workouts { get; set; }
     }

@@ -24,7 +24,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> Add([FromBody] Dictionary<string, string> requestData)
         {
-            return await SendResponse(await service.AddTrainingProgram(requestData, GetUserId()));
+            return await SendResponse(await service.AddTrainingPlan(requestData, GetUserId()));
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> Update([FromBody] Dictionary<string, string> requestData)
         {
-            return await SendResponse(await service.UpdateTrainingProgram(requestData, GetUserId()));
+            return await SendResponse(await service.UpdateTrainingPlan(requestData, GetUserId()));
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace FitnessAppAPI.Controllers
         [Authorize]
         public async Task<ActionResult> Delete([FromQuery] long trainingProgramId)
         {
-            return await SendResponse(await service.DeleteTrainingProgram(trainingProgramId, GetUserId()));
+            return await SendResponse(await service.DeleteTrainingPlan(trainingProgramId, GetUserId()));
         }
 
         /// <summary>
@@ -52,9 +52,9 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult> GetLatestWorkouts()
+        public async Task<ActionResult> GetTrainingPlans()
         {
-            return await SendResponse(await service.GetTrainingPrograms(GetUserId()));
+            return await SendResponse(await service.GetTrainingPlans(GetUserId()));
         }
 
         /// <summary>
@@ -62,9 +62,9 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPost(RequestEndPoints.TRAINING_DAYS)]
         [Authorize]
-        public async Task<ActionResult> AddTrainingDayToProgram([FromBody] Dictionary<string, string> requestData)
+        public async Task<ActionResult> AddTrainingDayToTrainingPlan([FromBody] Dictionary<string, string> requestData)
         {
-            return await SendResponse(await service.AddTrainingDayToProgram(requestData, GetUserId()));
+            return await SendResponse(await service.AddTrainingDayToPlan(requestData, GetUserId()));
         }
 
 
@@ -73,9 +73,9 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpPatch(RequestEndPoints.TRAINING_DAYS)]
         [Authorize]
-        public async Task<ActionResult> UpdateTrainingDayToProgram([FromBody] Dictionary<string, string> requestData)
+        public async Task<ActionResult> UpdateTrainingDayToPlan([FromBody] Dictionary<string, string> requestData)
         {
-            return await SendResponse(await service.UpdateTrainingDayToProgram(requestData, GetUserId()));
+            return await SendResponse(await service.UpdateTrainingDayToPlan(requestData, GetUserId()));
         }
 
         /// <summary>
@@ -96,6 +96,26 @@ namespace FitnessAppAPI.Controllers
         public async Task<ActionResult> AssignTrainingPlan([FromBody] Dictionary<string, string> requestData)
         {
             return await SendResponse(await service.AssignTrainingPlan(requestData, GetUserId()));
+        }
+
+        /// <summary>
+        //      Get request to fetch the training plan by the provided id
+        /// </summary>
+        [HttpGet(RequestEndPoints.TRAINING_PLAN_BY_ASSIGNED_ID)]
+        [Authorize]
+        public async Task<ActionResult> GetTrainingPlan([FromQuery] long assignedTrainingPlanId)
+        {
+            return await SendResponse(await service.GetTrainingPlan(assignedTrainingPlanId));
+        }
+
+        /// <summary>
+        //      POST request to start the training plan
+        /// </summary>
+        [HttpPost(RequestEndPoints.TRAINING_PLANS_START)]
+        [Authorize]
+        public async Task<ActionResult> StartrainingPlan([FromBody] Dictionary<string, string> requestData)
+        {
+            return await SendResponse(await service.StartTrainingPlan(requestData, GetUserId()));
         }
     }
 }

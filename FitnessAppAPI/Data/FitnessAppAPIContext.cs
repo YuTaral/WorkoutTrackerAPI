@@ -27,6 +27,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
     public required DbSet<TrainingPlan> TrainingPlans { get; init; }
     public required DbSet<TrainingDay> TrainingDays { get; init; }
     public required DbSet<WorkoutToTrainingDay> WorkoutToTrainingDays { get; init; }
+    public required DbSet<AssignedTrainingPlan> AssignedTrainingPlans { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -234,6 +235,21 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
                .WithMany()
                .HasForeignKey(d => d.WorkoutId)
                .OnDelete(DeleteBehavior.NoAction);
+
+        // AssignedTrainingPlan -> TrainingPlan relation via AssignedTrainingPlan.TrainingPlanId
+        // Manually delete AssignedTrainingPlan when TrainingPlan is deleted to avoid constraint issues
+        modelBuilder.Entity<AssignedTrainingPlan>()
+               .HasOne<TrainingPlan>()
+               .WithMany()
+               .HasForeignKey(t => t.TrainingPlanId)
+               .OnDelete(DeleteBehavior.NoAction);
+
+        // AssignedTrainingPlan -> TeamMember relation via AssignedTrainingPlan.TeamMemberId
+        modelBuilder.Entity<AssignedTrainingPlan>()
+              .HasOne<TeamMember>()
+              .WithMany()
+              .HasForeignKey(t => t.TeamMemberId)
+              .OnDelete(DeleteBehavior.Cascade);
     }
 
     /// <summary>
@@ -344,6 +360,7 @@ public class FitnessAppAPIContext(DbContextOptions<FitnessAppAPIContext> options
             entity.HasIndex(n => n.SenderUserId);
             entity.HasIndex(n => n.NotificationType);
             entity.HasIndex(n => n.AssignedWorkoutId);
+            entity.HasIndex(n => n.AssignedTrainingPlanId);
         });
 
         modelBuilder.Entity<Set>(entity =>

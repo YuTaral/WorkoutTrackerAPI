@@ -3,12 +3,11 @@ using FitnessAppAPI.Data.Models;
 using FitnessAppAPI.Data.Services.Notifications;
 using FitnessAppAPI.Data.Services.Notifications.Models;
 using FitnessAppAPI.Data.Services.Teams.Models;
-using FitnessAppAPI.Data.Services.Workouts.Models;
+using FitnessAppAPI.Data.Services.Workouts;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Net;
 using static FitnessAppAPI.Common.Constants;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FitnessAppAPI.Data.Services.Teams
 {
@@ -470,7 +469,7 @@ namespace FitnessAppAPI.Data.Services.Teams
 
             foreach (long id in teamMemberIds)
             {
-                await AssingWorkoutToMember(id, workoutId, coachId, startDate);
+                await AssingWorkoutToMember(id, workoutId, coachId, startDate, true);
             }
 
             return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_WORKOUT_ASSIGNED);
@@ -615,7 +614,7 @@ namespace FitnessAppAPI.Data.Services.Teams
             return new ServiceActionResult<AssignedWorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, [await ModelMapper.MapToAssignedWorkoutModel(assignedWorkout, DBAccess)]);
         }
 
-        private async Task<ServiceActionResult<long>> AssingWorkoutToMember(long teamMemberId, long workoutId, string coachId, DateTime dateAssigned)
+        public async Task<ServiceActionResult<long>> AssingWorkoutToMember(long teamMemberId, long workoutId, string coachId, DateTime scheduledForDate, bool sendNotification)
         {
             // Find the TeamMember record
             var teamMemberRecord = DBAccess.TeamMembers.Where(tm => tm.Id == teamMemberId).FirstOrDefault();
@@ -626,19 +625,22 @@ namespace FitnessAppAPI.Data.Services.Teams
 
             var record = new AssignedWorkout
             {
-                ScheduledForDate = dateAssigned,
+                ScheduledForDate = scheduledForDate,
                 TemplateId = workoutId,
                 TeamMemberId = teamMemberId,
-                State = AssignedWorkoutState.ASSIGNED.ToString(),
+                State = AssignedWorkoutState.ASSIGNED.ToString()
             };
 
             await DBAccess.AssignedWorkouts.AddAsync(record);
             await DBAccess.SaveChangesAsync();
+            
+            if (sendNotification)
+            {
+                // Send notification
+                await notificationService.AddWorkoutAssignedNotification(coachId, teamMemberRecord.TeamId, teamMemberRecord.UserId, record.Id);
+            } 
 
-            // Send notification
-            await notificationService.AddWorkoutAssignedNotification(coachId, teamMemberRecord.TeamId, teamMemberRecord.UserId, record.Id);
-
-            return new ServiceActionResult<long>(HttpStatusCode.OK);
+            return new ServiceActionResult<long>(HttpStatusCode.OK, MSG_SUCCESS, [record.Id]);
         }
 
         /// <summary>

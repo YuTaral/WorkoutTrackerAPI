@@ -17,6 +17,8 @@ namespace FitnessAppAPI.Data.Services.Workouts.Models
 
         public DateTime? StartDateTime { get; set; }
 
+        public DateTime? ScheduledDateTime { get; set; }
+
         public DateTime? FinishDateTime { get; set; }
 
         public required bool Template { get; set; }
@@ -29,5 +31,7 @@ namespace FitnessAppAPI.Data.Services.Workouts.Models
         public required string Notes { get; set; }
 
         public required string WeightUnit { get; set; }
+
+        public required long AssignedWorkoutId { get; set; }
     }
 }

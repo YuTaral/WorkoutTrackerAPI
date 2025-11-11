@@ -1,6 +1,10 @@
 ﻿using FitnessAppAPI.Common;
 using FitnessAppAPI.Data.Models;
+using FitnessAppAPI.Data.Services.Notifications;
+using FitnessAppAPI.Data.Services.Teams;
+using FitnessAppAPI.Data.Services.Teams.Models;
 using FitnessAppAPI.Data.Services.TrainingPrograms.Models;
+using FitnessAppAPI.Data.Services.Workouts;
 using FitnessAppAPI.Data.Services.Workouts.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -9,9 +13,25 @@ using static FitnessAppAPI.Common.Constants;
 
 namespace FitnessAppAPI.Data.Services.TrainingPrograms
 {
-    public class TrainingPlanService(FitnessAppAPIContext DB) : BaseService(DB), ITrainingPlanService
+    public class TrainingPlanService(FitnessAppAPIContext DB, INotificationService nService, ITeamService tService, IWorkoutService wService) : BaseService(DB), ITrainingPlanService
     {
-        public async Task<ServiceActionResult<TrainingPlanModel>> AddTrainingProgram(Dictionary<string, string> requestData, string userId)
+
+        /// <summary>
+        ///     Notification service instance
+        /// </summary>
+        private readonly INotificationService notificationService = nService;
+
+        /// <summary>
+        ///     Team service instance
+        /// </summary>
+        private readonly ITeamService teamService = tService;
+
+        /// <summary>
+        ///     Workout service instance
+        /// </summary>
+        private readonly IWorkoutService workoutService = wService;
+
+        public async Task<ServiceActionResult<TrainingPlanModel>> AddTrainingPlan(Dictionary<string, string> requestData, string userId)
         {
             // Validate training program data
             var validationResult = ValidateTrainingProgram(requestData);
@@ -34,10 +54,11 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
             await DBAccess.TrainingPlans.AddAsync(trainingProgram);
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.Created, MSG_SUCCESS, [await ModelMapper.MapToTrainingProgramModel(trainingProgram, DBAccess)]);
+            return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.Created, MSG_SUCCESS,
+                [await ModelMapper.MapToTrainingPlanModel(trainingProgram, null, null, DBAccess)]);
         }
 
-        public async Task<ServiceActionResult<TrainingPlanModel>> DeleteTrainingProgram(long trainingProgramId, string userId)
+        public async Task<ServiceActionResult<TrainingPlanModel>> DeleteTrainingPlan(long trainingProgramId, string userId)
         {
             // Check if the neccessary data is provided
             if (trainingProgramId <= 0)
@@ -45,7 +66,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
                 return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.BadRequest, MSG_OBJECT_ID_NOT_PROVIDED);
             }
 
-            var trainingProgram = await CheckTrainingProgramExists(trainingProgramId, userId);
+            var trainingProgram = await CheckTrainingPlanExists(trainingProgramId, userId);
             if (trainingProgram == null)
             {
                 return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.NotFound, MSG_TRAINING_PROGRAM_NOT_FOUND);
@@ -57,7 +78,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
             return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.OK);
         }
 
-        public async Task<ServiceActionResult<TrainingPlanModel>> GetTrainingPrograms(string userId)
+        public async Task<ServiceActionResult<TrainingPlanModel>> GetTrainingPlans(string userId)
         {
             // Start the query
             var trainingPrograms = await DBAccess.TrainingPlans.Where(t => t.UserId == userId)
@@ -68,14 +89,14 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
             var returnData = new List<TrainingPlanModel>();
             foreach (var tp in trainingPrograms)
             {
-                var trainingProgramModel = await ModelMapper.MapToTrainingProgramModel(tp, DBAccess);
+                var trainingProgramModel = await ModelMapper.MapToTrainingPlanModel(tp, null, null, DBAccess);
                 returnData.Add(trainingProgramModel);
             }
 
             return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.OK, MSG_SUCCESS, returnData);
         }
 
-        public async Task<ServiceActionResult<TrainingPlanModel>> UpdateTrainingProgram(Dictionary<string, string> requestData, string userId)
+        public async Task<ServiceActionResult<TrainingPlanModel>> UpdateTrainingPlan(Dictionary<string, string> requestData, string userId)
         {
             // Validate training program data
             var validationResult = ValidateTrainingProgram(requestData);
@@ -88,7 +109,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
             // Validation passed, update the training program
             var trainingProgramData = validationResult.Data[0];
 
-            var record = await CheckTrainingProgramExists(trainingProgramData.Id, userId);
+            var record = await CheckTrainingPlanExists(trainingProgramData.Id, userId);
             if (record == null)
             {
                 return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.NotFound, MSG_TRAINING_PROGRAM_NOT_FOUND);
@@ -100,10 +121,11 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
             DBAccess.Entry(record).State = EntityState.Modified;
             await DBAccess.SaveChangesAsync();
 
-            return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.OK, MSG_SUCCESS, [trainingProgramData]);
+            return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.OK, MSG_SUCCESS, 
+                [await ModelMapper.MapToTrainingPlanModel(record, null, null, DBAccess)]);
         }
 
-        public async Task<ServiceActionResult<TrainingPlanModel>> AddTrainingDayToProgram(Dictionary<string, string> requestData, string userId)
+        public async Task<ServiceActionResult<TrainingPlanModel>> AddTrainingDayToPlan(Dictionary<string, string> requestData, string userId)
         {
             // Validate training program data
             var validationResult = ValidateTrainingDay(requestData);
@@ -118,7 +140,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
 
             var trainingDay = new TrainingDay
             {
-                TrainingPlanId = trainingDayData.ProgramId,
+                TrainingPlanId = trainingDayData.TrainingPlanId,
             };
 
             await DBAccess.TrainingDays.AddAsync(trainingDay);
@@ -141,11 +163,12 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
                 await DBAccess.SaveChangesAsync();
             }
 
-            var trainingProgram = await CheckTrainingProgramExists(trainingDay.TrainingPlanId, userId);
-            return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.Created, MSG_SUCCESS, [await ModelMapper.MapToTrainingProgramModel(trainingProgram, DBAccess)]);
+            var trainingProgram = await CheckTrainingPlanExists(trainingDay.TrainingPlanId, userId);
+            return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.Created, MSG_SUCCESS, 
+                [await ModelMapper.MapToTrainingPlanModel(trainingProgram, null, null, DBAccess)]);
         }
 
-        public async Task<ServiceActionResult<TrainingPlanModel>> UpdateTrainingDayToProgram(Dictionary<string, string> requestData, string userId)
+        public async Task<ServiceActionResult<TrainingPlanModel>> UpdateTrainingDayToPlan(Dictionary<string, string> requestData, string userId)
         {
             // Validate training program data
             var validationResult = ValidateTrainingDay(requestData);
@@ -184,9 +207,9 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
             await DBAccess.SaveChangesAsync();
 
 
-            var trainingProgram = await CheckTrainingProgramExists(trainingDayData.ProgramId, userId);
+            var trainingProgram = await CheckTrainingPlanExists(trainingDayData.TrainingPlanId, userId);
             return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.Created, MSG_SUCCESS, 
-                [await ModelMapper.MapToTrainingProgramModel(trainingProgram, DBAccess)]);
+                [await ModelMapper.MapToTrainingPlanModel(trainingProgram, null, null, DBAccess)]);
 
         }
         public async Task<ServiceActionResult<TrainingPlanModel>> DeleteTrainingDay(long trainingDayId, string userId)
@@ -206,9 +229,9 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
             DBAccess.TrainingDays.Remove(trainingDay);
             await DBAccess.SaveChangesAsync();
 
-            var trainingProgram = await CheckTrainingProgramExists(trainingDay.TrainingPlanId, userId);
+            var trainingProgram = await CheckTrainingPlanExists(trainingDay.TrainingPlanId, userId);
             return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.Created, MSG_SUCCESS,
-                [await ModelMapper.MapToTrainingProgramModel(trainingProgram, DBAccess)]);
+                [await ModelMapper.MapToTrainingPlanModel(trainingProgram, null, null, DBAccess)]);
         }
 
         public async Task<ServiceActionResult<BaseModel>> DeleteWorkoutToTrainingDayRecs(long templateId)
@@ -237,11 +260,137 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
                 return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_MEMBER_IDS_NOT_PROVIDED);
             }
 
+            if (!requestData.TryGetValue("startDate", out string? startDateString))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_DATE_FORMAT);
+            }
+
+            if (!DateTime.TryParse(startDateString, out DateTime startDate))
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.BadRequest, MSG_INVALID_DATE_FORMAT);
+            }
+
+            var trainingPlan = await CheckTrainingPlanExists(trainingPlanId, coachId);
+            if (trainingPlan == null)
+            {
+                return new ServiceActionResult<BaseModel>(HttpStatusCode.NotFound, MSG_TRAINING_PROGRAM_NOT_FOUND);
+            }
+
+            var trainingDays = await DBAccess.TrainingDays.Where(td => td.TrainingPlanId == trainingPlan.Id).ToListAsync();
+
             List<long> teamMemberIds = JsonConvert.DeserializeObject<List<long>>(memberIdsString!)!;
 
-            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK);
+            // Go through each member and assign the training plan
+            foreach (long teamMemberId in teamMemberIds)
+            {
+                var assignedTrainingPlan = new AssignedTrainingPlan
+                {
+                    ScheduledStartDate = startDate,
+                    StartDate = null,
+                    TeamMemberId = teamMemberId,
+                    TrainingPlanId = trainingPlanId,
+                };
+
+                await DBAccess.AssignedTrainingPlans.AddAsync(assignedTrainingPlan);
+                await DBAccess.SaveChangesAsync();
+
+                var teamMemberRec = await DBAccess.TeamMembers.Where(tm => tm.Id == teamMemberId).FirstOrDefaultAsync();
+                if (teamMemberRec == null)
+                {
+                    // MUST NOT happen, but just in case
+                    continue;
+                }
+
+                // Send notification to the team member
+                await notificationService.AddTrainingPlanAssignedNotification(coachId, teamMemberRec.TeamId, teamMemberRec.UserId, assignedTrainingPlan.Id);
+            }
+
+            return new ServiceActionResult<BaseModel>(HttpStatusCode.OK, MSG_TRAINING_PLAN_ASSIGNED);
         }
 
+        public async Task<ServiceActionResult<TrainingPlanModel>> GetTrainingPlan(long assignedTrainingPlanId)
+        {
+            if (assignedTrainingPlanId <= 0)
+            {
+                return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.BadRequest, MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            var assignedPlanRecord = await DBAccess.AssignedTrainingPlans.Where(p => p.Id == assignedTrainingPlanId).FirstOrDefaultAsync();
+            if (assignedPlanRecord == null)
+            {
+                return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.BadRequest, MSG_OBJECT_ID_NOT_PROVIDED);
+            }
+
+            var trainingPlanRecord = await CheckTrainingPlanExists(assignedPlanRecord.TrainingPlanId);
+            if (trainingPlanRecord == null)
+            {
+                return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.NotFound, MSG_TRAINING_PROGRAM_NOT_FOUND);
+            }
+
+            return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.OK, MSG_SUCCESS, 
+                [await ModelMapper.MapToTrainingPlanModel(trainingPlanRecord, assignedPlanRecord.ScheduledStartDate, assignedTrainingPlanId, DBAccess)]);
+        }
+
+        public async Task<ServiceActionResult<TrainingPlanModel>> StartTrainingPlan(Dictionary<string, string> requestData, string userId)
+        {
+            // Validate training plan is provided
+            var validationResult = ValidateTrainingProgram(requestData);
+            if (!validationResult.IsSuccess() || validationResult.Data.Count == 0)
+            {
+                return validationResult;
+            }
+
+            var trainingPlan = validationResult.Data[0];
+
+            // Validate member record and assigned training plan exist for the user
+            var teamMemberRecord = await DBAccess.TeamMembers.Where(t => t.UserId == userId).FirstOrDefaultAsync();
+            if (teamMemberRecord == null)
+            {
+                return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.BadRequest, MSG_MEMBER_NOT_FOUND);
+            }
+
+            var assignedTrainingPlanRecord = await DBAccess.AssignedTrainingPlans
+                                        .Where(p => p.Id == trainingPlan.AssignedTrainingPlanId)
+                                        .FirstOrDefaultAsync();
+
+            if (assignedTrainingPlanRecord == null) {
+                return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.BadRequest, MSG_ASSIGNED_TRAINING_PLAN_NOT_FOUND);
+            }
+
+            var teamRecord = await DBAccess.Teams.Where(t => t.Id == teamMemberRecord.TeamId).FirstOrDefaultAsync();
+            if (teamRecord == null)
+            {
+                return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.BadRequest, MSG_TEAM_DOES_NOT_EXIST);
+            }
+
+            // Mark the training plan as started and create all workouts as assigned workout records
+            assignedTrainingPlanRecord.StartDate = DateTime.UtcNow;
+            DBAccess.Entry(assignedTrainingPlanRecord).State = EntityState.Modified;
+
+            var scheduledForDate = trainingPlan.ScheduledStartDate ?? throw new InvalidOperationException(MSG_INVALID_DATE_FORMAT);
+
+            foreach (var trainingDay in trainingPlan.TrainingDays)
+            {
+                foreach (var workout in trainingDay.Workouts)
+                {
+                    // Assign the workout
+                    var result = await teamService.AssingWorkoutToMember(teamMemberRecord.Id, workout.Id, teamRecord.UserId, scheduledForDate, false);
+                   
+                    if (result.IsSuccess() && result.Data.Count > 0)
+                    {
+                        // Auto create workout
+                        await workoutService.AddWorkout(workout, scheduledForDate, result.Data[0], teamMemberRecord.UserId);
+                    }
+                }
+
+                // Add one day
+                scheduledForDate = scheduledForDate.AddDays(1);
+            }
+
+            await DBAccess.SaveChangesAsync();
+
+            return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.OK);
+        }
 
         /// <summary>
         ///    Perform validations whether the provided workout training data is valid
@@ -253,7 +402,7 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
         private static ServiceActionResult<TrainingPlanModel> ValidateTrainingProgram(Dictionary<string, string> requestData)
         {
             // Check if the neccessary data is provided
-            if (!requestData.TryGetValue("trainingProgram", out string? serializedTrainingProgram))
+            if (!requestData.TryGetValue("trainingPlan", out string? serializedTrainingProgram))
             {
                 return new ServiceActionResult<TrainingPlanModel>(HttpStatusCode.BadRequest, MSG_TRAINING_DATA_ADD_FAIL_NO_DATA);
             }
@@ -313,9 +462,21 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms
         /// <param name="userId">
         ///     The userId owner of the training program
         /// </param>
-        private async Task<TrainingPlan?> CheckTrainingProgramExists(long id, string userId)
+        private async Task<TrainingPlan?> CheckTrainingPlanExists(long id, string userId)
         {
             return await DBAccess.TrainingPlans.Where(t => t.Id == id && t.UserId == userId).FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        ///     Perform a check whether the training exists, returns training program object if it exists,
+        ///     null otherwise
+        /// </summary>
+        /// <param name="id">
+        ///     The workout id
+        /// </param>
+        private async Task<TrainingPlan?> CheckTrainingPlanExists(long id)
+        {
+            return await DBAccess.TrainingPlans.Where(t => t.Id == id).FirstOrDefaultAsync();
         }
 
         /// <summary>

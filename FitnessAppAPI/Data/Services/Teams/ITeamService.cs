@@ -147,6 +147,26 @@ namespace FitnessAppAPI.Data.Services.Teams
         public Task<ServiceActionResult<long>> AssignWorkout(Dictionary<string, string> requestData, string coachId);
 
         /// <summary>
+        ///     Add record in AssignedWorkouts table for the specified member
+        /// </summary>
+        /// <param name="teamMemberId">
+        ///     The team member record id
+        /// </param>
+        /// <param name="workoutId">
+        ///     The workout template id
+        /// </param>
+        /// <param name="coachId">
+        ///     The coach user id
+        /// </param>
+        /// <param name="scheduledForDate">
+        ///     Scheduled for date
+        /// </param>
+        /// <param name="sendNotification">
+        ///     True to send notification
+        /// </param>
+        public Task<ServiceActionResult<long>> AssingWorkoutToMember(long teamMemberId, long workoutId, string coachId, DateTime scheduledForDate, bool sendNotification);
+
+        /// <summary>
         ///    Delete the assigned workout records
         /// </summary>
         /// <param name="templateId">

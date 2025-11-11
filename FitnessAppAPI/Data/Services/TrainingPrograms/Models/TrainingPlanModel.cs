@@ -18,5 +18,9 @@ namespace FitnessAppAPI.Data.Services.TrainingPrograms.Models
         public required string Description { get; set; }
 
         public required List<TrainingDayModel> TrainingDays { get; set; }
+
+        public required DateTime? ScheduledStartDate { get; set; }
+
+        public required long? AssignedTrainingPlanId { get; set; }
     }
 }

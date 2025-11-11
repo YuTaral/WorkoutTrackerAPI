@@ -19,6 +19,8 @@ namespace FitnessAppAPI.Data.Models
         [ForeignKey("AspNetUser")]
         public required string UserId { get; set; }
 
+        public DateTime? ScheduledDateTime { get; set; }
+
         public DateTime? StartDateTime { get; set; }
 
         public DateTime? FinishDateTime { get; set; }
@@ -32,5 +34,7 @@ namespace FitnessAppAPI.Data.Models
         public required string Notes { get; set; }
         
         public required string WeightUnit { get; set; }
+
+        public required long? AssignedFromWorkoutId { get; set; }
     }
 }

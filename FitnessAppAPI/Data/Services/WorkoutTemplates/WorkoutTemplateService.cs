@@ -46,7 +46,8 @@ namespace FitnessAppAPI.Data.Services.WorkoutTemplates
                 Template = "Y",
                 DurationSeconds = null,
                 Notes = workoutData.Notes,
-                WeightUnit = workoutData.WeightUnit
+                WeightUnit = workoutData.WeightUnit,
+                AssignedFromWorkoutId = null
             };
 
             await DBAccess.Workouts.AddAsync(template);
