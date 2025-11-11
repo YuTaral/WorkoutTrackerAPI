@@ -87,9 +87,12 @@ namespace FitnessAppAPI.Data.Services.Workouts
         /// <param name="startDate">
         ///     The start date
         /// </param>
+        ///  <param name="showScheduled">
+        ///     True to show future scheduled workouts, false otherwise
+        /// </param>
         /// <param name="userId">
         ///     The user id
         /// </param>
-        public Task<ServiceActionResult<WorkoutModel>> GetLatestWorkouts(string startDate, string userId);
+        public Task<ServiceActionResult<WorkoutModel>> GetLatestWorkouts(string startDate, bool showScheduled, string userId);
     }
 }

@@ -62,9 +62,9 @@ namespace FitnessAppAPI.Controllers
         /// </summary>
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult> GetLatestWorkouts([FromQuery] string startDate)
+        public async Task<ActionResult> GetLatestWorkouts([FromQuery] string startDate, [FromQuery] bool showScheduled)
         {
-            return await SendResponse(await service.GetLatestWorkouts(startDate, GetUserId()));
+            return await SendResponse(await service.GetLatestWorkouts(startDate, showScheduled, GetUserId()));
         }
     }
 }

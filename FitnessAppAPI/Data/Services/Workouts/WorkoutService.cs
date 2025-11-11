@@ -213,14 +213,18 @@ namespace FitnessAppAPI.Data.Services.Workouts
             return new ServiceActionResult<WorkoutModel>(HttpStatusCode.OK, MSG_SUCCESS, [await ModelMapper.MapToWorkoutModel(workout, DBAccess)]);
         }
 
-        public async Task<ServiceActionResult<WorkoutModel>> GetLatestWorkouts(string startDate, string userId) {
+        public async Task<ServiceActionResult<WorkoutModel>> GetLatestWorkouts(string startDate, bool showScheduled, string userId) {
             if (!DateTime.TryParse(startDate, out DateTime date))
             {
                 return new ServiceActionResult<WorkoutModel>(HttpStatusCode.BadRequest, MSG_INVALID_DATE_FORMAT);
             }
 
+            var now = DateTime.UtcNow;
+
             // Start the query
-            var workouts = await DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "N" && w.ScheduledDateTime >= date)
+            var workouts = await DBAccess.Workouts.Where(w => w.UserId == userId && w.Template == "N" && 
+                                                            w.ScheduledDateTime >= date &&
+                                                            (showScheduled || w.ScheduledDateTime <= now || w.StartDateTime != null))
                                                     .OrderByDescending(w => w.ScheduledDateTime)
                                                     .ToListAsync();
 
